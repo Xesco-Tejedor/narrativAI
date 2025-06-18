@@ -624,9 +624,33 @@
             narrative += `${motivation.charAt(0).toUpperCase() + motivation.slice(1)}. `;
             narrative += `${obstacle.charAt(0).toUpperCase() + obstacle.slice(1)}. `;
             
-            if (Math.random() > 0.6) {
+            // Expandir para alcanzar ~200 palabras manteniendo el estilo minimalista
+            const details = [
+                'Cada día que pasa, la situación se vuelve más compleja.',
+                'Las decisiones simples ahora requieren una reflexión profunda.',
+                'El entorno familiar se transforma en algo desconocido.',
+                'Los pequeños gestos adquieren un significado inesperado.',
+                'El silencio entre las palabras dice más que las conversaciones.',
+                'Las rutinas diarias se convierten en rituales de supervivencia.',
+                'Cada objeto en el espacio cuenta una historia diferente.',
+                'La memoria juega trucos que revelan verdades ocultas.'
+            ];
+            
+            narrative += ` ${getRandomFromArray(details)} `;
+            narrative += `${getRandomFromArray(details)} `;
+            
+            if (theme) {
+                narrative += `En el fondo, todo esto revela cómo ${theme}. `;
+            }
+            
+            narrative += `${getRandomFromArray(details)} `;
+            
+            if (Math.random() > 0.4) {
                 narrative += `${twist.charAt(0).toUpperCase() + twist.slice(1)}.`;
             }
+            
+            narrative += ` ${getRandomFromArray(details)} `;
+            narrative += `Al final, lo que parece simple en la superficie esconde capas de complejidad que solo se revelan con el tiempo y la paciencia de observar.`;
             
             return narrative;
         };
@@ -639,17 +663,26 @@
                 'tejiendo los hilos de una realidad fragmentada'
             ];
             
-            let narrative = `En la vastedad de ${setting}, ${character} ${getRandomFromArray(elaborateDescriptors)}. `;
-            narrative += `Su alma, impulsada por ${motivation.toLowerCase()}, se encuentra ante el laberinto que representa ${obstacle.toLowerCase()}. `;
+            let narrative = `En la vastedad ornamentada de ${setting}, ${character} se encuentra ${getRandomFromArray(elaborateDescriptors)}. `;
+            narrative += `Su alma, impulsada por la fuerza arrolladora de ${motivation.toLowerCase()}, se encuentra ante el laberinto intrincado que representa ${obstacle.toLowerCase()}. `;
+            
+            // Expansión barroca rica en detalles
+            narrative += `Cada paso que da resuena con ecos de historias anteriores, mientras que las sombras danzan al compás de secretos susurrados por generaciones. `;
+            narrative += `El aire mismo parece espeso con la carga de expectativas no cumplidas y promesas que aguardan su momento de revelación. `;
             
             if (primaryTheme && secondaryTheme) {
-                narrative += `La narrativa se despliega como un tapiz donde ${primaryTheme} se entrelaza con ${secondaryTheme}, `;
-                narrative += `revelando las capas ocultas de la experiencia humana. `;
+                narrative += `La narrativa se despliega como un tapiz majestuoso donde ${primaryTheme} se entrelaza con ${secondaryTheme}, `;
+                narrative += `revelando las capas ocultas de la experiencia humana con una complejidad que desafía toda comprensión simple. `;
             }
             
-            if (Math.random() > 0.3) {
-                narrative += `Sin embargo, el destino reserva una revelación: ${twist.toLowerCase()}.`;
+            narrative += `Los detalles aparentemente insignificantes cobran vida propia: el crujido de un suelo que guarda memorias, la manera en que la luz filtra verdades a través de cristales empañados por el tiempo. `;
+            narrative += `Todo se conecta en una sinfonía de elementos que convergen hacia un punto de transformación inevitable. `;
+            
+            if (Math.random() > 0.2) {
+                narrative += `Sin embargo, el destino, en su magnificencia cruel y hermosa, reserva una revelación que transformará para siempre la comprensión de todo lo vivido: ${twist.toLowerCase()}.`;
             }
+            
+            narrative += ` En este momento de claridad deslumbrante, todas las piezas del rompecabezas encuentran su lugar perfecto.`;
             
             return narrative;
         };
@@ -660,13 +693,33 @@
                 'dialoga con los ecos', 'se funde con la bruma', 'escucha los latidos del tiempo'
             ];
             
-            let narrative = `${character.charAt(0).toUpperCase() + character.slice(1)} ${getRandomFromArray(poeticVerbs)} en ${setting}. `;
-            narrative += `Su corazón late al ritmo de ${motivation.toLowerCase()}, `;
-            narrative += `mientras ${obstacle.toLowerCase()} se alza como una montaña de cristal ante sus pasos. `;
+            const poeticMetaphors = [
+                'como pétalos que caen en un estanque de memorias',
+                'cual notas perdidas de una melodía antigua',
+                'como hilos de luz tejiendo nuevos amaneceres',
+                'cual palabras escritas en la arena del tiempo',
+                'como susurros que despiertan a los árboles dormidos'
+            ];
             
-            if (Math.random() > 0.4) {
-                narrative += `Y cuando las estrellas se alinean, descubre que ${twist.toLowerCase()}.`;
+            let narrative = `${character.charAt(0).toUpperCase() + character.slice(1)} ${getRandomFromArray(poeticVerbs)} en la vastedad poética de ${setting}. `;
+            narrative += `Su corazón, tambor sagrado de la existencia, late al ritmo eterno de ${motivation.toLowerCase()}, `;
+            narrative += `mientras ${obstacle.toLowerCase()} se alza como una montaña de cristal y sueños ante sus pasos. `;
+            
+            narrative += `Cada respiración es un verso escrito en el aire, cada mirada una estrofa que encuentra eco en rincones olvidados del alma. `;
+            narrative += `El tiempo fluye ${getRandomFromArray(poeticMetaphors)}, llevando consigo las esperanzas y los temores que danzan en espiral. `;
+            
+            if (theme) {
+                narrative += `En este teatro de emociones, ${theme} se revela como la verdad central que ilumina cada escena. `;
             }
+            
+            narrative += `Las estaciones del corazón cambian con la cadencia de los días, y cada momento se convierte en una oportunidad de renacimiento. `;
+            narrative += `Los colores del amanecer pintan nuevas posibilidades en el lienzo de lo que está por venir. `;
+            
+            if (Math.random() > 0.3) {
+                narrative += `Y cuando las estrellas, cómplices silenciosas del destino, se alinean en perfecta armonía, descubre que ${twist.toLowerCase()}.`;
+            }
+            
+            narrative += ` En ese instante de revelación, el universo entero se detiene para contemplar la belleza de la transformación.`;
             
             return narrative;
         };
@@ -677,13 +730,33 @@
                 'Desde el silencio de su alma', 'En la honestidad de sus temores'
             ];
             
-            let narrative = `${getRandomFromArray(intimateConnectors)}, ${character} habita ${setting}. `;
-            narrative += `${motivation.charAt(0).toUpperCase() + motivation.slice(1)}, `;
-            narrative += `aunque ${obstacle.toLowerCase()} le recuerda constantemente su fragilidad humana. `;
+            const personalReflections = [
+                'Se permite, por primera vez en mucho tiempo, sentir sin juzgarse',
+                'Las lágrimas no derramadas encuentran finalmente su camino',
+                'Reconoce en su propia voz ecos de voces que creyó olvidadas',
+                'Descubre que la soledad puede ser una compañía apacible',
+                'Se da cuenta de que respirar conscientemente es un acto de resistencia'
+            ];
             
-            if (Math.random() > 0.5) {
-                narrative += `Es entonces cuando comprende que ${twist.toLowerCase()}.`;
+            let narrative = `${getRandomFromArray(intimateConnectors)}, ${character} habita el espacio íntimo de ${setting}. `;
+            narrative += `${motivation.charAt(0).toUpperCase() + motivation.slice(1)}, `;
+            narrative += `aunque ${obstacle.toLowerCase()} le recuerda constantemente su vulnerabilidad humana, esa fragilidad que todos compartimos en secreto. `;
+            
+            narrative += `${getRandomFromArray(personalReflections)}. `;
+            narrative += `Hay noches en las que las paredes parecen escuchar, y días en los que el silencio tiene más sabiduría que cualquier consejo. `;
+            
+            if (theme) {
+                narrative += `En esta intimidad sin máscaras, ${theme} se revela no como una lección, sino como una verdad vivida. `;
             }
+            
+            narrative += `${getRandomFromArray(personalReflections)}. `;
+            narrative += `Las pequeñas victorias diarias - levantarse, caminar, elegir esperanza por encima del miedo - se convierten en actos heroicos que nadie más puede ver. `;
+            
+            if (Math.random() > 0.3) {
+                narrative += `Es en uno de esos momentos de absoluta honestidad consigo mismo cuando comprende que ${twist.toLowerCase()}.`;
+            }
+            
+            narrative += ` Y en esa comprensión, encuentra una paz que no sabía que estaba buscando.`;
             
             return narrative;
         };
@@ -706,7 +779,7 @@
         };
 
         const craftOriginalNarrative = (character, setting, motivation, obstacle, primaryTheme, secondaryTheme, twist, dominanceLevel) => {
-            // Estructura original más sofisticada
+            // Estructura original más sofisticada para ~200 palabras
             const narrativeStarters = [
                 'Existe un momento en el que',
                 'Hay algo inquietante en cómo',
@@ -715,26 +788,43 @@
                 'La verdad es que'
             ];
             
+            const developmentPhases = [
+                'Lo que comienza como una situación aparentemente simple se revela como algo mucho más complejo',
+                'Cada decisión tomada abre nuevas puertas mientras cierra otras de forma irreversible',
+                'Los patrones que parecían establecidos empiezan a mostrar grietas que nadie había notado antes',
+                'Las relaciones familiares se transforman bajo la presión de circunstancias extraordinarias',
+                'El entorno físico parece responder a los cambios emocionales de formas inexplicables'
+            ];
+            
             let narrative = `${getRandomFromArray(narrativeStarters)} ${character} ${getRandomFromArray(['habita', 'pertenece a', 'se encuentra perdido en', 'redefine', 'cuestiona'])} ${setting}. `;
             narrative += `${motivation.charAt(0).toUpperCase() + motivation.slice(1)}, `;
             narrative += `sin embargo, ${obstacle.toLowerCase()}. `;
 
+            narrative += `${getRandomFromArray(developmentPhases)}. `;
+            narrative += `Los días se suceden con una intensidad creciente, donde cada conversación casual puede convertirse en un punto de inflexión. `;
+
             if (dominanceLevel > 20) {
                 if (primaryTheme) {
-                    narrative += `La historia revela cómo ${primaryTheme}, `;
+                    narrative += `La historia revela progresivamente cómo ${primaryTheme}, `;
+                    narrative += `manifestándose en detalles que van desde lo cotidiano hasta lo extraordinario. `;
                 }
                 if (secondaryTheme && Math.random() > 0.3) {
-                    narrative += `mientras que sutilmente ${secondaryTheme}. `;
+                    narrative += `Mientras que sutilmente, casi imperceptiblemente, ${secondaryTheme}. `;
                 }
             } else {
                 if (primaryTheme && secondaryTheme) {
-                    narrative += `La narrativa equilibra ${primaryTheme} con ${secondaryTheme}. `;
+                    narrative += `La narrativa equilibra magistralmente ${primaryTheme} con ${secondaryTheme}, `;
+                    narrative += `creando una tensión creativa que impulsa cada escena hacia nuevos territorios emocionales. `;
                 }
             }
 
-            if (Math.random() > 0.4) {
-                narrative += `Todo cambia cuando comprende que ${twist}.`;
+            narrative += `${getRandomFromArray(developmentPhases)}. `;
+
+            if (Math.random() > 0.3) {
+                narrative += `Todo cambia definitivamente cuando comprende que ${twist}. `;
             }
+
+            narrative += `En ese momento de claridad, las piezas dispersas del rompecabezas encuentran su lugar perfecto, revelando una imagen que trasciende cualquier expectativa inicial.`;
 
             return narrative;
         };
@@ -776,8 +866,9 @@
             const elements = appState.customElements.split(',').map(e => e.trim()).filter(e => e.length > 0);
             if (elements.length === 0) return baseNarrative;
 
+            // Seleccionar 1-3 elementos para usar
             const selectedElements = [];
-            const numElements = Math.min(Math.floor(Math.random() * 2) + 1, elements.length);
+            const numElements = Math.min(Math.floor(Math.random() * 3) + 1, elements.length);
             
             for (let i = 0; i < numElements; i++) {
                 const randomElement = getRandomFromArray(elements);
@@ -788,26 +879,80 @@
 
             let enhancedNarrative = baseNarrative;
 
+            // Métodos de integración más directos y literales
             selectedElements.forEach((element, index) => {
+                // Extraer palabras clave del elemento personalizado para usarlas más literalmente
+                const cleanElement = element.toLowerCase().trim();
+                
+                // Métodos de integración que preservan mejor las palabras exactas
                 const integrationMethods = [
-                    () => enhancedNarrative = enhancedNarrative.replace(/se encuentra en/, `se encuentra con ${element} en`),
-                    () => enhancedNarrative = enhancedNarrative.replace(/Todo se complica/, `La presencia de ${element} complica todo aún más`),
-                    () => enhancedNarrative += ` ${element.charAt(0).toUpperCase() + element.slice(1)} se convierte en un elemento crucial de la historia.`,
+                    // Método 1: Reemplazar ubicación o contexto
                     () => {
-                        const sentences = enhancedNarrative.split('. ');
-                        if (sentences.length > 2) {
-                            const insertIndex = Math.floor(sentences.length / 2);
-                            sentences[insertIndex] += ` junto con ${element}`;
-                            enhancedNarrative = sentences.join('. ');
+                        if (enhancedNarrative.includes('se encuentra en')) {
+                            enhancedNarrative = enhancedNarrative.replace(/se encuentra en ([^.]+)/, `se encuentra en $1, donde descubre ${element}`);
+                        } else if (enhancedNarrative.includes('habita')) {
+                            enhancedNarrative = enhancedNarrative.replace(/habita ([^.]+)/, `habita $1 junto a ${element}`);
+                        }
+                    },
+                    
+                    // Método 2: Integrar como elemento central del conflicto
+                    () => {
+                        if (enhancedNarrative.includes('sin embargo,') || enhancedNarrative.includes('pero ')) {
+                            enhancedNarrative = enhancedNarrative.replace(/(sin embargo,|pero )/, `$1 ${element} representa el obstáculo que `);
+                        } else {
+                            const sentences = enhancedNarrative.split('. ');
+                            if (sentences.length > 1) {
+                                sentences[1] = `${element.charAt(0).toUpperCase() + element.slice(1)} complica su situación, ya que ${sentences[1].toLowerCase()}`;
+                                enhancedNarrative = sentences.join('. ');
+                            }
+                        }
+                    },
+                    
+                    // Método 3: Como herramienta o aliado
+                    () => {
+                        if (enhancedNarrative.includes('descubre que')) {
+                            enhancedNarrative = enhancedNarrative.replace(/descubre que/, `utiliza ${element} para descubrir que`);
+                        } else {
+                            const sentences = enhancedNarrative.split('. ');
+                            if (sentences.length > 2) {
+                                const insertIndex = Math.floor(sentences.length / 2);
+                                sentences.splice(insertIndex, 0, `${element.charAt(0).toUpperCase() + element.slice(1)} se convierte en su única esperanza`);
+                                enhancedNarrative = sentences.join('. ');
+                            }
+                        }
+                    },
+                    
+                    // Método 4: Integración directa como elemento central
+                    () => {
+                        const firstSentence = enhancedNarrative.split('.')[0];
+                        const restOfNarrative = enhancedNarrative.substring(firstSentence.length + 1);
+                        enhancedNarrative = `${firstSentence} con ${element}.${restOfNarrative}`;
+                    },
+                    
+                    // Método 5: Como revelación final
+                    () => {
+                        if (enhancedNarrative.includes('cuando')) {
+                            enhancedNarrative = enhancedNarrative.replace(/cuando ([^.]+)/, `cuando descubre que ${element} $1`);
+                        } else {
+                            enhancedNarrative += ` Todo cambia cuando ${element} revela su verdadera naturaleza.`;
                         }
                     }
                 ];
 
+                // Intentar métodos de integración hasta que uno funcione
                 const method = getRandomFromArray(integrationMethods);
+                const originalNarrative = enhancedNarrative;
+                
                 try {
                     method();
+                    // Verificar que realmente se integró el elemento
+                    if (!enhancedNarrative.toLowerCase().includes(cleanElement.substring(0, Math.min(10, cleanElement.length)))) {
+                        // Si no se integró bien, usar método directo
+                        enhancedNarrative = originalNarrative + ` ${element.charAt(0).toUpperCase() + element.slice(1)} se vuelve fundamental en esta historia.`;
+                    }
                 } catch (e) {
-                    enhancedNarrative += ` ${element.charAt(0).toUpperCase() + element.slice(1)} juega un papel importante en el desarrollo.`;
+                    // Método de respaldo que garantiza la inclusión literal
+                    enhancedNarrative = originalNarrative + ` En el centro de todo está ${element}, que define el destino del protagonista.`;
                 }
             });
 
@@ -842,9 +987,11 @@
                 const elements = {
                     personajes: [],
                     lugares: [],
-                    objetos: []
+                    objetos: [],
+                    customElements: []
                 };
 
+                // Extraer personajes del texto
                 const personajePatterns = [
                     /un[a]? ([^,\.]+?)(?= que|,|\.|$)/g,
                     /el ([^,\.]+?)(?= que|,|\.|$)/g,
@@ -863,9 +1010,22 @@
                     }
                 });
 
+                // Priorizar elementos personalizados del usuario
                 if (appState.customElements.trim()) {
-                    const customEls = appState.customElements.split(',').map(e => e.trim());
-                    elements.objetos.push(...customEls.slice(0, 3));
+                    const customEls = appState.customElements.split(',').map(e => e.trim()).filter(e => e.length > 0);
+                    
+                    // Usar los elementos personalizados tal como los escribió el usuario
+                    elements.customElements = customEls;
+                    
+                    // También extraer palabras clave de los elementos personalizados para títulos
+                    customEls.forEach(element => {
+                        // Extraer sustantivos principales del elemento personalizado
+                        const words = element.split(' ').filter(word => word.length > 3);
+                        elements.objetos.push(...words.slice(0, 2)); // Primeras 2 palabras significativas
+                        
+                        // Añadir el elemento completo también
+                        elements.objetos.push(element);
+                    });
                 }
 
                 return elements;
@@ -878,24 +1038,37 @@
 
             let finalTitle = selectedPattern;
 
+            // Priorizar elementos personalizados del usuario para los títulos
+            const getCustomElementForTitle = () => {
+                if (keyElements.customElements.length > 0) {
+                    const element = getRandomFromArray(keyElements.customElements);
+                    // Extraer la palabra principal del elemento personalizado
+                    const mainWord = element.split(' ')[0];
+                    return mainWord.length > 2 ? mainWord : element;
+                }
+                return null;
+            };
+
+            const customElement = getCustomElementForTitle();
+            
             const replacements = {
-                '[sustantivo]': keyElements.objetos[0] || keyElements.personajes[0] || 'secreto',
-                '[lugar]': 'las sombras',
+                '[sustantivo]': customElement || keyElements.objetos[0] || keyElements.personajes[0] || 'secreto',
+                '[lugar]': customElement ? `${customElement}` : 'las sombras',
                 '[personaje]': keyElements.personajes[0] || 'protagonista',
-                '[objeto]': keyElements.objetos[0] || 'misterio',
-                '[evento]': 'el despertar',
-                '[nombre]': `${Math.random().toString(36).substr(2, 6).toUpperCase()}`,
+                '[objeto]': customElement || keyElements.objetos[0] || 'misterio',
+                '[evento]': customElement ? `el despertar de ${customElement}` : 'el despertar',
+                '[nombre]': customElement || `${Math.random().toString(36).substr(2, 6).toUpperCase()}`,
                 '[código]': `${Math.random().toString(36).substr(2, 4).toUpperCase()}-${Math.floor(Math.random() * 99)}`,
                 '[número]': Math.floor(Math.random() * 99) + 1,
-                '[tiempo]': 'medianoche',
-                '[tecnología]': 'conexión',
-                '[designación]': 'Odisea',
-                '[término]': 'neural',
-                '[decisión]': 'la verdad',
+                '[tiempo]': customElement ? `${customElement}` : 'medianoche',
+                '[tecnología]': customElement || 'conexión',
+                '[designación]': customElement || 'Odisea',
+                '[término]': customElement || 'neural',
+                '[decisión]': customElement ? `${customElement}` : 'la verdad',
                 '[apellido]': 'Sterling',
-                '[responsabilidad]': 'las decisiones',
-                '[vida]': 'una elección',
-                '[cambio]': 'transformación',
+                '[responsabilidad]': customElement ? `${customElement}` : 'las decisiones',
+                '[vida]': customElement ? `${customElement}` : 'una elección',
+                '[cambio]': customElement || 'transformación',
                 '[período]': 'transición',
                 '[familia]': 'los Morrison'
             };
@@ -906,15 +1079,32 @@
                 }
             });
 
+            // Títulos híbridos que incorporan elementos personalizados
             if (Math.abs(appState.weight1 - appState.weight2) <= 15) {
-                const hybridTitles = [
-                    `${keyElements.personajes[0] || 'El Elegido'} de Dos Mundos`,
-                    `Entre Sombras y Destino`,
-                    `La Llave de los Secretos`,
-                    `El Último Guardián`
-                ];
+                const hybridTitles = [];
                 
-                if (Math.random() > 0.6) {
+                if (keyElements.customElements.length > 0) {
+                    const mainElement = keyElements.customElements[0];
+                    const secondElement = keyElements.customElements[1];
+                    
+                    hybridTitles.push(
+                        `${keyElements.personajes[0] || 'El Elegido'} y ${mainElement}`,
+                        `Entre ${mainElement} ${secondElement ? `y ${secondElement}` : 'y Destino'}`,
+                        `La Historia de ${mainElement}`,
+                        `El ${mainElement} Perdido`,
+                        `Cuando ${mainElement} Despierta`,
+                        `Los Secretos de ${mainElement}`
+                    );
+                } else {
+                    hybridTitles.push(
+                        `${keyElements.personajes[0] || 'El Elegido'} de Dos Mundos`,
+                        `Entre Sombras y Destino`,
+                        `La Llave de los Secretos`,
+                        `El Último Guardián`
+                    );
+                }
+                
+                if (Math.random() > 0.5) {
                     finalTitle = getRandomFromArray(hybridTitles);
                 }
             }
@@ -949,7 +1139,8 @@
                     '- ESTILO PROPIO: Desarrolla una voz narrativa distintiva y personal',
                     '- EVITA FRASES REBUSCADAS: Busca claridad expresiva sin artificiosidad',
                     '- SENTIDO EN CADA LÍNEA: Cada frase debe aportar significado y valor',
-                    '- FLORECER IDEAS: Permite que las ideas se desarrollen de forma natural y orgánica'
+                    '- FLORECER IDEAS: Permite que las ideas se desarrollen de forma natural y orgánica',
+                    '- USAR ELEMENTOS EXACTOS: Incorpora las palabras y conceptos específicos del usuario de forma literal y prominente'
                 ];
                 
                 const avoidanceDirectives = appState.avoidCliches ? 
@@ -972,13 +1163,16 @@ SINOPSIS ORIGINAL:
 
 INSTRUCCIONES ESPECÍFICAS:
 1. Reescribe con un estilo ${appState.narrativeStyle} y profundidad ${appState.thematicDepth}
-2. Cada palabra debe justificar su presencia
-3. Busca perspectivas narrativas inesperadas
-4. Desarrolla una voz distintiva que sea única y memorable
-5. Integra las ideas de forma que florezcan naturalmente
-6. Mantén el idioma español pero con personalidad propia
+2. LONGITUD OBJETIVO: Aproximadamente 200 palabras (ni menos de 180, ni más de 220)
+3. Cada palabra debe justificar su presencia
+4. Busca perspectivas narrativas inesperadas
+5. Desarrolla una voz distintiva que sea única y memorable
+6. Integra las ideas de forma que florezcan naturalmente
+7. CRÍTICO: Si hay elementos personalizados, úsalos de forma literal y prominente en la narrativa
+8. Los elementos personalizados deben aparecer con sus palabras exactas o muy similares
+9. Mantén el idioma español pero con personalidad propia
 
-VERSIÓN MEJORADA:`;
+VERSIÓN MEJORADA (200 palabras aproximadamente):`;
 
                 let response;
                 
@@ -994,7 +1188,7 @@ VERSIÓN MEJORADA:`;
                         body: JSON.stringify({
                             model: appState.selectedModel,
                             messages: [{ role: 'user', content: prompt }],
-                            max_tokens: 600,
+                            max_tokens: 400,
                             temperature: 0.8,
                             top_p: 0.9,
                         }),
@@ -1009,7 +1203,7 @@ VERSIÓN MEJORADA:`;
                         body: JSON.stringify({
                             model: 'gpt-4',
                             messages: [{ role: 'user', content: prompt }],
-                            max_tokens: 600,
+                            max_tokens: 400,
                             temperature: 0.8,
                         }),
                     });
@@ -1083,17 +1277,42 @@ VERSIÓN MEJORADA:`;
             if (narrative.includes('colonia')) imagePrompt += ', sci-fi space colony';
             if (narrative.includes('estación')) imagePrompt += ', space station or train station';
             
-            // Añadir elementos personalizados
+            // Añadir elementos personalizados de forma más literal y directa
             if (appState.customElements.trim()) {
-                const elements = appState.customElements.toLowerCase();
-                if (elements.includes('espejo')) imagePrompt += ', ornate magical mirror';
-                if (elements.includes('reloj')) imagePrompt += ', antique clockwork mechanism';
-                if (elements.includes('libro')) imagePrompt += ', ancient leather-bound book';
-                if (elements.includes('llave')) imagePrompt += ', mysterious ornate key';
-                if (elements.includes('robot')) imagePrompt += ', advanced robotic figure';
-                if (elements.includes('dragón')) imagePrompt += ', majestic dragon creature';
-                if (elements.includes('cristal')) imagePrompt += ', glowing crystal formations';
-                if (elements.includes('portal')) imagePrompt += ', swirling dimensional portal';
+                const customElements = appState.customElements.split(',').map(e => e.trim()).filter(e => e.length > 0);
+                
+                // Usar los primeros 2-3 elementos directamente en el prompt
+                customElements.slice(0, 3).forEach(element => {
+                    const cleanElement = element.toLowerCase();
+                    
+                    // Mapeo directo para elementos comunes
+                    if (cleanElement.includes('espejo')) {
+                        imagePrompt += `, ${cleanElement.includes('futuro') ? 'time-reflecting mirror showing future visions' : 'ornate magical mirror'}`;
+                    } else if (cleanElement.includes('reloj')) {
+                        imagePrompt += `, ${cleanElement.includes('tiempo') || cleanElement.includes('emocional') ? 'emotional time clock with shifting numbers' : 'antique clockwork mechanism'}`;
+                    } else if (cleanElement.includes('libro') || cleanElement.includes('bibliotecario')) {
+                        imagePrompt += `, ${cleanElement.includes('perdió') || cleanElement.includes('voz') ? 'silent librarian with ancient books' : 'ancient leather-bound book'}`;
+                    } else if (cleanElement.includes('llave')) {
+                        imagePrompt += ', mysterious ornate key';
+                    } else if (cleanElement.includes('robot')) {
+                        imagePrompt += ', advanced robotic figure';
+                    } else if (cleanElement.includes('dragón')) {
+                        imagePrompt += ', majestic dragon creature';
+                    } else if (cleanElement.includes('cristal')) {
+                        imagePrompt += ', glowing crystal formations';
+                    } else if (cleanElement.includes('portal')) {
+                        imagePrompt += ', swirling dimensional portal';
+                    } else {
+                        // Para elementos que no tienen mapeo específico, usarlos directamente
+                        const keywords = element.split(' ').slice(0, 3).join(' ');
+                        imagePrompt += `, ${keywords}`;
+                    }
+                });
+                
+                // Añadir énfasis en que estos elementos sean prominentes
+                if (customElements.length > 0) {
+                    imagePrompt += ', featuring these elements prominently in the composition';
+                }
             }
             
             // Añadir calidad y estilo final
