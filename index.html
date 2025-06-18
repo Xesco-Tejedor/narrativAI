@@ -868,10 +868,17 @@ Versión mejorada (mantén el idioma español y longitud similar):`;
                 return `https://source.unsplash.com/800x400/?${keywords}`;
             }
             
+            console.log('🎨 Generando imagen con IA:', {
+                provider: appState.imageProvider,
+                prompt: prompt.substring(0, 100) + '...',
+                hasApiKey: !!appState.imageApiKey
+            });
+            
             try {
                 let imageUrl = null;
                 
                 if (appState.imageProvider === 'openai') {
+                    console.log('📡 Llamando a OpenAI DALL-E 3...');
                     const response = await fetch('https://api.openai.com/v1/images/generations', {
                         method: 'POST',
                         headers: {
@@ -891,8 +898,15 @@ Versión mejorada (mantén el idioma español y longitud similar):`;
                     if (response.ok) {
                         const data = await response.json();
                         imageUrl = data.data[0]?.url;
+                        console.log('✅ OpenAI generó imagen exitosamente');
+                    } else {
+                        const errorData = await response.json();
+                        console.error('❌ Error de OpenAI:', errorData);
+                        throw new Error(`OpenAI Error: ${errorData.error?.message || 'Unknown error'}`);
                     }
+                    
                 } else if (appState.imageProvider === 'replicate') {
+                    console.log('📡 Llamando a Replicate...');
                     const response = await fetch('https://api.replicate.com/v1/predictions', {
                         method: 'POST',
                         headers: {
@@ -914,6 +928,7 @@ Versión mejorada (mantén el idioma español y longitud similar):`;
                     
                     if (response.ok) {
                         const prediction = await response.json();
+                        console.log('⏳ Replicate prediction iniciada:', prediction.id);
                         
                         // Esperar a que se complete la generación
                         let completed = false;
@@ -929,17 +944,31 @@ Versión mejorada (mantén el idioma español y longitud similar):`;
                             
                             if (statusResponse.ok) {
                                 const status = await statusResponse.json();
+                                console.log(`⏳ Replicate status: ${status.status} (intento ${attempts + 1})`);
+                                
                                 if (status.status === 'succeeded') {
                                     imageUrl = status.output[0];
+                                    console.log('✅ Replicate generó imagen exitosamente');
                                     completed = true;
                                 } else if (status.status === 'failed') {
-                                    break;
+                                    console.error('❌ Replicate falló:', status.error);
+                                    throw new Error(`Replicate failed: ${status.error}`);
                                 }
                             }
                             attempts++;
                         }
+                        
+                        if (!completed) {
+                            throw new Error('Replicate timeout: La generación tomó demasiado tiempo');
+                        }
+                    } else {
+                        const errorData = await response.json();
+                        console.error('❌ Error de Replicate:', errorData);
+                        throw new Error(`Replicate Error: ${errorData.detail || 'Unknown error'}`);
                     }
+                    
                 } else if (appState.imageProvider === 'stability') {
+                    console.log('📡 Llamando a Stability AI...');
                     const response = await fetch('https://api.stability.ai/v1/generation/stable-diffusion-xl-1024-v1-0/text-to-image', {
                         method: 'POST',
                         headers: {
@@ -969,9 +998,16 @@ Versión mejorada (mantén el idioma español y longitud similar):`;
                             const byteArray = new Uint8Array(byteNumbers);
                             const blob = new Blob([byteArray], { type: 'image/png' });
                             imageUrl = URL.createObjectURL(blob);
+                            console.log('✅ Stability AI generó imagen exitosamente');
                         }
+                    } else {
+                        const errorData = await response.json();
+                        console.error('❌ Error de Stability AI:', errorData);
+                        throw new Error(`Stability AI Error: ${errorData.message || 'Unknown error'}`);
                     }
+                    
                 } else if (appState.imageProvider === 'fal') {
+                    console.log('📡 Llamando a Fal.ai...');
                     const response = await fetch('https://fal.run/fal-ai/flux-pro', {
                         method: 'POST',
                         headers: {
@@ -990,13 +1026,37 @@ Versión mejorada (mantén el idioma español y longitud similar):`;
                     if (response.ok) {
                         const data = await response.json();
                         imageUrl = data.images[0]?.url;
+                        console.log('✅ Fal.ai generó imagen exitosamente');
+                    } else {
+                        const errorData = await response.json();
+                        console.error('❌ Error de Fal.ai:', errorData);
+                        throw new Error(`Fal.ai Error: ${errorData.detail || 'Unknown error'}`);
                     }
                 }
                 
+                if (!imageUrl) {
+                    throw new Error('No se pudo obtener URL de imagen del proveedor');
+                }
+                
                 return imageUrl;
+                
             } catch (error) {
-                console.error('Error generando imagen con IA:', error);
-                // Fallback a placeholder
+                console.error('❌ Error completo generando imagen con IA:', error);
+                
+                // Mostrar error más específico al usuario
+                const errorContainer = document.getElementById('imageContainer');
+                if (errorContainer) {
+                    const errorDisplay = document.createElement('div');
+                    errorDisplay.className = 'text-red-400 text-sm p-4 bg-red-900/20 rounded border border-red-500/30 mb-4';
+                    errorDisplay.innerHTML = `
+                        <strong>⚠️ Error generando imagen:</strong><br>
+                        ${error.message}<br>
+                        <small>Usando placeholder temporal. Verifica tu API key y configuración.</small>
+                    `;
+                    errorContainer.insertBefore(errorDisplay, errorContainer.firstChild);
+                }
+                
+                // Fallback a placeholder en caso de error
                 const keywords = appState.genre1 === 'terror' ? 'dark,mystery' : 
                                 appState.genre1 === 'ciencia-ficcion' ? 'space,future' : 
                                 appState.genre1 === 'fantasia' ? 'fantasy,magic' : 'cinematic';
@@ -1028,10 +1088,22 @@ Versión mejorada (mantén el idioma español y longitud similar):`;
             
             try {
                 const imagePrompt = generateImagePrompt(finalNarrative, primaryGenre, secondaryGenre);
+                console.log('🎨 Iniciando generación de imagen con prompt:', imagePrompt.substring(0, 100) + '...');
+                
                 const imageUrl = await generateImageWithAI(imagePrompt);
-                appState.generatedImageUrl = imageUrl;
+                
+                if (imageUrl) {
+                    appState.generatedImageUrl = imageUrl;
+                    console.log('✅ Imagen generada y asignada exitosamente');
+                } else {
+                    console.warn('⚠️ No se recibió URL de imagen, usando placeholder');
+                    const keywords = primaryGenre === 'terror' ? 'dark,mystery' : 
+                                    primaryGenre === 'ciencia-ficcion' ? 'space,future' : 
+                                    primaryGenre === 'fantasia' ? 'fantasy,magic' : 'cinematic';
+                    appState.generatedImageUrl = `https://source.unsplash.com/800x400/?${keywords}`;
+                }
             } catch (error) {
-                console.error('Error generando imagen:', error);
+                console.error('❌ Error crítico generando imagen:', error);
                 // Fallback a placeholder en caso de error
                 const keywords = primaryGenre === 'terror' ? 'dark,mystery' : 
                                 primaryGenre === 'ciencia-ficcion' ? 'space,future' : 
@@ -1039,6 +1111,7 @@ Versión mejorada (mantén el idioma español y longitud similar):`;
                 appState.generatedImageUrl = `https://source.unsplash.com/800x400/?${keywords}`;
             } finally {
                 appState.isGeneratingImage = false;
+                displayResult(); // Actualizar la visualización
             }
             
             displayResult();
@@ -1076,13 +1149,33 @@ Versión mejorada (mantén el idioma español y longitud similar):`;
                     if (appState.isGeneratingImage) {
                         imageLoading.classList.remove('hidden');
                         imageDisplay.classList.add('hidden');
+                        console.log('🔄 Mostrando loading de imagen...');
                     } else if (appState.generatedImageUrl) {
                         imageLoading.classList.add('hidden');
                         imageDisplay.classList.remove('hidden');
                         narrativeImage.src = appState.generatedImageUrl;
+                        console.log('🖼️ Mostrando imagen generada:', appState.generatedImageUrl.substring(0, 50) + '...');
+                        
+                        // Añadir handler de error para la imagen
+                        narrativeImage.onerror = () => {
+                            console.error('❌ Error cargando imagen generada');
+                            imageDisplay.innerHTML = `
+                                <div class="flex items-center justify-center h-64 bg-gray-800/50 text-red-400">
+                                    <div class="text-center">
+                                        <p class="mb-2">❌ Error cargando imagen</p>
+                                        <p class="text-sm">Verifica tu API key y conexión</p>
+                                    </div>
+                                </div>
+                            `;
+                        };
+                        
+                        narrativeImage.onload = () => {
+                            console.log('✅ Imagen cargada exitosamente en el DOM');
+                        };
                     }
                 } else {
                     imageContainer.classList.add('hidden');
+                    console.log('🚫 No hay imagen para mostrar');
                 }
                 
                 // Información de la narrativa
@@ -1214,10 +1307,20 @@ ${appState.narrative}
                     Mejorando con IA...
                 `;
                 btn.disabled = true;
+            } else if (appState.isGeneratingImage) {
+                btn.innerHTML = `
+                    <div class="spinner mr-2"></div>
+                    Generando imagen...
+                `;
+                btn.disabled = true;
             } else {
+                const aiFeatures = [];
+                if (appState.useAiEnhancement && appState.aiApiKey) aiFeatures.push('Texto IA');
+                if (appState.useImageAI && appState.imageApiKey) aiFeatures.push('Imagen IA');
+                
                 btn.innerHTML = `
                     ✨ Generar Nuevo Argumento
-                    ${appState.useAiEnhancement && appState.aiApiKey ? ' (Con IA)' : ''}
+                    ${aiFeatures.length > 0 ? ` (${aiFeatures.join(' + ')})` : ''}
                 `;
                 btn.disabled = !appState.genre1 || !appState.genre2;
             }
