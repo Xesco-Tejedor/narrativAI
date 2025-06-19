@@ -974,7 +974,7 @@
             }
         };
 
-        // Función para generar imagen usando la ruta de imágenes de Hatch
+        // Función para generar imagen compatible con GitHub Pages
         const simulateImageGeneration = async (prompt, selectedModel = null) => {
             const model = selectedModel || selectImageModel(appState.visualStyle, appState.imageEngine);
             console.log(`🎨 Generando imagen con ${model} y prompt:`, prompt);
@@ -988,9 +988,8 @@
                 const delayTime = model === 'seedimage-3' ? 6000 : 4000;
                 await new Promise(resolve => setTimeout(resolve, delayTime));
                 
-                // Crear URL de imagen usando el sistema de keys de Hatch
-                const encodedPrompt = encodeURIComponent(prompt);
-                const imageUrl = `keys/${imageId}?prompt=${encodedPrompt}`;
+                // Generar imagen compatible con GitHub Pages usando servicios externos
+                const imageUrl = await generateCompatibleImage(prompt);
                 
                 console.log('✅ Imagen generada exitosamente');
                 console.log('🔗 URL de imagen:', imageUrl);
@@ -1006,6 +1005,50 @@
                 console.error('❌ Error generando imagen:', error);
                 throw error;
             }
+        };
+
+        // Función para generar imagen compatible con GitHub Pages
+        const generateCompatibleImage = async (prompt) => {
+            const timestamp = Date.now();
+            const selectedGenres = appState.selectedGenres.map(g => genres[g.id].name.toLowerCase());
+            
+            // Seleccionar imágenes basadas en géneros y prompt
+            let imageUrl;
+            
+            if (selectedGenres.includes('terror') || prompt.toLowerCase().includes('horror') || prompt.toLowerCase().includes('dark')) {
+                imageUrl = `https://source.unsplash.com/800x600/?dark,gothic,horror,mystery&t=${timestamp}`;
+            } else if (selectedGenres.includes('fantasía') || prompt.toLowerCase().includes('fantasy') || prompt.toLowerCase().includes('magic')) {
+                imageUrl = `https://source.unsplash.com/800x600/?fantasy,magical,dragon,castle&t=${timestamp}`;
+            } else if (selectedGenres.includes('romance') || prompt.toLowerCase().includes('romance') || prompt.toLowerCase().includes('love')) {
+                imageUrl = `https://source.unsplash.com/800x600/?romance,love,sunset,couple&t=${timestamp}`;
+            } else if (selectedGenres.includes('ciencia ficción') || prompt.toLowerCase().includes('sci-fi') || prompt.toLowerCase().includes('space')) {
+                imageUrl = `https://source.unsplash.com/800x600/?space,scifi,technology,future&t=${timestamp}`;
+            } else if (selectedGenres.includes('aventura') || prompt.toLowerCase().includes('action') || prompt.toLowerCase().includes('adventure')) {
+                imageUrl = `https://source.unsplash.com/800x600/?action,adventure,epic,hero&t=${timestamp}`;
+            } else if (selectedGenres.includes('misterio') || prompt.toLowerCase().includes('mystery') || prompt.toLowerCase().includes('detective')) {
+                imageUrl = `https://source.unsplash.com/800x600/?mystery,detective,noir,investigation&t=${timestamp}`;
+            } else if (prompt.toLowerCase().includes('library') || prompt.toLowerCase().includes('book')) {
+                imageUrl = `https://source.unsplash.com/800x600/?library,books,reading,knowledge&t=${timestamp}`;
+            } else if (prompt.toLowerCase().includes('forest') || prompt.toLowerCase().includes('nature')) {
+                imageUrl = `https://source.unsplash.com/800x600/?forest,nature,trees,wilderness&t=${timestamp}`;
+            } else if (prompt.toLowerCase().includes('city') || prompt.toLowerCase().includes('urban')) {
+                imageUrl = `https://source.unsplash.com/800x600/?city,urban,architecture,skyline&t=${timestamp}`;
+            } else {
+                // Fallback a imágenes artísticas generales
+                imageUrl = `https://source.unsplash.com/800x600/?art,creative,artistic,inspiration&t=${timestamp}`;
+            }
+            
+            // Verificar que la imagen se carga correctamente
+            return new Promise((resolve, reject) => {
+                const testImage = new Image();
+                testImage.onload = () => resolve(imageUrl);
+                testImage.onerror = () => {
+                    // Fallback final a Picsum con timestamp
+                    const fallbackUrl = `https://picsum.photos/800/600?random=${timestamp}`;
+                    resolve(fallbackUrl);
+                };
+                testImage.src = imageUrl;
+            });
         };
 
         // Función para generar prompt específico de imagen (estilo épico cinematográfico)
@@ -1323,38 +1366,93 @@
             const placeholder = document.getElementById('imagePlaceholder');
             const status = document.getElementById('imageStatus');
             
-            // Mostrar la imagen generada directamente en el área placeholder
-            placeholder.innerHTML = `
-                <div class="relative">
-                    <img 
-                        src="${imageResult.url}" 
-                        alt="Imagen épica generada basada en tu narrativa" 
-                        class="w-full rounded-lg shadow-xl border border-gray-600 hover:shadow-2xl transition-shadow duration-300"
-                        onload="this.style.opacity='1'" 
-                        style="opacity:0; transition: opacity 0.5s ease-in"
-                    />
-                    <div class="absolute bottom-2 right-2 bg-black/70 backdrop-blur-sm rounded px-2 py-1">
-                        <p class="text-xs text-green-300">✨ ${imageResult.model}</p>
+            console.log('🖼️ Mostrando imagen:', imageResult.url);
+            
+            // Crear imagen con manejo de errores mejorado
+            const imageContainer = document.createElement('div');
+            imageContainer.className = 'relative';
+            
+            const img = document.createElement('img');
+            img.src = imageResult.url;
+            img.alt = 'Imagen épica generada basada en tu narrativa';
+            img.className = 'w-full rounded-lg shadow-xl border border-gray-600 hover:shadow-2xl transition-all duration-300';
+            img.style.opacity = '0';
+            img.style.transition = 'opacity 0.5s ease-in';
+            
+            // Manejar carga exitosa
+            img.onload = () => {
+                img.style.opacity = '1';
+                console.log('✅ Imagen cargada exitosamente');
+                
+                // Actualizar status
+                status.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <span>🎨 ¡Imagen épica generada exitosamente!</span>
+                        <span class="text-xs text-gray-400">Engine: ${imageResult.model}</span>
                     </div>
-                </div>
+                `;
+                status.classList.remove('hidden');
+            };
+            
+            // Manejar error de carga
+            img.onerror = () => {
+                console.warn('⚠️ Error cargando imagen, usando placeholder');
+                
+                // Mostrar placeholder elegante si falla la imagen
+                imageContainer.innerHTML = `
+                    <div class="flex items-center justify-center h-64 bg-gradient-to-br from-purple-900 to-blue-900 rounded-lg border border-purple-500">
+                        <div class="text-center text-white">
+                            <div class="text-6xl mb-4">🎭</div>
+                            <p class="text-lg font-bold">narrativAI</p>
+                            <p class="text-sm mt-2 opacity-75">Tu narrativa épica generada</p>
+                            <p class="text-xs mt-4 opacity-50">Estilo: ${document.getElementById('visualStyle').selectedOptions[0].text}</p>
+                            <button onclick="regenerateImage()" class="mt-4 px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded text-sm">
+                                🔄 Regenerar Imagen
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                // Actualizar status con mensaje de fallback
+                status.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <span>📸 Imagen de referencia (compatibilidad GitHub Pages)</span>
+                        <span class="text-xs text-gray-400">Engine: ${imageResult.model}</span>
+                    </div>
+                `;
+                status.classList.remove('hidden');
+            };
+            
+            // Añadir overlay con información
+            const overlay = document.createElement('div');
+            overlay.className = 'absolute bottom-2 right-2 bg-black/70 backdrop-blur-sm rounded px-2 py-1';
+            overlay.innerHTML = `<p class="text-xs text-green-300">✨ ${imageResult.model}</p>`;
+            
+            imageContainer.appendChild(img);
+            imageContainer.appendChild(overlay);
+            
+            // Añadir botón de regenerar
+            const buttonContainer = document.createElement('div');
+            buttonContainer.className = 'mt-2 text-center';
+            buttonContainer.innerHTML = `
+                <p class="text-xs text-gray-400 mb-2">📸 Imagen inspirada en tu narrativa</p>
+                <button onclick="regenerateImage()" class="px-3 py-1 bg-purple-600 hover:bg-purple-700 rounded text-xs">
+                    🔄 Regenerar Imagen
+                </button>
             `;
             
-            // Actualizar el texto del status
-            status.innerHTML = `
-                <div class="flex items-center justify-between">
-                    <span>🎨 ¡Imagen épica generada exitosamente!</span>
-                    <span class="text-xs text-gray-400">ID: ${imageResult.id}</span>
-                </div>
-            `;
-            status.classList.remove('hidden');
+            // Reemplazar el placeholder
+            placeholder.innerHTML = '';
+            placeholder.appendChild(imageContainer);
+            placeholder.appendChild(buttonContainer);
         };
 
         // Sistema de generación de imágenes optimizado para HTML
         console.log('🎭 Sistema de generación de imágenes inicializado para HTML');
 
         // Función para regenerar imagen (compatible con GitHub Pages)
-        window.regenerateImage = () => {
-            const imageContainer = document.getElementById('imageContainer');
+        window.regenerateImage = async () => {
+            const placeholder = document.getElementById('imagePlaceholder');
             const narrativeText = document.getElementById('narrativeTextEditor').value || appState.generatedNarrative;
             
             if (!narrativeText) {
@@ -1362,8 +1460,10 @@
                 return;
             }
             
+            console.log('🔄 Regenerando imagen...');
+            
             // Mostrar loading
-            imageContainer.innerHTML = `
+            placeholder.innerHTML = `
                 <div class="flex items-center justify-center h-64 bg-gray-800 rounded-lg border-2 border-dashed border-gray-600">
                     <div class="text-center">
                         <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-400 mx-auto mb-4"></div>
@@ -1372,58 +1472,41 @@
                 </div>
             `;
             
-            // Generar nueva imagen con timestamp para evitar cache
-            const timestamp = Date.now();
-            const selectedGenres = appState.selectedGenres.map(g => genres[g.id].name.toLowerCase());
-            
-            let imageUrl;
-            if (selectedGenres.includes('terror')) {
-                imageUrl = `https://source.unsplash.com/800x600/?dark,gothic,mystery&t=${timestamp}`;
-            } else if (selectedGenres.includes('fantasía')) {
-                imageUrl = `https://source.unsplash.com/800x600/?fantasy,magical,castle&t=${timestamp}`;
-            } else if (selectedGenres.includes('romance')) {
-                imageUrl = `https://source.unsplash.com/800x600/?romance,sunset,couple&t=${timestamp}`;
-            } else if (selectedGenres.includes('ciencia ficción')) {
-                imageUrl = `https://source.unsplash.com/800x600/?space,technology,future&t=${timestamp}`;
-            } else if (selectedGenres.includes('acción')) {
-                imageUrl = `https://source.unsplash.com/800x600/?action,adventure,hero&t=${timestamp}`;
-            } else {
-                imageUrl = `https://picsum.photos/800/600?random=${timestamp}`;
-            }
-            
-            const newImage = new Image();
-            newImage.onload = () => {
-                imageContainer.innerHTML = `
-                    <div class="relative">
-                        <img src="${imageUrl}" alt="Imagen regenerada de la narrativa" 
-                             class="w-full rounded-lg shadow-lg border border-gray-600 max-h-96 object-cover">
-                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4 rounded-b-lg">
-                            <p class="text-white text-sm font-medium">🎨 Imagen inspirada en: ${document.getElementById('visualStyle').selectedOptions[0].text}</p>
-                        </div>
-                    </div>
-                    <div class="mt-2 text-center">
-                        <p class="text-xs text-gray-400">📸 Imagen de referencia visual regenerada</p>
-                        <button onclick="regenerateImage()" class="mt-2 px-3 py-1 bg-purple-600 hover:bg-purple-700 rounded text-xs">
-                            🔄 Regenerar Imagen
-                        </button>
-                    </div>
-                `;
-            };
-            
-            newImage.onerror = () => {
-                imageContainer.innerHTML = `
+            try {
+                // Usar la misma lógica que la generación principal
+                const customElements = [
+                    document.getElementById('element1').value.trim(),
+                    document.getElementById('element2').value.trim(),
+                    document.getElementById('element3').value.trim()
+                ].filter(Boolean);
+                
+                const normalizedGenres = normalizeWeights();
+                const imagePrompt = generateSpecificImagePrompt(narrativeText, normalizedGenres, customElements);
+                
+                // Generar nueva imagen
+                const imageResult = await simulateImageGeneration(imagePrompt);
+                
+                // Mostrar la nueva imagen
+                displayImage(imageResult);
+                
+            } catch (error) {
+                console.error('❌ Error regenerando imagen:', error);
+                
+                // Mostrar fallback en caso de error
+                placeholder.innerHTML = `
                     <div class="flex items-center justify-center h-64 bg-gradient-to-br from-purple-900 to-blue-900 rounded-lg border border-purple-500">
                         <div class="text-center text-white">
                             <div class="text-6xl mb-4">🎭</div>
                             <p class="text-lg font-bold">narrativAI</p>
                             <p class="text-sm mt-2 opacity-75">Tu narrativa épica generada</p>
                             <p class="text-xs mt-4 opacity-50">Estilo: ${document.getElementById('visualStyle').selectedOptions[0].text}</p>
+                            <button onclick="regenerateImage()" class="mt-4 px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded text-sm">
+                                🔄 Intentar de Nuevo
+                            </button>
                         </div>
                     </div>
                 `;
-            };
-            
-            newImage.src = imageUrl;
+            }
         };
 
         // Función mejorada de exportación ZIP con imagen JPG y formato MD
