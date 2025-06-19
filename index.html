@@ -159,8 +159,8 @@
                     </div>
                     
                     <div id="imageAIInfo" class="hidden mt-2 p-3 bg-blue-900/20 border border-blue-500/30 rounded text-sm text-blue-300">
-                        🎬 <strong>Imagen épica cinematográfica:</strong> Se generará una imagen real usando IA<br />
-                        <small class="opacity-80">🎭 La imagen aparecerá como una nueva forma en el canvas con el estilo seleccionado</small>
+                        🎬 <strong>Imagen épica generada con IA real:</strong> Se analizará tu texto narrativo para crear una imagen única<br />
+                        <small class="opacity-80">🎭 La IA interpretará tu narrativa y elementos personalizados para generar la imagen perfecta</small>
                     </div>
 
                     <!-- Estilos visuales predeterminados -->
@@ -974,91 +974,197 @@
             }
         };
 
-        // Función para generar imagen compatible con GitHub Pages
-        const simulateImageGeneration = async (prompt, selectedModel = null) => {
-            const model = selectedModel || selectImageModel(appState.visualStyle, appState.imageEngine);
-            console.log(`🎨 Generando imagen con ${model} y prompt:`, prompt);
+        // Función para generar imagen real con IA (sin simulaciones)
+        const generateImageWithAI = async (narrativeText, customElements) => {
+            console.log('🎨 Iniciando generación de imagen real con IA...');
             
             try {
-                // Generar ID único para la imagen
-                const imageId = `img_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
-                console.log('🆔 ID de imagen generado:', imageId);
+                // Usar la función de generación real basada en texto
+                const imageResult = await generateRealImageFromText(narrativeText, customElements);
                 
-                // Simular delay apropiado según el modelo
-                const delayTime = model === 'seedimage-3' ? 6000 : 4000;
-                await new Promise(resolve => setTimeout(resolve, delayTime));
+                console.log('✅ Imagen IA generada exitosamente');
+                console.log('🔗 URL de imagen IA:', imageResult.url);
                 
-                // Generar imagen compatible con GitHub Pages usando servicios externos
-                const imageUrl = await generateCompatibleImage(prompt);
+                return imageResult;
                 
-                console.log('✅ Imagen generada exitosamente');
-                console.log('🔗 URL de imagen:', imageUrl);
+            } catch (error) {
+                console.error('❌ Error generando imagen con IA:', error);
+                throw new Error(`Error generando imagen: ${error.message}`);
+            }
+        };
+
+        // Función para generar imagen real usando IA basada en el texto narrativo
+        const generateRealImageFromText = async (narrativeText, customElements) => {
+            console.log('🎨 Generando imagen real con IA a partir del texto narrativo...');
+            
+            try {
+                // Crear prompt específico basado en el texto narrativo generado
+                const imagePrompt = createImagePromptFromNarrative(narrativeText, customElements);
                 
-                // Retornar la URL de la imagen generada
+                // Seleccionar el modelo apropiado
+                const selectedModel = selectImageModel(appState.visualStyle, appState.imageEngine);
+                
+                // Generar imagen real usando el sistema de IA de Hatch
+                const imageId = `narrative_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+                const encodedPrompt = encodeURIComponent(imagePrompt);
+                const imageUrl = `keys/${imageId}?prompt=${encodedPrompt}`;
+                
+                console.log('🎭 Prompt generado:', imagePrompt);
+                console.log('🚀 Modelo seleccionado:', selectedModel);
+                console.log('🔗 URL de imagen IA:', imageUrl);
+                
                 return {
                     id: imageId,
                     url: imageUrl,
-                    model: model
+                    model: selectedModel,
+                    prompt: imagePrompt
                 };
                 
             } catch (error) {
-                console.error('❌ Error generando imagen:', error);
+                console.error('❌ Error generando imagen real:', error);
                 throw error;
             }
         };
 
-        // Función para generar imagen compatible con GitHub Pages
-        const generateCompatibleImage = async (prompt) => {
-            const timestamp = Date.now();
-            const selectedGenres = appState.selectedGenres.map(g => genres[g.id].name.toLowerCase());
+        // Función para crear prompt de imagen basado en la narrativa
+        const createImagePromptFromNarrative = (narrativeText, customElements) => {
+            console.log('📝 Analizando texto narrativo para crear prompt de imagen...');
             
-            // Seleccionar imágenes basadas en géneros y prompt
-            let imageUrl;
+            let promptComponents = [];
             
-            if (selectedGenres.includes('terror') || prompt.toLowerCase().includes('horror') || prompt.toLowerCase().includes('dark')) {
-                imageUrl = `https://source.unsplash.com/800x600/?dark,gothic,horror,mystery&t=${timestamp}`;
-            } else if (selectedGenres.includes('fantasía') || prompt.toLowerCase().includes('fantasy') || prompt.toLowerCase().includes('magic')) {
-                imageUrl = `https://source.unsplash.com/800x600/?fantasy,magical,dragon,castle&t=${timestamp}`;
-            } else if (selectedGenres.includes('romance') || prompt.toLowerCase().includes('romance') || prompt.toLowerCase().includes('love')) {
-                imageUrl = `https://source.unsplash.com/800x600/?romance,love,sunset,couple&t=${timestamp}`;
-            } else if (selectedGenres.includes('ciencia ficción') || prompt.toLowerCase().includes('sci-fi') || prompt.toLowerCase().includes('space')) {
-                imageUrl = `https://source.unsplash.com/800x600/?space,scifi,technology,future&t=${timestamp}`;
-            } else if (selectedGenres.includes('aventura') || prompt.toLowerCase().includes('action') || prompt.toLowerCase().includes('adventure')) {
-                imageUrl = `https://source.unsplash.com/800x600/?action,adventure,epic,hero&t=${timestamp}`;
-            } else if (selectedGenres.includes('misterio') || prompt.toLowerCase().includes('mystery') || prompt.toLowerCase().includes('detective')) {
-                imageUrl = `https://source.unsplash.com/800x600/?mystery,detective,noir,investigation&t=${timestamp}`;
-            } else if (prompt.toLowerCase().includes('library') || prompt.toLowerCase().includes('book')) {
-                imageUrl = `https://source.unsplash.com/800x600/?library,books,reading,knowledge&t=${timestamp}`;
-            } else if (prompt.toLowerCase().includes('forest') || prompt.toLowerCase().includes('nature')) {
-                imageUrl = `https://source.unsplash.com/800x600/?forest,nature,trees,wilderness&t=${timestamp}`;
-            } else if (prompt.toLowerCase().includes('city') || prompt.toLowerCase().includes('urban')) {
-                imageUrl = `https://source.unsplash.com/800x600/?city,urban,architecture,skyline&t=${timestamp}`;
+            // Aplicar estilo visual seleccionado
+            const visualStylePrompts = {
+                'photorealistic': 'photorealistic, high-detail photography',
+                'digital-art': 'digital art, highly detailed illustration',
+                'concept-art': 'professional concept art, game art style',
+                'cinematic': 'cinematic movie still, professional cinematography',
+                'graphic-novel': 'graphic novel style, comic book art',
+                'fantasy-art': 'fantasy art, magical realism style',
+                'vintage-poster': 'vintage movie poster style, retro aesthetic',
+                'mignola-style': 'Mike Mignola art style, dramatic black shadows, simplified forms, bold contrast',
+                'toth-style': 'Alex Toth art style, clean lines, elegant compositions, minimal detail maximum impact',
+                'sienkiewicz-style': 'Bill Sienkiewicz art style, expressionist mixed media, painterly textures',
+                'williams-style': 'J H Williams III art style, innovative layouts, architectural precision',
+                'schuiten-style': 'François Schuiten art style, ligne claire technique, architectural fantasy',
+                'hogarth-style': 'Burne Hogarth art style, dynamic anatomy, muscular definition, dramatic perspective',
+                'wrightson-style': 'Bernie Wrightson art style, gothic horror, intricate crosshatching, macabre atmosphere',
+                'frazetta-style': 'Frank Frazetta art style, heroic fantasy, powerful anatomy, warm earthy colors, dramatic lighting'
+            };
+
+            if (appState.visualStyle !== 'auto') {
+                promptComponents.push(visualStylePrompts[appState.visualStyle]);
             } else {
-                // Fallback a imágenes artísticas generales
-                imageUrl = `https://source.unsplash.com/800x600/?art,creative,artistic,inspiration&t=${timestamp}`;
+                promptComponents.push('epic illustration with dramatic lighting');
+            }
+
+            // Extraer elementos clave del texto narrativo
+            const textAnalysis = analyzeNarrativeText(narrativeText);
+            
+            // Añadir elementos personalizados como protagonistas
+            if (customElements.length > 0) {
+                customElements.forEach((element, index) => {
+                    if (index === 0) {
+                        promptComponents.push(`${translateElementToEnglish(element)} as main character`);
+                    } else {
+                        promptComponents.push(`${translateElementToEnglish(element)} in the scene`);
+                    }
+                });
             }
             
-            // Verificar que la imagen se carga correctamente
-            return new Promise((resolve) => {
-                const testImage = new Image();
-                const timeout = setTimeout(() => {
-                    // Fallback después de 5 segundos
-                    const fallbackUrl = `https://picsum.photos/800/600?random=${timestamp}`;
-                    resolve(fallbackUrl);
-                }, 5000);
-                
-                testImage.onload = () => {
-                    clearTimeout(timeout);
-                    resolve(imageUrl);
-                };
-                testImage.onerror = () => {
-                    clearTimeout(timeout);
-                    // Fallback final a Picsum con timestamp
-                    const fallbackUrl = `https://picsum.photos/800/600?random=${timestamp}`;
-                    resolve(fallbackUrl);
-                };
-                testImage.src = imageUrl;
-            });
+            // Añadir contexto del texto
+            if (textAnalysis.setting) {
+                promptComponents.push(`set in ${textAnalysis.setting}`);
+            }
+            
+            if (textAnalysis.mood) {
+                promptComponents.push(`${textAnalysis.mood} atmosphere`);
+            }
+            
+            if (textAnalysis.action) {
+                promptComponents.push(textAnalysis.action);
+            }
+
+            // Añadir pose/acción si está configurada
+            const poseActionPrompts = {
+                'hero-stance': 'character in heroic stance, confident pose',
+                'discovery-moment': 'moment of discovery, character examining with wonder',
+                'action-dynamic': 'dynamic action scene, character in motion',
+                'contemplative-gaze': 'character gazing contemplatively',
+                'confrontation': 'dramatic confrontation scene',
+                'group-formation': 'characters in group formation',
+                'silhouette-dramatic': 'dramatic silhouette composition',
+                'embrace-romantic': 'romantic embrace scene',
+                'mystery-investigation': 'character investigating mystery',
+                'magical-casting': 'character casting magic',
+                'chase-escape': 'chase or escape scene',
+                'throne-power': 'character in position of power'
+            };
+
+            if (appState.poseAction !== 'auto') {
+                promptComponents.push(poseActionPrompts[appState.poseAction]);
+            }
+
+            // Añadir calificadores de calidad
+            promptComponents.push('highly detailed');
+            promptComponents.push('professional artwork');
+            promptComponents.push('dramatic composition');
+            promptComponents.push('beautiful lighting');
+
+            const finalPrompt = promptComponents.join(', ');
+            console.log('✅ Prompt de imagen creado:', finalPrompt);
+            
+            return finalPrompt;
+        };
+
+        // Función para analizar el texto narrativo y extraer elementos visuales
+        const analyzeNarrativeText = (text) => {
+            const lowerText = text.toLowerCase();
+            let setting = '';
+            let mood = '';
+            let action = '';
+            
+            // Detectar escenarios
+            if (lowerText.includes('biblioteca') || lowerText.includes('library')) {
+                setting = 'ancient library with towering bookshelves';
+            } else if (lowerText.includes('bosque') || lowerText.includes('forest')) {
+                setting = 'mystical forest';
+            } else if (lowerText.includes('castillo') || lowerText.includes('castle')) {
+                setting = 'medieval castle';
+            } else if (lowerText.includes('ciudad') || lowerText.includes('city')) {
+                setting = 'epic cityscape';
+            } else if (lowerText.includes('montaña') || lowerText.includes('mountain')) {
+                setting = 'mountain landscape';
+            } else if (lowerText.includes('océano') || lowerText.includes('sea')) {
+                setting = 'ocean setting';
+            }
+            
+            // Detectar ambiente/mood
+            if (lowerText.includes('oscur') || lowerText.includes('sombra') || lowerText.includes('dark')) {
+                mood = 'dark and mysterious';
+            } else if (lowerText.includes('mágic') || lowerText.includes('magic')) {
+                mood = 'magical and enchanting';
+            } else if (lowerText.includes('épic') || lowerText.includes('epic')) {
+                mood = 'epic and grandiose';
+            } else if (lowerText.includes('romántic') || lowerText.includes('romantic')) {
+                mood = 'romantic and warm';
+            } else if (lowerText.includes('misterios') || lowerText.includes('mystery')) {
+                mood = 'mysterious and intriguing';
+            }
+            
+            // Detectar acciones
+            if (lowerText.includes('descubre') || lowerText.includes('discover')) {
+                action = 'character discovering something important';
+            } else if (lowerText.includes('lucha') || lowerText.includes('fight')) {
+                action = 'character in combat';
+            } else if (lowerText.includes('explora') || lowerText.includes('explore')) {
+                action = 'character exploring';
+            } else if (lowerText.includes('conjura') || lowerText.includes('cast')) {
+                action = 'character casting magic';
+            } else if (lowerText.includes('lee') || lowerText.includes('read')) {
+                action = 'character reading or studying';
+            }
+            
+            return { setting, mood, action };
         };
 
         // Función para generar prompt específico de imagen (estilo épico cinematográfico)
@@ -1460,7 +1566,7 @@
         // Sistema de generación de imágenes optimizado para HTML
         console.log('🎭 Sistema de generación de imágenes inicializado para HTML');
 
-        // Función para regenerar imagen (compatible con GitHub Pages)
+        // Función para regenerar imagen real con IA (sin simulaciones)
         window.regenerateImage = async () => {
             const placeholder = document.getElementById('imagePlaceholder');
             const narrativeText = document.getElementById('narrativeTextEditor').value || appState.generatedNarrative;
@@ -1470,47 +1576,46 @@
                 return;
             }
             
-            console.log('🔄 Regenerando imagen...');
+            console.log('🔄 Regenerando imagen real con IA...');
             
             // Mostrar loading
             placeholder.innerHTML = `
                 <div class="flex items-center justify-center h-64 bg-gray-800 rounded-lg border-2 border-dashed border-gray-600">
                     <div class="text-center">
                         <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-400 mx-auto mb-4"></div>
-                        <p class="text-gray-300">🔄 Regenerando imagen...</p>
+                        <p class="text-gray-300">🔄 Regenerando imagen real con IA...</p>
+                        <p class="text-xs text-gray-400 mt-1">Analizando texto narrativo...</p>
                     </div>
                 </div>
             `;
             
             try {
-                // Usar la misma lógica que la generación principal
+                // Obtener elementos personalizados
                 const customElements = [
-                    document.getElementById('element1').value.trim(),
-                    document.getElementById('element2').value.trim(),
-                    document.getElementById('element3').value.trim()
+                    document.getElementById('element1')?.value?.trim() || '',
+                    document.getElementById('element2')?.value?.trim() || '',
+                    document.getElementById('element3')?.value?.trim() || ''
                 ].filter(Boolean);
                 
-                const normalizedGenres = normalizeWeights();
-                const imagePrompt = generateSpecificImagePrompt(narrativeText, normalizedGenres, customElements);
+                console.log('🎭 Regenerando imagen basada en texto narrativo...');
                 
-                // Generar nueva imagen
-                const imageResult = await simulateImageGeneration(imagePrompt);
+                // Generar nueva imagen real basada en el texto
+                const imageResult = await generateImageWithAI(narrativeText, customElements);
                 
                 // Mostrar la nueva imagen
                 displayImage(imageResult);
                 
             } catch (error) {
-                console.error('❌ Error regenerando imagen:', error);
+                console.error('❌ Error regenerando imagen real:', error);
                 
-                // Mostrar fallback en caso de error
+                // Mostrar error específico
                 placeholder.innerHTML = `
-                    <div class="flex items-center justify-center h-64 bg-gradient-to-br from-purple-900 to-blue-900 rounded-lg border border-purple-500">
-                        <div class="text-center text-white">
-                            <div class="text-6xl mb-4">🎭</div>
-                            <p class="text-lg font-bold">narrativAI</p>
-                            <p class="text-sm mt-2 opacity-75">Tu narrativa épica generada</p>
-                            <p class="text-xs mt-4 opacity-50">Estilo: ${document.getElementById('visualStyle').selectedOptions[0].text}</p>
-                            <button onclick="regenerateImage()" class="mt-4 px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded text-sm">
+                    <div class="flex items-center justify-center h-64 bg-red-900/20 rounded-lg border border-red-500/50">
+                        <div class="text-center text-red-300">
+                            <div class="text-4xl mb-2">❌</div>
+                            <p class="text-sm font-medium">Error regenerando imagen con IA</p>
+                            <p class="text-xs mt-1 opacity-75">${error.message}</p>
+                            <button onclick="regenerateImage()" class="mt-4 px-4 py-2 bg-red-600 hover:bg-red-700 rounded text-sm">
                                 🔄 Intentar de Nuevo
                             </button>
                         </div>
@@ -1948,7 +2053,7 @@ ${appState.useImageAI ? `✅ **Imagen épica generada**
             }
         };
 
-        // Función separada para generar imagen basada en texto editado
+        // Función separada para generar imagen real basada en texto editado
         const handleImageGeneration = async () => {
             if (appState.isGeneratingImage) return;
             
@@ -1966,10 +2071,17 @@ ${appState.useImageAI ? `✅ **Imagen épica generada**
                 appState.isGeneratingImage = true;
                 if (generateImageBtn) {
                     generateImageBtn.disabled = true;
-                    generateImageBtn.textContent = '🎬 Generando...';
+                    generateImageBtn.textContent = '🎬 Generando con IA...';
                 }
                 if (loadingImage) {
                     loadingImage.classList.remove('hidden');
+                    loadingImage.innerHTML = `
+                        <div class="text-center py-8 border-2 border-dashed border-purple-500 rounded-lg">
+                            <div class="loading-animation text-3xl mb-2">🎬</div>
+                            <p class="text-purple-300 text-sm">Generando imagen real con IA...</p>
+                            <p class="text-xs text-purple-400 mt-1">Analizando texto narrativo para crear imagen única</p>
+                        </div>
+                    `;
                 }
                 
                 // Obtener elementos personalizados de forma segura
@@ -1979,18 +2091,13 @@ ${appState.useImageAI ? `✅ **Imagen épica generada**
                     document.getElementById('element3')?.value?.trim() || ''
                 ].filter(Boolean);
                 
-                // Generar prompt específico basado en el texto editado
-                const normalizedGenres = normalizeWeights();
-                const imagePrompt = generateSpecificImagePrompt(editedNarrative, normalizedGenres, customElements);
+                console.log('🎭 Generando imagen real basada en texto editado...');
                 
-                // Seleccionar modelo y generar imagen con timeout
-                const selectedModel = selectImageModel(appState.visualStyle, appState.imageEngine);
-                console.log(`🚀 Usando engine: ${selectedModel} con texto editado`);
-                
+                // Generar imagen real con timeout
                 const imageResult = await Promise.race([
-                    simulateImageGeneration(imagePrompt, selectedModel),
+                    generateImageWithAI(editedNarrative, customElements),
                     new Promise((_, reject) => 
-                        setTimeout(() => reject(new Error('Timeout generando imagen')), 15000)
+                        setTimeout(() => reject(new Error('Timeout generando imagen (15s)')), 15000)
                     )
                 ]);
                 
@@ -2000,11 +2107,23 @@ ${appState.useImageAI ? `✅ **Imagen épica generada**
                 displayImage(imageResult);
                 
             } catch (error) {
-                console.error('Error generando imagen:', error);
-                alert('Error al generar imagen: ' + error.message);
+                console.error('❌ Error generando imagen real:', error);
+                
                 if (loadingImage) {
-                    loadingImage.classList.add('hidden');
+                    loadingImage.innerHTML = `
+                        <div class="text-center py-8 border-2 border-dashed border-red-500/50 rounded-lg bg-red-900/20">
+                            <div class="text-red-300">
+                                <div class="text-3xl mb-2">❌</div>
+                                <p class="text-sm">Error generando imagen con IA</p>
+                                <p class="text-xs mt-1 opacity-75">${error.message}</p>
+                            </div>
+                        </div>
+                    `;
+                    setTimeout(() => {
+                        loadingImage.classList.add('hidden');
+                    }, 3000);
                 }
+                
             } finally {
                 appState.isGeneratingImage = false;
                 if (generateImageBtn) {
@@ -2013,6 +2132,9 @@ ${appState.useImageAI ? `✅ **Imagen épica generada**
                 }
             }
         };
+
+        // Hacer la función globalmente accesible
+        window.handleImageGeneration = handleImageGeneration;
 
         // Función para copiar texto
         const copyToClipboard = () => {
