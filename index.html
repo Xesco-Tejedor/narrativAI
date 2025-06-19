@@ -1039,10 +1039,20 @@
             }
             
             // Verificar que la imagen se carga correctamente
-            return new Promise((resolve, reject) => {
+            return new Promise((resolve) => {
                 const testImage = new Image();
-                testImage.onload = () => resolve(imageUrl);
+                const timeout = setTimeout(() => {
+                    // Fallback después de 5 segundos
+                    const fallbackUrl = `https://picsum.photos/800/600?random=${timestamp}`;
+                    resolve(fallbackUrl);
+                }, 5000);
+                
+                testImage.onload = () => {
+                    clearTimeout(timeout);
+                    resolve(imageUrl);
+                };
                 testImage.onerror = () => {
+                    clearTimeout(timeout);
                     // Fallback final a Picsum con timestamp
                     const fallbackUrl = `https://picsum.photos/800/600?random=${timestamp}`;
                     resolve(fallbackUrl);
@@ -1526,10 +1536,20 @@
                     script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
                     document.head.appendChild(script);
                     
-                    // Esperar a que cargue
+                    // Esperar a que cargue con timeout
                     await new Promise((resolve, reject) => {
-                        script.onload = resolve;
-                        script.onerror = reject;
+                        const timeout = setTimeout(() => {
+                            reject(new Error('Timeout cargando JSZip'));
+                        }, 10000);
+                        
+                        script.onload = () => {
+                            clearTimeout(timeout);
+                            resolve();
+                        };
+                        script.onerror = () => {
+                            clearTimeout(timeout);
+                            reject(new Error('Error cargando JSZip'));
+                        };
                     });
                 }
 
@@ -1654,19 +1674,31 @@ ${appState.selectedGenres.map(g => {
                         img.crossOrigin = 'anonymous';
                         
                         await new Promise((resolve, reject) => {
+                            const timeout = setTimeout(() => {
+                                reject(new Error('Timeout cargando imagen'));
+                            }, 8000);
+                            
                             img.onload = () => {
-                                canvas.width = img.naturalWidth || img.width;
-                                canvas.height = img.naturalHeight || img.height;
-                                
-                                // Fondo blanco para JPG
-                                ctx.fillStyle = 'white';
-                                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                                
-                                // Dibujar imagen
-                                ctx.drawImage(img, 0, 0);
-                                resolve();
+                                clearTimeout(timeout);
+                                try {
+                                    canvas.width = img.naturalWidth || img.width;
+                                    canvas.height = img.naturalHeight || img.height;
+                                    
+                                    // Fondo blanco para JPG
+                                    ctx.fillStyle = 'white';
+                                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                                    
+                                    // Dibujar imagen
+                                    ctx.drawImage(img, 0, 0);
+                                    resolve();
+                                } catch (error) {
+                                    reject(error);
+                                }
                             };
-                            img.onerror = reject;
+                            img.onerror = () => {
+                                clearTimeout(timeout);
+                                reject(new Error('Error cargando imagen'));
+                            };
                         });
                         
                         img.src = imageContainer.src;
@@ -1881,8 +1913,13 @@ ${appState.useImageAI ? `✅ **Imagen épica generada**
                 // Mostrar loading de narrativa
                 loadingNarrative.classList.remove('hidden');
                 
-                // Generar narrativa
-                await new Promise(resolve => setTimeout(resolve, 1500)); // Simular delay
+                // Usar setTimeout con Promise para evitar problemas de scope
+                await new Promise((resolve) => {
+                    setTimeout(() => {
+                        resolve();
+                    }, 1500);
+                });
+                
                 const narrative = generateNarrative();
                 
                 if (!narrative) {
@@ -1897,11 +1934,17 @@ ${appState.useImageAI ? `✅ **Imagen épica generada**
                 console.error('Error en la generación:', error);
                 alert('Error al generar contenido: ' + error.message);
                 
-                loadingNarrative.classList.add('hidden');
+                if (loadingNarrative) {
+                    loadingNarrative.classList.add('hidden');
+                }
             } finally {
                 appState.isGenerating = false;
-                generateBtn.disabled = false;
-                generateBtnText.textContent = '🎭 Generar Argumento Épico';
+                if (generateBtn) {
+                    generateBtn.disabled = false;
+                }
+                if (generateBtnText) {
+                    generateBtnText.textContent = '🎭 Generar Argumento Épico';
+                }
             }
         };
 
@@ -1913,7 +1956,7 @@ ${appState.useImageAI ? `✅ **Imagen épica generada**
             const loadingImage = document.getElementById('loadingImage');
             const narrativeTextEditor = document.getElementById('narrativeTextEditor');
             
-            const editedNarrative = narrativeTextEditor.value.trim();
+            const editedNarrative = narrativeTextEditor?.value?.trim();
             if (!editedNarrative) {
                 alert('El texto narrativo está vacío. Agrega contenido antes de generar la imagen.');
                 return;
@@ -1921,37 +1964,53 @@ ${appState.useImageAI ? `✅ **Imagen épica generada**
             
             try {
                 appState.isGeneratingImage = true;
-                generateImageBtn.disabled = true;
-                generateImageBtn.textContent = '🎬 Generando...';
-                loadingImage.classList.remove('hidden');
+                if (generateImageBtn) {
+                    generateImageBtn.disabled = true;
+                    generateImageBtn.textContent = '🎬 Generando...';
+                }
+                if (loadingImage) {
+                    loadingImage.classList.remove('hidden');
+                }
                 
-                // Obtener elementos personalizados
+                // Obtener elementos personalizados de forma segura
                 const customElements = [
-                    document.getElementById('element1').value.trim(),
-                    document.getElementById('element2').value.trim(),
-                    document.getElementById('element3').value.trim()
+                    document.getElementById('element1')?.value?.trim() || '',
+                    document.getElementById('element2')?.value?.trim() || '',
+                    document.getElementById('element3')?.value?.trim() || ''
                 ].filter(Boolean);
                 
                 // Generar prompt específico basado en el texto editado
                 const normalizedGenres = normalizeWeights();
                 const imagePrompt = generateSpecificImagePrompt(editedNarrative, normalizedGenres, customElements);
                 
-                // Seleccionar modelo y generar imagen
+                // Seleccionar modelo y generar imagen con timeout
                 const selectedModel = selectImageModel(appState.visualStyle, appState.imageEngine);
                 console.log(`🚀 Usando engine: ${selectedModel} con texto editado`);
-                const imageResult = await simulateImageGeneration(imagePrompt, selectedModel);
                 
-                loadingImage.classList.add('hidden');
+                const imageResult = await Promise.race([
+                    simulateImageGeneration(imagePrompt, selectedModel),
+                    new Promise((_, reject) => 
+                        setTimeout(() => reject(new Error('Timeout generando imagen')), 15000)
+                    )
+                ]);
+                
+                if (loadingImage) {
+                    loadingImage.classList.add('hidden');
+                }
                 displayImage(imageResult);
                 
             } catch (error) {
                 console.error('Error generando imagen:', error);
                 alert('Error al generar imagen: ' + error.message);
-                loadingImage.classList.add('hidden');
+                if (loadingImage) {
+                    loadingImage.classList.add('hidden');
+                }
             } finally {
                 appState.isGeneratingImage = false;
-                generateImageBtn.disabled = false;
-                generateImageBtn.textContent = '🎬 Generar Imagen del Texto Editado';
+                if (generateImageBtn) {
+                    generateImageBtn.disabled = false;
+                    generateImageBtn.textContent = '🎬 Generar Imagen del Texto Editado';
+                }
             }
         };
 
