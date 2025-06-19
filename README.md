@@ -1,255 +1,212 @@
+# 🎭 narrativAI: El Teu Generador de Narratives Èpiques amb IA
 
+Llicència | Estat | Versió
+--- | --- | ---
+MIT | En procés (WIP) | 1.0 (Estimada)
 
-  🎭 Generador d'Arguments Narratius: El Creador Intel·ligent d'Històries
+Benvingut/da a **narrativAI**! L'eina web definitiva per crear **narratives èpiques personalitzades**. Dissenyada per a escriptors, directors de joc, mestres de rol i qualsevol ment creativa que busqui inspiració literària. Introdueix els teus elements personalitzats, tria fins a 3 gèneres balancejats i deixa que la intel·ligència artificial teixeixi històries úniques i les visualitzi amb **imatges èpiques cinematogràfiques**.
 
-Llicència Estat Versió
+---
 
-Benvingut/da al Generador d'Arguments Narratius, una eina web dissenyada
-per alliberar la teva creativitat i explorar infinites possibilitats
-narratives. Combina algoritmes procedimentals avançats amb el poder de
-la intel·ligència artificial per crear sinopsis úniques, títols
-intel·ligents i imatges visuals que donin vida a les teves històries.
+### 🚀 Prova'l Ara Online! 🚀
 
-------------------------------------------------------------------------
+No cal instal·lar res. Pots començar a crear les teves narratives èpiques a l'instant accedint a la demo online.
 
+Accedeix a la Demo Online Fent [Clic Aquí](https://xesco-tejedor.github.io/narrativAI/)
 
-    🚀 Prova'l Ara Online! 🚀
+*Exemple generat: "peixet de plata" + "biblioteca gegantina" = Narrativa èpica amb imatge cinematogràfica real*
 
-No cal instal·lar res. Pots començar a crear narratives èpiques a l'instant.
+---
 
+### ✨ Característiques Principals
 
-          Accedeix a la Demo Online Fent [Clic Aquí](https://xesco-tejedor.github.io/generadorArgumentos/)
+* 📚 **Narratives Específiques amb Elements Literals:**
+    * Introdueix fins a 3 elements personalitzats que apareixeran literalment en la teva narrativa.
+    * Sistema intel·ligent que integra els teus elements de manera orgànica i èpica.
+    * **Templates narratius específics** per cada gènere amb més de 200 variants úniques.
+* 🎭 **Fins a 3 Gèneres Balancejats:**
+    * Selecciona entre **8 gèneres**: Terror 👻, Fantasia 🧙‍♂️, Romàntic 💕, Acció ⚔️, Misteri 🔍, Ciència Ficció 🚀, Drama 🎭, Comèdia 😂.
+    * Sistema de pesos ajustables per controlar la influència de cada gènere.
+    * Redistribució automàtica proporcional per mantenir l'equilibri narratiu.
+* ✏️ **Editor de Text Complet:**
+    * Narrativa completament editable abans de generar la imatge.
+    * Auto-redimensionament del textarea per a un còmode ajustament del text.
+    * Regeneració independent de narrativa i imatge.
+    * Funció de còpia i exportació en format ZIP.
+* 🎬 **Imatges Èpiques Cinematogràfiques amb IA Real:**
+    * Generació d'imatges reals utilitzant **gpt-image-1** i **SeedImage 3.0**.
+    * **14 estils visuals únics** inspirats en mestres del còmic:
+        * 🎨 **Mike Mignola** (ombres dramàtiques) - *Hellboy*
+        * 📚 **Alex Toth** (línies elegants) - *Space Ghost*
+        * 🌟 **Bill Sienkiewicz** (expressionista) - *New Mutants*
+        * ⚡ **J.H. Williams III** (innovador) - *Promethea*
+        * 🏛️ **François Schuiten** (línia clara) - *Ciutats Obscures*
+        * 💪 **Burne Hogarth** (anatomia dinàmica) - *Tarzan*
+        * 🦇 **Bernie Wrightson** (horror gòtic) - *Swamp Thing*
+        * ⚔️ **Frank Frazetta** (fantasia heroica) - *Conan*
+        * *Més 6 estils addicionals (fotorrealista, cinematogràfic, art conceptual...)*
+* 🚀 **Selecció Intel·ligent d'Engine:**
+    * Mode automàtic: Tria el millor *engine* segons l'estil visual.
+    * **gpt-image-1**: Ràpid i fiable per a fotorrealisme.
+    * **SeedImage 3.0**: Alta qualitat artística per a estils de còmic.
+    * Optimització automàtica per a la millor qualitat visual.
+* 🎭 **12 Postures/Accions de Portada:**
+    * Selecció automàtica basada en la narrativa o manual.
+    * Postures heroiques, moments de descobriment, accions dinàmiques.
+    * Confrontacions dramàtiques, abraçades romàntiques, investigacions misterioses.
+* 💾 **Exportació Professional:**
+    * Format ZIP amb narrativa, configuració i documentació.
+    * Metadades completes de la generació.
+    * README automàtic amb resum de la configuració.
+    * Estadístiques de text (paraules, caràcters).
 
-------------------------------------------------------------------------
+---
 
+### 🔧 Configuració Local (Opcional)
 
-    ✨ Característiques Principals
+Si prefereixes tenir la teva pròpia instal·lació privada:
 
-  * ✨ *Interfície Intuïtiva:* Selecciona dos gèneres, ajusta els pesos
-    d'influència i genera arguments únics en segons.
-  * 🧠 *Generació Híbrida:* Combina algoritmes procedimentals
-    sofisticats amb IA opcional per crear narratives profundes i coherents.
-  * 🎚️ *Control d'Influència:* Ajusta el pes entre gèneres per crear des
-    de narratives equilibrades fins a fusions dominants.
-  * 🎨 *Generació d'Imatges amb IA:* Crea visualitzacions automàtiques
-    usant DALL-E 3, Replicate, Stability AI o Fal.ai.
-  * 📝 *Elements Personalitzats:* Incorpora objectes, personatges o
-    conceptes específics que s'integren orgànicament a la narrativa.
-  * 🤖 *Millora amb IA:* Enriqueix les narratives amb múltiples
-    proveïdors d'IA (OpenRouter, OpenAI, Claude, Gemini).
-  * 📚 *Títols Intel·ligents:* Genera títols contextuals basats en el
-    contingut i gèneres de cada narrativa.
-  * 💾 *Exportació Completa:* Descarrega paquets ZIP amb l'argument en
-    Markdown i la imatge generada.
-  * 📱 *Disseny Responsiu:* Funciona perfectament en ordinador, tauleta
-    o mòbil.
-  * 🔒 *Privacitat Primer:* Totes les claus API s'emmagatzemen localment
-    al teu navegador.
+1.  **Descarregar el Projecte:**
+    ```bash
+    git clone [https://github.com/xesco-tejedor/narrativAI.git](https://github.com/xesco-tejedor/narrativAI.git)
+    ```
+2.  **Obrir l'Arxiu:**
+    Obre `index.html` directament al teu navegador web. No requereix cap servidor.
+3.  **Funcionalitat Completa:**
+    Tota la funcionalitat està disponible sense claus API externes. La generació de narratives es realitza mitjançant algoritmes locals avançats, i les imatges es generen mitjançant un sistema integrat de Hatch.
 
+---
 
-    🎯 Gèneres Disponibles
+### 🎯 Com Utilitzar narrativAI
 
-El generador inclou una àmplia gamma de gèneres narratius:
+1.  **Configura els Teus Elements:**
+    Introdueix fins a 3 elements personalitzats (ex: "peixet de plata", "biblioteca gegantina", "llibre voluminós"). Aquests elements apareixeran literalment en la teva narrativa èpica.
+2.  **Selecciona els Gèneres:**
+    Tria fins a 3 gèneres que definiran l'estil de la teva història. Ajusta els pesos per controlar la influència de cada gènere.
+3.  **Configura la Imatge (Opcional):**
+    Activa la generació d'imatges IA. Tria entre 14 estils visuals únics. Selecciona l'*engine* de generació o deixa'l en automàtic.
+4.  **Genera i Edita:**
+    Genera la narrativa base. Edita el text segons les teves necessitats. Genera la imatge basada en el text final editat.
+5.  **Exporta el Teu Treball:**
+    Copia el text editat. Exporta tot en format ZIP professional. Comparteix la teva creació èpica.
 
-  * 🦇 *Terror/Horror* - Atmosferes inquietants i narratives sobrenaturals
-  * 🚀 *Ciència Ficció* - Futurs imaginats i tecnologies especulatives
-  * 🧙 *Fantasia* - Mons màgics i criatures místiques
-  * 💕 *Romàntic* - Històries d'amor i connexions humanes
-  * 🔍 *Misteri* - Enigmes per resoldre i secrets amagats
-  * ⚡ *Thriller* - Tensió i suspens constant
-  * 🗺️ *Aventura* - Èpiques exploracions i viatges heroics
-  * 🎭 *Drama* - Conflictes humans profunds
-  * 😄 *Comèdia* - Situacions divertides i absurdes
-  * 🤠 *Western* - El salvatge oest i la frontera
-  * 🏛️ *Històric* - Èpoques passades i esdeveniments reals
-  * 🌆 *Distopia* - Futurs foscos i societats opressives
-  * 🕵️ *Policial* - Investigacions criminals i justícia
-  * 👻 *Sobrenatural* - Fenòmens inexplicables
-  * 💥 *Acció* - Adrenalina i seqüències dinàmiques
+---
 
-
-    🔧 Configuració Local (Opcional)
-
-Si prefereixes executar l'aplicació localment:
-
- 1.
-
-    *Descarregar el Projecte:* Clona el repositori o simplement
-    descarrega l'arxiu |index.html|.
-
-    |git clone https://github.com/el-teu-usuari/generador-narratives.git
-    |
-
- 2.
-
-    *Obrir l'Arxiu:* Obre |index.html| directament al teu navegador web. No requereix servidor.
-
- 3.
-
-    *Configurar APIs (Opcional):* Per a funcionalitats avançades, obté
-    claus API:
-
-    *Per a Millora de Text:*
-
-      * *OpenRouter.ai <https://openrouter.ai/keys>* - Accés a múltiples
-        models (Recomanat)
-      * *OpenAI <https://platform.openai.com/api-keys>* - GPT-4 directe
-      * *Anthropic <https://console.anthropic.com/>* - Claude directe
-      * *Google AI <https://ai.google.dev/>* - Gemini directe
-
-    *Per a Generació d'Imatges:*
-
-      * *OpenAI <https://platform.openai.com/api-keys>* - DALL-E 3
-        (Millor qualitat)
-      * *Replicate <https://replicate.com/account>* - Flux, SDXL i més
-        models
-      * *Stability AI <https://platform.stability.ai/account>* - Stable
-        Diffusion oficial
-      * *Fal.ai <https://fal.ai/dashboard>* - Flux Pro ultraràpid
- 4.
-
-    *Usar les APIs:* Enganxa les teves claus a la configuració de
-    l'aplicació. Es guarden de forma segura al teu navegador.
-
-
-    🎨 Proveïdors d'IA Suportats
-
-
-      📝 Per a Millora de Text:
-
-  * *OpenRouter* - Accés a 150+ models (Claude, GPT-4, Gemini, Llama, etc.)
-  * *OpenAI* - GPT-4, GPT-4 Turbo, GPT-3.5
-  * *Anthropic* - Claude 3.5 Sonnet, Claude 3 Opus/Haiku
-  * *Google* - Gemini Pro, Gemini Flash
-
-
-      🎨 Per a Generació d'Imatges:
-
-  * *DALL-E 3* - Millor comprensió de prompts i qualitat artística
-  * *Replicate* - Flux Schnell, SDXL, i models de codi obert
-  * *Stability AI* - Stable Diffusion XL oficial
-  * *Fal.ai* - Flux Pro amb velocitat optimitzada
-
-
-    🗺️ Full de Ruta i Millores Futures
+### 🗺️ Full de Ruta i Millores Futures
 
 Aquest projecte està en constant evolució!
 
+#### ⚠️ En Procés de Millora (Work in Progress)
 
-            ⚠️ En Procés de Millora (Work in Progress)
+* **Qualitat Narrativa:** Refinar els algoritmes per aconseguir narratives més coherents i estilístiques.
+* **Optimització d'Imatges:** Millorar la precisió dels *prompts* per a imatges més fidels al text.
 
-      * *Optimització de Prompts d'Imatge:* Millorar la coherència
-        visual amb elements narratius específics.
-      * *Base de Dades Narrativa Expandida:* Afegir més arquetips de
-        personatges i situacions per gènere.
+#### 💡 Pròximes Característiques
 
+* **Mode Fosc** per a sessions nocturnes de creació.
+* **Més Estils Visuals** (Lovecraftià, Nòrdic, Manga, Art Nouveau).
+* **Sistema de Preferits** per desar configuracions predilectes.
+* **Traducció Multiidioma** (Castellà, Anglès, Francès).
+* **Exportació Avançada** en formats EPUB i PDF.
+* **Col·laboració en Temps Real** per a projectes compartits.
+* **Plantilles Narratives** per a històries específiques (RPG, novel·les, guions).
 
-            💡 Pròximes Característiques
+---
 
-      * *Mode Col·laboratiu:* Generació de narratives en temps real amb
-        múltiples usuaris.
-      * *Plantilles de Gèneres:* Estructures narratives específiques per
-        gènere (ex: estructura de 3 actes per drama).
-      * *Galeria de Narratives:* Explorar arguments generats per altres
-        usuaris (anònims).
-      * *Editor Avançat:* Eines per editar i refinar les narratives
-        generades.
-      * *Anàlisi de Coherència:* IA que avalua la consistència interna
-        de les narratives.
-      * *Exportació Avançada:* PDF amb dissenys professionals i
-        múltiples formats.
-      * *Mode Fosc* i temes personalitzables.
-      * *Traducció Multiidioma* per a narratives internacionals.
+### 🚀 Tecnologies Utilitzades
 
+* 💻 **HTML5** - Estructura moderna i semàntica.
+* 🎨 **CSS3** - Disseny responsiu amb Tailwind CSS.
+* 🤖 **JavaScript Vanilla** - Lògica pura sense dependències.
+* 🎭 **Algoritmes Narratius Avançats** - Sistema propi de generació de text.
+* 🎨 **IA d'Imatges Integrada** - gpt-image-1 i SeedImage 3.0.
+* 📦 **JSZip** - Exportació professional.
+* 🎯 **Sistema de Templates** - Més de 200 variants narratives úniques.
 
-    🚀 Tecnologies Utilitzades
+---
 
-  * 💻 *HTML5* amb estructura semàntica avançada
-  * 🎨 *Tailwind CSS* per a disseny responsiu i modern
-  * 🤖 *JavaScript (Vanilla ES6+)* amb arquitectura modular
-  * 🧠 *APIs d'IA Múltiples* (OpenRouter, OpenAI, Anthropic, Google)
-  * 🎨 *APIs de Generació d'Imatges* (DALL-E 3, Replicate, Stability AI,
-    Fal.ai)
-  * 📦 *JSZip* per a exportació d'arxius comprimits
-  * 🔧 *Algoritmes Procedimentals* per a generació de contingut únic
+### 🎭 Exemples d'Ús
 
+* **Per a Escriptors:**
+    * Genera narratives base per a novel·les o contes.
+    * Crea sinopsis èpiques per a propostes editorials.
+    * Desenvolupa personatges i escenaris únics.
+* **Per a Mestres de Rol:**
+    * Crea trasfons èpics per a campanyes.
+    * Genera esdeveniments aleatoris amb imatges.
+    * Desenvolupa NPCs amb històries complexes.
+* **Per a Directors de Joc:**
+    * Dissenya narratives per a videojocs.
+    * Crea *cutscenes* amb text i imatges.
+    * Desenvolupa *worldbuilding* coherent.
+* **Per a Creadors de Contingut:**
+    * Genera contingut èpic per a xarxes socials.
+    * Crea històries il·lustrades per a blocs.
+    * Desenvolupa material promocional visual.
 
-    🎯 Casos d'Ús
+---
 
-  * *📚 Escriptors:* Superar el bloqueig de l'escriptor amb idees fresques
-  * *🎬 Guionistes:* Explorar combinacions de gèneres úniques
-  * *🎮 Desenvolupadors de Jocs:* Crear transfons i narratives per NPCs
-  * *🎓 Educadors:* Ensenyar estructura narrativa i anàlisi de gèneres
-  * *🎭 Creatius:* Inspiració per a projectes artístics multidisciplinaris
-  * *📖 Lectors:* Descobrir nous tipus d'històries que podrien interessar-te
+### 🙌 Com Contribuir
 
+Les contribucions són més que benvingudes! Si tens idees per millorar narrativAI, has trobat un error o vols afegir una nova funcionalitat:
 
-    🙌 Com Contribuir
+1.  Fes un `Fork` del projecte.
+2.  Crea una *feature branch* (`git checkout -b feature/AmazingFeature`).
+3.  Fes `Commit` dels teus canvis (`git commit -m 'Add some AmazingFeature'`).
+4.  Fes `Push` a la branch (`git push origin feature/AmazingFeature`).
+5.  Obre una `Pull Request`.
 
-Les contribucions són més que benvingudes! Si tens idees, has trobat un
-error o vols millorar el codi:
+#### Àrees on Necessitem Ajuda:
 
- 1. *Fork* el repositori
- 2. Crea una *branca de característica* (|git checkout -b feature/nova-caracteristica|)
- 3. *Commit* els teus canvis (|git commit -am 'Afegir nova característica'|)
- 4. *Push* a la branca (|git push origin feature/nova-caracteristica|)
- 5. Obre una *Pull Request*
+* 📝 Millora dels *templates* narratius.
+* 🎨 Nous estils visuals i *prompts* d'imatge.
+* 🌍 Traduccions a altres idiomes.
+* 🔧 Optimització de rendiment.
+* 📱 Millores en l'experiència mòbil.
 
+---
 
-      💡 Idees per Contribuir:
+### 📊 Estadístiques del Projecte
 
-  * Nous gèneres narratius o subgèneres
-  * Millores a la base de dades d'elements narratius
-  * Optimitzacions de rendiment
-  * Noves funcionalitats d'exportació
-  * Correcció de bugs o millores d'UX
-  * Documentació i exemples
+* ✅ **200+ Templates narratius únics.**
+* 🎨 **14 Estils visuals de mestres del còmic.**
+* 🎭 **8 Gèneres literaris disponibles.**
+* 📱 **100% Responsiu** per a tots els dispositius.
+* 🔒 **Zero Dependències externes** per a privacitat total.
 
+---
 
-    📄 Llicència
+### 📄 Llicència
 
-Aquest projecte està sota la *Llicència MIT*. Consulta l'arxiu |LICENSE| per a més detalls.
+Aquest projecte està sota la **Llicència MIT**.
 
+Forjant narratives èpiques, una història a la vegada. 🎭✨
+Creat amb ❤️ per la comunitat creativa catalana i internacional.
 
-    🌟 Agraïments
+---
 
-  * *OpenRouter.ai* per proporcionar accés unificat a múltiples models d'IA
-  * *OpenAI* per DALL-E 3 i GPT-4
-  * *Anthropic* per Claude i la seva excel·lent capacitat narrativa
-  * *Stability AI* per democratitzar la generació d'imatges
-  * *Tailwind CSS* pel framework de disseny
-  * La comunitat de *desenvolupadors de codi obert*
-
-------------------------------------------------------------------------
-
-
-    📞 Contacte i Suport
+### 📞 Contacte i Suport
 
 Tens preguntes, suggeriments o necessites ajuda?
 
-  * 🐛 *Reportar Bugs:* Obre un issue a GitHub
-  * 💡 *Suggerir Característiques:* Discussió a GitHub Discussions
-  * 📧 *Contacte Directe:* [el-teu-email@exemple.com <mailto:el-teu-
-    email@exemple.com>]
+* 🐛 **Reportar Bugs:** Obre un *issue* a GitHub.
+* 💡 **Suggerir Característiques:** Discussió a GitHub Discussions.
+* 📧 **Contacte Directe:** [xesco.tejedor@example.com](mailto:xesco.tejedor@example.com)
 
-------------------------------------------------------------------------
+---
 
 /Creat amb algoritmes creatius, IA generativa i molta imaginació./
 
+### 🎲 Per Què Utilitzar Aquest Generador?
 
-    🎲 Per Què Usar Aquest Generador?
+/"La creativitat és la intel·ligència divertint-se."/ - Albert Einstein
 
-    /"La creativitat és la intel·ligència divertint-se."/ - Albert Einstein
+En un món on les històries són el cor de tota comunicació humana, aquest generador t'ofereix:
 
-En un món on les històries són el cor de tota comunicació humana, aquest
-generador t'ofereix:
+* *🔄 Infinites Possibilitats:* Cada combinació genera narratives úniques.
+* *🎯 Precisió Creativa:* Control total sobre la direcció narrativa.
+* *⚡ Rapidesa:* De la idea a l'argument complet en segons.
+* *🎨 Inspiració Visual:* Imatges que complementen cada història.
+* *📈 Millora Contínua:* La IA aprèn i s'adapta a millors resultats.
 
-  * *🔄 Infinites Possibilitats:* Cada combinació genera narratives úniques
-  * *🎯 Precisió Creativa:* Control total sobre la direcció narrativa
-  * *⚡ Rapidesa:* De la idea a l'argument complet en segons
-  * *🎨 Inspiració Visual:* Imatges que complementen cada història
-  * *📈 Millora Contínua:* La IA aprèn i s'adapta a millors resultats
-
-Submergeix-te en l'univers infinit de possibilitats narratives i
-descobreix històries que mai haguessis imaginat!
-
+Submergeix-te en l'univers infinit de possibilitats narratives i descobreix històries que mai no hagis imaginat!
