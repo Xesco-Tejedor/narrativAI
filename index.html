@@ -3,1629 +3,365 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generador de Argumentos Narrativos</title>
+    <title>narrativAI - Generador de Narrativas Épicas</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
-        .slider::-webkit-slider-thumb {
-            appearance: none;
-            height: 20px;
-            width: 20px;
-            border-radius: 50%;
-            background: #8b5cf6;
-            cursor: pointer;
-            border: 2px solid #ffffff;
-            box-shadow: 0 0 0 1px #8b5cf6;
+        body {
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         }
         
-        .slider::-moz-range-thumb {
-            height: 20px;
-            width: 20px;
-            border-radius: 50%;
-            background: #8b5cf6;
+        .genre-card {
+            transition: all 0.3s ease;
             cursor: pointer;
-            border: 2px solid #ffffff;
-            box-shadow: 0 0 0 1px #8b5cf6;
+            border: 2px solid transparent;
         }
-
-        .genre-button {
-            transition: all 0.2s ease;
-            transform: scale(1);
+        
+        .genre-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3);
+            border-color: rgba(139, 92, 246, 0.5);
         }
-
-        .genre-button:hover {
-            transform: scale(1.02);
+        
+        .genre-card.selected {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(168, 85, 247, 0.1));
+            border-color: #8b5cf6;
+            box-shadow: 0 4px 20px rgba(139, 92, 246, 0.4);
         }
-
-        .genre-button.selected {
-            transform: scale(1.05);
-            box-shadow: 0 8px 25px rgba(147, 51, 234, 0.4);
+        
+        .visual-style-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
         }
-
-        .spinner {
-            border: 3px solid rgba(255, 255, 255, 0.3);
+        
+        .visual-style-card:hover {
+            transform: translateY(-1px);
+            border-color: rgba(34, 197, 94, 0.5);
+        }
+        
+        .visual-style-card.selected {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(16, 185, 129, 0.1));
+            border-color: #22c55e;
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+        }
+        
+        .loading-animation {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
+        }
+        
+        .weight-slider {
+            background: linear-gradient(to right, #8b5cf6 0%, #6366f1 100%);
+            height: 6px;
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        .weight-slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            background: #8b5cf6;
             border-radius: 50%;
-            border-top: 3px solid #ffffff;
-            width: 16px;
-            height: 16px;
-            animation: spin 1s linear infinite;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(139, 92, 246, 0.4);
         }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        
+        .weight-slider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            background: #8b5cf6;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 6px rgba(139, 92, 246, 0.4);
         }
-
-        .gradient-text {
-            background: linear-gradient(45deg, #fbbf24, #ec4899, #8b5cf6);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+        
+        .generated-text {
+            animation: fadeIn 0.8s ease-in;
         }
-
-        .card-blur {
-            backdrop-filter: blur(10px);
-            background: rgba(17, 24, 39, 0.8);
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-
-        @keyframes pulse-glow {
-            0%, 100% { box-shadow: 0 0 20px rgba(147, 51, 234, 0.3); }
-            50% { box-shadow: 0 0 40px rgba(147, 51, 234, 0.6); }
+        
+        #narrativeTextEditor {
+            scrollbar-width: thin;
+            scrollbar-color: #8b5cf6 #374151;
         }
-
-        .pulse-glow {
-            animation: pulse-glow 2s ease-in-out infinite;
+        
+        #narrativeTextEditor::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        #narrativeTextEditor::-webkit-scrollbar-track {
+            background: #374151;
+            border-radius: 3px;
+        }
+        
+        #narrativeTextEditor::-webkit-scrollbar-thumb {
+            background: #8b5cf6;
+            border-radius: 3px;
+        }
+        
+        #narrativeTextEditor::-webkit-scrollbar-thumb:hover {
+            background: #a855f7;
+        }
+        
+        #narrativeTextEditor:focus {
+            box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.3);
+            border-radius: 4px;
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-gray-900 via-purple-900 to-blue-900 min-h-screen text-white">
-    <div class="max-w-6xl mx-auto p-4">
-        {/* Header */}
+<body class="text-white">
+    <div class="container mx-auto px-4 py-6 max-w-4xl">
+        <!-- Header -->
         <div class="text-center mb-8">
-            <h1 class="text-4xl font-bold mb-2">
-                <span class="gradient-text">
-                    ✨ Generador de Argumentos Narrativos ✨
-                </span>
+            <h1 class="text-4xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent mb-2">
+                🎭 narrativAI
             </h1>
-            <p class="text-gray-300 text-lg">
-                Crea argumentos únicos con hasta 3 géneros balanceados y elementos personalizados
-            </p>
+            <p class="text-gray-300 text-lg">Generador de narrativas épicas con IA visual</p>
+            <div class="flex justify-center items-center mt-3 space-x-2">
+                <span class="text-sm text-purple-300">v2.0</span>
+                <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                <span class="text-sm text-green-300">Editor Mejorado</span>
+            </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Panel de configuración */}
-            <div class="space-y-6">
-                {/* Selección de géneros con límite */}
-                <div class="card-blur rounded-lg p-6 border border-gray-700">
-                    <h2 class="text-xl font-semibold mb-4 text-purple-300">
-                        🎭 Selecciona géneros (máximo 3)
-                    </h2>
-                    <div class="grid grid-cols-2 gap-3 mb-4" id="genreGrid">
-                        <!-- Géneros se generan dinámicamente -->
-                    </div>
+        <!-- Selección de Géneros -->
+        <div class="bg-gray-800/50 rounded-xl p-6 mb-6 backdrop-blur-sm border border-gray-700">
+            <h2 class="text-xl font-semibold mb-4 flex items-center">
+                🎪 Selecciona tus géneros (máximo 3)
+                <span id="genreCount" class="ml-2 text-sm bg-purple-600 px-2 py-1 rounded-full">0/3</span>
+            </h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3" id="genreGrid">
+                <!-- Se llenarán dinámicamente -->
+            </div>
+            
+            <!-- Control de pesos -->
+            <div id="weightControls" class="mt-6 hidden">
+                <h3 class="text-lg font-medium mb-3 text-purple-300">⚖️ Ajustar influencia de géneros</h3>
+                <div id="weightSliders" class="space-y-3">
+                    <!-- Se llenarán dinámicamente -->
+                </div>
+            </div>
+        </div>
 
-                    {/* Controles de peso para géneros seleccionados */}
-                    <div id="weightControls" class="space-y-4 hidden">
-                        <h3 class="text-lg font-medium text-purple-200">
-                            ⚖️ Ajustar pesos de géneros
-                        </h3>
-                        <div id="weightsContainer">
-                            <!-- Controles de peso se generan dinámicamente -->
-                        </div>
-                        <div class="text-xs text-gray-400 mt-2">
-                            ⚡ Los pesos se normalizan automáticamente al ajustar cualquier barra
-                        </div>
+        <!-- Elementos Personalizados -->
+        <div class="bg-gray-800/50 rounded-xl p-6 mb-6 backdrop-blur-sm border border-gray-700">
+            <h2 class="text-xl font-semibold mb-4">✨ Elementos personalizados</h2>
+            <div class="grid md:grid-cols-3 gap-4">
+                <input type="text" id="element1" placeholder="ej: pececillo de plata" 
+                       class="bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:border-purple-500">
+                <input type="text" id="element2" placeholder="ej: biblioteca misteriosa" 
+                       class="bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:border-purple-500">
+                <input type="text" id="element3" placeholder="ej: secretos antiguos" 
+                       class="bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:border-purple-500">
+            </div>
+        </div>
+
+        <!-- Configuración de IA de Imágenes -->
+        <div class="bg-gray-800/50 rounded-xl p-6 mb-6 backdrop-blur-sm border border-gray-700">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-semibold">🎨 Generación de imágenes IA</h2>
+                <label class="flex items-center space-x-3 cursor-pointer">
+                    <input type="checkbox" id="useImageAI" class="form-checkbox h-5 w-5 text-purple-600 rounded">
+                    <span class="text-gray-300">Activar IA visual</span>
+                </label>
+            </div>
+            
+            <div id="imageAIInfo" class="hidden">
+                <p class="text-sm text-gray-400 mb-4">
+                    🎬 La IA generará imágenes épicas basadas en tu narrativa editada
+                </p>
+                
+                <!-- Estilos Visuales -->
+                <div id="visualStylesSection" class="mb-4">
+                    <h3 class="text-lg font-medium mb-3 text-green-300">🎨 Estilo visual</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3" id="visualStyleGrid">
+                        <!-- Se llenarán dinámicamente -->
                     </div>
                 </div>
 
-                {/* Elementos personalizados mejorados */}
-                <div class="card-blur rounded-lg p-6 border border-gray-700">
-                    <h2 class="text-xl font-semibold mb-4 text-purple-300">🎨 Elementos personalizados</h2>
-                    <textarea
-                        id="customElements"
-                        placeholder="Elementos específicos (ej: pececillo de plata, voluminoso y antiguo libro, biblioteca gigantesca)..."
-                        class="w-full h-24 p-3 bg-gray-700 border border-gray-600 rounded-lg resize-none focus:outline-none focus:border-purple-500 text-white placeholder-gray-400"
-                        rows="3"
+                <!-- Engine de IA -->
+                <div id="imageEngineSection">
+                    <h3 class="text-lg font-medium mb-3 text-blue-300">🚀 Engine de IA</h3>
+                    <div class="grid grid-cols-2 gap-3" id="imageEngineGrid">
+                        <!-- Se llenarán dinámicamente -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Botón de Generación -->
+        <div class="text-center mb-8">
+            <button id="generateBtn" class="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 
+                                         text-white font-semibold px-8 py-4 rounded-xl transition-all duration-300 
+                                         transform hover:scale-105 hover:shadow-lg disabled:opacity-50">
+                <span id="generateBtnText">🎭 Generar Argumento Épico</span>
+            </button>
+        </div>
+
+        <!-- Loading States -->
+        <div id="loadingNarrative" class="hidden mb-6">
+            <div class="bg-gray-800/50 rounded-xl p-6 border border-gray-700 text-center">
+                <div class="loading-animation text-4xl mb-2">🎭</div>
+                <p class="text-purple-300 font-medium">Generando narrativa épica...</p>
+                <div class="mt-3 w-full bg-gray-700 rounded-full h-2">
+                    <div class="bg-purple-600 h-2 rounded-full animate-pulse" style="width: 65%"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="loadingImage" class="hidden mb-6">
+            <div class="bg-gray-800/50 rounded-xl p-6 border border-gray-700 text-center">
+                <div class="loading-animation text-4xl mb-2">🎨</div>
+                <p class="text-green-300 font-medium">Generando imagen cinematográfica...</p>
+                <div class="mt-3 w-full bg-gray-700 rounded-full h-2">
+                    <div class="bg-green-600 h-2 rounded-full animate-pulse" style="width: 80%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Argumento Generado -->
+        <div id="narrativePlaceholder" class="text-center text-gray-400 mb-6">
+            <div class="text-4xl mb-2">📝</div>
+            <p>Tu narrativa épica aparecerá aquí</p>
+        </div>
+
+        <div id="narrativeContent" class="hidden mb-6">
+            <h2 class="text-2xl font-semibold mb-4 flex items-center">
+                📖 Argumento Generado
+                <span class="ml-3 text-sm bg-green-600 px-2 py-1 rounded-full">Editable</span>
+            </h2>
+            <div class="bg-gray-900/50 rounded-lg border-l-4 border-purple-500">
+                <!-- Área de texto editable -->
+                <div class="relative">
+                    <textarea 
+                        id="narrativeTextEditor" 
+                        class="w-full min-h-48 p-4 bg-transparent text-gray-100 leading-relaxed resize-none border-none outline-none"
+                        placeholder="Tu narrativa editada aparecerá aquí..."
+                        style="font-family: inherit; line-height: 1.6;"
                     ></textarea>
-                    <div class="text-xs text-gray-400 mt-2 space-y-1">
-                        <p>✨ <strong>Los elementos se integran literalmente en la narrativa</strong></p>
-                        <p>📝 El primer elemento será el foco principal</p>
-                        <p>📝 El segundo elemento aparecerá como elemento secundario</p>
-                        <p>📝 El tercer elemento puede definir el escenario si es un lugar</p>
+                    <div class="absolute top-2 right-2 opacity-60 hover:opacity-100 transition-opacity">
+                        <span class="text-xs text-purple-300 bg-purple-900/50 px-2 py-1 rounded">
+                            ✏️ Editable
+                        </span>
                     </div>
                 </div>
-
-                {/* Configuración de IA para imágenes */}
-                <div class="card-blur rounded-lg p-6 border border-gray-700">
-                    <h2 class="text-xl font-semibold mb-4 text-purple-300">🎬 Imagen épica cinematográfica</h2>
-                    
-                    <div class="flex items-center mb-4">
-                        <input
-                            type="checkbox"
-                            id="useImageAI"
-                            class="mr-3 w-4 h-4 text-purple-600 rounded focus:ring-purple-500"
-                        />
-                        <label for="useImageAI" class="text-sm font-medium text-gray-300">
-                            Generar imagen épica cinematográfica con elementos en acción
-                        </label>
-                    </div>
-
-                    <div id="imageAIInfo" class="hidden mt-2 p-3 bg-blue-900/20 border border-blue-500/30 rounded text-sm text-blue-300">
-                        🎬 <strong>Imagen épica cinematográfica:</strong> La imagen mostrará tus elementos en escenas épicas de acción<br />
-                        <small class="opacity-80">🎭 Personajes en poses dramáticas, elementos claramente visibles interactuando en escenas de película</small>
-                    </div>
-                </div>
-
-                {/* Botón de generación */}
-                <button
-                    id="generateBtn"
-                    disabled
-                    class="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:from-gray-600 disabled:to-gray-600 disabled:cursor-not-allowed text-white font-semibold py-4 px-6 rounded-lg transition-all duration-200 shadow-lg pulse-glow"
-                >
-                    ✨ Generar Argumento Narrativo
+            </div>
+            
+            <div class="flex flex-wrap gap-2 mt-4">
+                <button id="copyBtn" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors text-sm">
+                    📋 Copiar texto
+                </button>
+                <button id="exportBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors text-sm">
+                    💾 Exportar ZIP
+                </button>
+                <button id="generateImageBtn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors text-sm hidden">
+                    🎬 Generar Imagen del Texto Editado
+                </button>
+                <button id="regenerateNarrativeBtn" class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg transition-colors text-sm">
+                    🎭 Regenerar Narrativa
                 </button>
             </div>
-
-            {/* Panel de resultados */}
-            <div class="space-y-6">
-                {/* Argumento generado */}
-                <div class="card-blur rounded-lg p-6 border border-gray-700">
-                    <h2 class="text-xl font-semibold mb-4 text-purple-300">📚 Argumento generado</h2>
-                    <div id="narrativeContainer" class="min-h-[200px] p-4 bg-gray-900/50 rounded-lg border border-gray-600">
-                        <p id="placeholderText" class="text-gray-500 italic">
-                            Selecciona al menos un género y haz clic en "Generar Argumento Narrativo" para comenzar...
-                        </p>
-                        <div id="narrativeContent" class="hidden">
-                            <p id="narrativeText" class="text-gray-200 leading-relaxed"></p>
-                        </div>
-                    </div>
-
-                    <div id="actionButtons" class="flex gap-3 mt-4 hidden">
-                        <button
-                            id="copyButton"
-                            class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200"
-                        >
-                            📋 Copiar al portapapeles
-                        </button>
-                        <button
-                            id="exportButton"
-                            class="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200"
-                        >
-                            📦 Exportar ZIP
-                        </button>
-                    </div>
-                </div>
-
-                {/* Imagen generada */}
-                <div id="imageSection" class="card-blur rounded-lg p-6 border border-gray-700 hidden">
-                    <h3 class="text-lg font-semibold mb-3 text-purple-300">
-                        🎬 Imagen épica cinematográfica del argumento
-                    </h3>
-                    
-                    <div class="aspect-square bg-gray-900/50 rounded-lg border border-gray-600 flex items-center justify-center overflow-hidden">
-                        <div id="imageLoading" class="text-center text-gray-400 hidden">
-                            <div class="spinner mx-auto mb-4"></div>
-                            <p>Generando imagen épica cinematográfica...</p>
-                        </div>
-                        <img
-                            id="narrativeImage"
-                            alt="Imagen épica cinematográfica del argumento"
-                            class="w-full h-full object-cover rounded-lg hidden"
-                        />
-                        <div id="imagePlaceholder" class="text-center text-gray-500">
-                            <div class="text-4xl mb-2">🎬</div>
-                            <p>La imagen épica cinematográfica aparecerá aquí</p>
-                        </div>
-                    </div>
-
-                    <div id="imageStatus" class="mt-2 text-xs text-green-400 hidden">
-                        🎬 Imagen épica generada mostrando tus elementos en escena cinematográfica de acción
-                    </div>
-                </div>
-            </div>
         </div>
 
-        {/* Footer */}
-        <div class="mt-12 text-center text-gray-400 text-sm">
-            <p>
-                ✨ Generador de Argumentos Narrativos - Narrativas específicas con elementos personalizados literales
-            </p>
-            <p class="mt-1">
-                🎬 Hasta 3 géneros balanceados + Imágenes épicas cinematográficas de tus elementos en acción
-            </p>
+        <!-- Imagen Generada -->
+        <div id="imagePlaceholder" class="text-center text-gray-400 mb-6">
+            <div class="text-4xl mb-2">🎬</div>
+            <p>La imagen épica aparecerá aquí</p>
+        </div>
+
+        <div id="imageStatus" class="hidden bg-green-900/30 rounded-lg p-3 border border-green-500/50 text-center">
+            <p class="text-green-300 font-medium">🎨 ¡Imagen épica generada exitosamente!</p>
         </div>
     </div>
 
-    <script type="module">
+    <script>
         // Estado de la aplicación
-        let appState = {
-            selectedGenres: [], // Array de objetos: { id, weight }
-            customElements: '',
-            generatedNarrative: '',
-            generatedImageUrl: '',
+        const appState = {
+            selectedGenres: [],
+            visualStyle: 'cinematico',
+            imageEngine: 'gpt-image-1',
             useImageAI: false,
             isGenerating: false,
-            isGeneratingImage: false
+            isGeneratingImage: false,
+            generatedNarrative: ''
         };
 
-        // Configuración de géneros
-        const genres = [
-            { id: 'terror', name: 'Terror', emoji: '👻', color: 'from-red-900 to-red-700' },
-            { id: 'ciencia-ficcion', name: 'Ciencia Ficción', emoji: '🚀', color: 'from-blue-900 to-blue-700' },
-            { id: 'fantasia', name: 'Fantasía', emoji: '🧙‍♂️', color: 'from-purple-900 to-purple-700' },
-            { id: 'romance', name: 'Romance', emoji: '💕', color: 'from-pink-900 to-pink-700' },
-            { id: 'misterio', name: 'Misterio', emoji: '🕵️', color: 'from-gray-900 to-gray-700' },
-            { id: 'aventura', name: 'Aventura', emoji: '⚔️', color: 'from-green-900 to-green-700' }
-        ];
-
-        // Templates narrativos expandidos con mejores placeholders
-        const narrativeTemplates = {
-            'terror': [
-                "En [LUGAR_ESPECIFICO], [PROTAGONISTA] descubre que [ELEMENTO_PERSONAL_1] tiene propiedades sobrenaturales aterradoras. Cada vez que interactúa con [ELEMENTO_PERSONAL_2], [CONSECUENCIA_TERROR] se intensifica, llevándolo hacia [DESTINO_MACABRO].",
-                "[PROTAGONISTA] encuentra [ELEMENTO_PERSONAL_1] abandonado en [LUGAR_ESPECIFICO]. Al examinarlo más de cerca, [REVELACION_HORROR] se hace evidente, y [ELEMENTO_PERSONAL_2] comienza a [MANIFESTACION_SINIESTRA].",
-                "Durante una noche tormentosa en [LUGAR_ESPECIFICO], [PROTAGONISTA] es perseguido por [ENTIDAD_MALEVOLA] que está obsesionada con [ELEMENTO_PERSONAL_1]. Solo [ELEMENTO_PERSONAL_2] puede [SOLUCION_DESESPERADA]."
-            ],
-            'ciencia-ficcion': [
-                "En el año 2087, [PROTAGONISTA] trabaja en [LUGAR_ESPECIFICO] cuando descubre que [ELEMENTO_PERSONAL_1] es en realidad [TECNOLOGIA_ALIENIGENA]. Usando [ELEMENTO_PERSONAL_2], debe [MISION_COSMICA] antes de que [AMENAZA_GALACTICA].",
-                "[PROTAGONISTA] viaja a [LUGAR_ESPECIFICO] en una nave experimental equipada con [ELEMENTO_PERSONAL_1]. Cuando [ELEMENTO_PERSONAL_2] comienza a [COMPORTAMIENTO_ANOMALO], descubre [VERDAD_CIENTIFICA] que cambiará [FUTURO_HUMANIDAD].",
-                "En una realidad donde [PREMISA_DISTOPICA], [PROTAGONISTA] encuentra [ELEMENTO_PERSONAL_1] que puede [PODER_TEMPORAL]. Pero usar [ELEMENTO_PERSONAL_2] significa [SACRIFICIO_COSMICO]."
-            ],
-            'fantasia': [
-                "En el reino encantado de [LUGAR_ESPECIFICO], [PROTAGONISTA] hereda [ELEMENTO_PERSONAL_1] que le otorga [HABILIDAD_MAGICA]. Cuando [ELEMENTO_PERSONAL_2] comienza a [TRANSFORMACION_MAGICA], debe enfrentar [PROFECIA_ANCESTRAL].",
-                "[PROTAGONISTA] emprende una búsqueda épica hacia [LUGAR_ESPECIFICO] para encontrar [ELEMENTO_PERSONAL_1]. En el camino, [ELEMENTO_PERSONAL_2] revela [SECRETO_MAGICO] que lo conecta con [DESTINO_LEGENDARIO].",
-                "Una antigua maldición afecta [LUGAR_ESPECIFICO], y solo [PROTAGONISTA] puede romperla usando [ELEMENTO_PERSONAL_1]. Pero primero debe dominar el poder de [ELEMENTO_PERSONAL_2] y superar [PRUEBAS_MISTICAS]."
-            ],
-            'romance': [
-                "En [LUGAR_ESPECIFICO], [PROTAGONISTA] conoce a [INTERES_ROMANTICO] mientras ambos buscan [ELEMENTO_PERSONAL_1]. Su conexión se profundiza cuando descubren que [ELEMENTO_PERSONAL_2] los une de [MANERA_DESTINO].",
-                "[PROTAGONISTA] regresa a [LUGAR_ESPECIFICO] después de años y se reencuentra con [AMOR_PASADO]. Mientras exploran juntos [ELEMENTO_PERSONAL_1], deben confrontar [MALENTENDIDO_PASADO] relacionado con [ELEMENTO_PERSONAL_2].",
-                "Dos almas gemelas, [PROTAGONISTA] y [INTERES_ROMANTICO], se ven unidos por [ELEMENTO_PERSONAL_1] en [LUGAR_ESPECIFICO]. A medida que [ELEMENTO_PERSONAL_2] revela [VERDAD_ROMANTICA], su amor [TRANSFORMACION_EMOCIONAL]."
-            ],
-            'misterio': [
-                "En [LUGAR_ESPECIFICO], [DETECTIVE] investiga la desaparición misteriosa de [ELEMENTO_PERSONAL_1]. Las pistas llevan a [ELEMENTO_PERSONAL_2], que guarda [SECRETO_OSCURO] sobre [CONSPIRACION_LOCAL].",
-                "[PROTAGONISTA] encuentra [ELEMENTO_PERSONAL_1] en [LUGAR_ESPECIFICO] con extrañas marcas que no puede explicar. Su investigación sobre [ELEMENTO_PERSONAL_2] revela [CRIMEN_PASADO] que amenaza [VERDAD_ENTERRADA].",
-                "Cuando [ELEMENTO_PERSONAL_1] aparece misteriosamente en [LUGAR_ESPECIFICO], [INVESTIGADOR] debe descifrar su conexión con [ELEMENTO_PERSONAL_2] para resolver [ENIGMA_ANCESTRAL]."
-            ],
-            'aventura': [
-                "[PROTAGONISTA] emprende una expedición peligrosa a [LUGAR_ESPECIFICO] en busca de [ELEMENTO_PERSONAL_1]. Con la ayuda de [ALIADOS_INESPERADOS], debe usar [ELEMENTO_PERSONAL_2] para superar [DESAFIOS_EXTREMOS].",
-                "Una antigua reliquia, [ELEMENTO_PERSONAL_1], desaparece de [LUGAR_ESPECIFICO]. [PROTAGONISTA] debe rastrearla a través de [PAISAJES_PELIGROSOS], donde [ELEMENTO_PERSONAL_2] se convierte en [HERRAMIENTA_SUPERVIVENCIA].",
-                "Cuando [AMENAZA_GLOBAL] pone en peligro [LUGAR_ESPECIFICO], [PROTAGONISTA] reúne [EQUIPO_ELITE] para una misión imposible. Solo [ELEMENTO_PERSONAL_1] y [ELEMENTO_PERSONAL_2] pueden [SALVACION_HEROICA]."
-            ]
+        // Definición de géneros
+        const genres = {
+            terror: { name: 'Terror', icon: '👻', keywords: ['suspenso', 'miedo', 'sombras', 'escalofríos', 'oscuridad'] },
+            fantasia: { name: 'Fantasía', icon: '🧙‍♂️', keywords: ['magia', 'criaturas', 'hechizos', 'aventura', 'misterio'] },
+            romance: { name: 'Romance', icon: '💕', keywords: ['amor', 'pasión', 'corazón', 'ternura', 'encuentro'] },
+            accion: { name: 'Acción', icon: '⚔️', keywords: ['batalla', 'velocidad', 'adrenalina', 'combate', 'épico'] },
+            misterio: { name: 'Misterio', icon: '🔍', keywords: ['enigma', 'secreto', 'investigación', 'pistas', 'revelación'] },
+            cienciaficcion: { name: 'Ciencia Ficción', icon: '🚀', keywords: ['futuro', 'tecnología', 'espacio', 'robots', 'dimensiones'] },
+            drama: { name: 'Drama', icon: '🎭', keywords: ['emocional', 'conflicto', 'humano', 'decisiones', 'transformación'] },
+            comedia: { name: 'Comedia', icon: '😂', keywords: ['divertido', 'situaciones', 'humor', 'alegría', 'sorpresas'] }
         };
 
-        // Variaciones expandidas para múltiples placeholders
-        const elementVariations = {
-            'PROTAGONISTA': ['un científico brillante', 'una investigadora privada', 'una estudiante universitaria', 'un profesor de historia', 'una bibliotecaria', 'un programador', 'una artista', 'un médico', 'una periodista', 'un arqueólogo'],
-            'DETECTIVE': ['un detective veterano', 'una inspectora novata', 'un investigador privado', 'una consultora forense', 'un perfilador criminal'],
-            'INVESTIGADOR': ['un investigador independiente', 'una antropóloga', 'un historiador local', 'una periodista investigativa'],
-            'INTERES_ROMANTICO': ['una misteriosa extraña', 'un artista bohemio', 'una científica brillante', 'un músico apasionado', 'una escritora melancólica'],
-            'AMOR_PASADO': ['su primer amor del instituto', 'su ex prometido/a', 'su compañero/a de universidad', 'su amor de verano'],
-            'LUGAR_ESPECIFICO': ['una biblioteca gigantesca', 'un parque urbano', 'una mansión abandonada', 'un laboratorio secreto', 'una pequeña librería', 'un café vintage'],
-            'ALIADOS_INESPERADOS': ['un grupo de estudiantes rebeldes', 'una sociedad secreta de eruditos', 'un equipo de hackers éticos', 'una banda de artistas callejeros'],
-            'EQUIPO_ELITE': ['un comando de especialistas', 'un grupo multidisciplinario', 'una célula de resistencia', 'un escuadrón de élite']
+        // Estilos visuales
+        const visualStyles = {
+            cinematico: { name: 'Cinematográfico', icon: '🎬', description: 'Épico como película' },
+            artistico: { name: 'Artístico', icon: '🎨', description: 'Estilo pictórico' },
+            realista: { name: 'Fotorealista', icon: '📸', description: 'Máximo realismo' },
+            fantasia: { name: 'Fantasía', icon: '✨', description: 'Mundo mágico' }
         };
 
-        // Funciones auxiliares
-        const getRandomFromArray = (array) => {
-            return array[Math.floor(Math.random() * array.length)];
+        // Engines de IA
+        const imageEngines = {
+            'gpt-image-1': { name: 'GPT-Image-1', icon: '🧠', description: 'Equilibrio perfecto' },
+            'seedimage-3': { name: 'SeedImage 3.0', icon: '🌟', description: 'Máxima calidad artística' }
         };
 
-        // Función para verificar si un género está seleccionado
-        const isGenreSelected = (genreId) => {
-            return appState.selectedGenres.some(g => g.id === genreId);
-        };
-
-        // Función para obtener el peso de un género
-        const getGenreWeight = (genreId) => {
-            const genre = appState.selectedGenres.find(g => g.id === genreId);
-            return genre ? genre.weight : 50;
-        };
-
-        // Función para alternar selección de género
-        const toggleGenre = (genreId) => {
-            const isSelected = appState.selectedGenres.some(g => g.id === genreId);
-            
-            if (isSelected) {
-                // Remover género
-                appState.selectedGenres = appState.selectedGenres.filter(g => g.id !== genreId);
-            } else {
-                // Verificar límite de 3 géneros
-                if (appState.selectedGenres.length >= 3) {
-                    alert('Máximo 3 géneros permitidos. Deselecciona uno primero.');
-                    return;
-                }
-                
-                // Añadir género con peso por defecto
-                appState.selectedGenres.push({ id: genreId, weight: 50 });
-            }
-            
+        // Inicializar la aplicación
+        const initializeApp = () => {
             renderGenres();
-            renderWeightControls();
-            updateGenerateButton();
+            renderVisualStyles();
+            renderImageEngines();
+            setupEventListeners();
+            console.log('🎭 narrativAI inicializado correctamente');
         };
 
-        // Función para actualizar peso de género con normalización automática
-        const updateGenreWeight = (genreId, newWeight) => {
-            // Actualizar el peso del género específico
-            appState.selectedGenres = appState.selectedGenres.map(g => 
-                g.id === genreId ? { ...g, weight: newWeight } : g
-            );
-            
-            // Normalizar automáticamente todos los pesos para que sumen 100
-            const totalWeight = appState.selectedGenres.reduce((sum, g) => sum + g.weight, 0);
-            if (totalWeight > 0) {
-                appState.selectedGenres = appState.selectedGenres.map(g => ({
-                    ...g,
-                    weight: Math.round((g.weight / totalWeight) * 100)
-                }));
-            }
-            
-            // Actualizar la interfaz
-            renderWeightControls();
-        };
-
-        // Función para normalizar pesos (que sumen 100)
-        const normalizeWeights = () => {
-            const totalWeight = appState.selectedGenres.reduce((sum, g) => sum + g.weight, 0);
-            if (totalWeight === 0) return appState.selectedGenres;
-            
-            return appState.selectedGenres.map(g => ({
-                ...g,
-                normalizedWeight: (g.weight / totalWeight) * 100
-            }));
-        };
-
-        // Función para seleccionar género basado en pesos
-        const selectGenreByWeight = (normalizedGenres) => {
-            const random = Math.random() * 100;
-            let cumulative = 0;
-            
-            for (const genre of normalizedGenres) {
-                cumulative += genre.normalizedWeight;
-                if (random <= cumulative) {
-                    return genre;
-                }
-            }
-            
-            return normalizedGenres[0]; // Fallback
-        };
-
-        // Función para reemplazar placeholders genéricos
-        const replaceGenericPlaceholders = (narrative, primaryGenre) => {
-            const genericReplacements = {
-                'terror': {
-                    '[CONSECUENCIA_TERROR]': ['las pesadillas se vuelven realidad', 'las sombras cobran vida', 'los muertos comienzan a despertar'],
-                    '[DESTINO_MACABRO]': ['una muerte horrible', 'la locura total', 'convertirse en parte de la maldición'],
-                    '[REVELACION_HORROR]': ['una presencia malévola', 'un ritual sangriento del pasado', 'una maldición ancestral'],
-                    '[MANIFESTACION_SINIESTRA]': ['moverse por sí solo', 'susurrar nombres de muertos', 'sangrar sin explicación'],
-                    '[ENTIDAD_MALEVOLA]': ['un espíritu vengativo', 'una criatura de las sombras', 'un demonio ancestral'],
-                    '[SOLUCION_DESESPERADA]': ['realizar un exorcismo', 'destruir el objeto maldito', 'sacrificar algo valioso']
-                },
-                'ciencia-ficcion': {
-                    '[TECNOLOGIA_ALIENIGENA]': ['un dispositivo de comunicación intergaláctico', 'una herramienta de manipulación temporal', 'un implante neural alienígena'],
-                    '[MISION_COSMICA]': ['salvar la Tierra de una invasión', 'establecer contacto con una civilización perdida', 'detener una anomalía temporal'],
-                    '[AMENAZA_GALACTICA]': ['la galaxia colapse', 'una guerra interestelar estalle', 'la realidad se desintegre'],
-                    '[COMPORTAMIENTO_ANOMALO]': ['evolucionar su propia conciencia', 'teletransportarse espontáneamente', 'predecir eventos futuros'],
-                    '[VERDAD_CIENTIFICA]': ['la existencia de universos paralelos', 'la naturaleza artificial de la realidad', 'el origen alienígena de la humanidad'],
-                    '[FUTURO_HUMANIDAD]': ['la evolución de la especie', 'el destino cósmico', 'la supervivencia en el universo'],
-                    '[PREMISA_DISTOPICA]': ['la inteligencia artificial gobierna el mundo', 'los humanos viven en realidad virtual', 'la Tierra está en cuarentena galáctica'],
-                    '[PODER_TEMPORAL]': ['viajar en el tiempo', 'alterar líneas temporales', 'ver todos los futuros posibles'],
-                    '[SACRIFICIO_COSMICO]': ['borrar su propia existencia', 'condenar una línea temporal', 'fusionarse con la máquina']
-                },
-                'fantasia': {
-                    '[HABILIDAD_MAGICA]': ['controlar los elementos', 'comunicarse con criaturas mágicas', 'ver el futuro en visiones'],
-                    '[TRANSFORMACION_MAGICA]': ['cambiar de forma', 'volverse transparente', 'multiplicarse en espejos'],
-                    '[PROFECIA_ANCESTRAL]': ['el retorno del Rey Dragón', 'la unificación de los reinos', 'la batalla final entre luz y oscuridad'],
-                    '[SECRETO_MAGICO]': ['su verdadero linaje real', 'la ubicación de un tesoro legendario', 'el nombre verdadero de un demonio'],
-                    '[DESTINO_LEGENDARIO]': ['convertirse en el Salvador Elegido', 'unir las razas mágicas', 'restaurar la magia al mundo'],
-                    '[PRUEBAS_MISTICAS]': ['tres desafíos elementales', 'enfrentar sus miedos más profundos', 'demostrar pureza de corazón']
-                },
-                'romance': {
-                    '[MANERA_DESTINO]': ['manera sobrenatural', 'forma inesperada desde la infancia', 'modo predestinado por las estrellas'],
-                    '[MALENTENDIDO_PASADO]': ['una carta nunca entregada', 'un malentendido sobre infidelidad', 'una promesa aparentemente rota'],
-                    '[VERDAD_ROMANTICA]': ['que siempre se han amado', 'que están destinados a estar juntos', 'que sus familias los separaron'],
-                    '[TRANSFORMACION_EMOCIONAL]': ['florecerá más fuerte que nunca', 'sanará viejas heridas', 'los transformará por completo']
-                },
-                'misterio': {
-                    '[SECRETO_OSCURO]': ['un asesinato encubierto', 'una red de corrupción', 'una identidad falsa'],
-                    '[CONSPIRACION_LOCAL]': ['el gobierno municipal', 'una familia influyente', 'una organización secreta'],
-                    '[CRIMEN_PASADO]': ['un robo nunca resuelto', 'una desaparición misteriosa', 'un asesinato perfecto'],
-                    '[VERDAD_ENTERRADA]': ['la identidad del verdadero culpable', 'el móvil real del crimen', 'la ubicación del cuerpo'],
-                    '[ENIGMA_ANCESTRAL]': ['un código familiar sin descifrar', 'un testamento perdido', 'una herencia maldita']
-                },
-                'aventura': {
-                    '[DESAFIOS_EXTREMOS]': ['avalanchas en montañas heladas', 'tempestades en mares embravecidos', 'bestias salvajes en junglas densas'],
-                    '[PAISAJES_PELIGROSOS]': ['desiertos abrasadores', 'pantanos traicioneros', 'volcanes activos'],
-                    '[HERRAMIENTA_SUPERVIVENCIA]': ['la clave para encontrar agua', 'un mapa hacia refugio seguro', 'una brújula mágica'],
-                    '[AMENAZA_GLOBAL]': ['una catástrofe natural', 'una invasión enemiga', 'una plaga mortal'],
-                    '[EQUIPO_ELITE]': ['especialistas en supervivencia', 'expertos en combate', 'genios de la tecnología'],
-                    '[SALVACION_HEROICA]': ['salvar a la humanidad', 'restaurar el equilibrio natural', 'derrotar al mal supremo']
-                }
-            };
-
-            const replacements = genericReplacements[primaryGenre] || {};
-            
-            Object.entries(replacements).forEach(([placeholder, options]) => {
-                const randomOption = options[Math.floor(Math.random() * options.length)];
-                narrative = narrative.replace(new RegExp('\\' + placeholder, 'g'), randomOption);
-            });
-
-            return narrative;
-        };
-
-        // Función para añadir influencia de múltiples géneros
-        const addMultiGenreInfluence = (narrative, normalizedGenres) => {
-            const secondaryGenres = normalizedGenres.slice(1); // Géneros secundarios
-            
-            let influences = [];
-            
-            secondaryGenres.forEach(genre => {
-                const influence = Math.floor(genre.normalizedWeight);
-                if (influence > 15) { // Solo agregar influencias significativas
-                    const genreName = genres.find(g => g.id === genre.id)?.name;
-                    influences.push(`elementos de ${genreName.toLowerCase()}`);
-                }
-            });
-
-            if (influences.length > 0) {
-                narrative += ` La historia también incorpora ${influences.join(' y ')}, creando una narrativa rica y multifacética.`;
-            }
-
-            return narrative;
-        };
-
-        // Función principal de generación narrativa
-        const generateNarrative = async () => {
-            if (appState.selectedGenres.length === 0) {
-                alert('Por favor selecciona al menos un género');
-                return;
-            }
-
-            appState.isGenerating = true;
-            updateGenerateButton();
-            showPlaceholder(false);
-
-            try {
-                await new Promise(resolve => setTimeout(resolve, 1500));
-
-                // Normalizar pesos de géneros
-                const normalizedGenres = normalizeWeights();
-                
-                // Seleccionar template basado en pesos
-                const selectedGenre = selectGenreByWeight(normalizedGenres);
-                const templates = narrativeTemplates[selectedGenre.id];
-                const selectedTemplate = templates[Math.floor(Math.random() * templates.length)];
-
-                // Procesar elementos personalizados
-                const customElementsList = appState.customElements
-                    .split(',')
-                    .map(e => e.trim())
-                    .filter(e => e.length > 0);
-
-                // Reemplazar placeholders específicos de elementos personalizados
-                let narrative = selectedTemplate;
-                
-                // Asignar elementos personalizados a placeholders específicos
-                if (customElementsList.length > 0) {
-                    narrative = narrative.replace(/\[ELEMENTO_PERSONAL_1\]/g, customElementsList[0] || 'un objeto misterioso');
-                }
-                if (customElementsList.length > 1) {
-                    narrative = narrative.replace(/\[ELEMENTO_PERSONAL_2\]/g, customElementsList[1] || 'un segundo elemento');
-                }
-                
-                // Si hay un tercer elemento, integrarlo como lugar específico si es apropiado
-                if (customElementsList.length > 2) {
-                    const thirdElement = customElementsList[2];
-                    if (thirdElement.toLowerCase().includes('biblioteca') || 
-                        thirdElement.toLowerCase().includes('lugar') ||
-                        thirdElement.toLowerCase().includes('casa') ||
-                        thirdElement.toLowerCase().includes('edificio')) {
-                        narrative = narrative.replace(/\[LUGAR_ESPECIFICO\]/g, thirdElement);
-                    }
-                }
-
-                // Reemplazar placeholders restantes con variaciones aleatorias
-                Object.entries(elementVariations).forEach(([placeholder, variations]) => {
-                    const regex = new RegExp(`\\[${placeholder}\\]`, 'g');
-                    const randomVariation = variations[Math.floor(Math.random() * variations.length)];
-                    narrative = narrative.replace(regex, randomVariation);
-                });
-
-                // Reemplazar placeholders genéricos restantes
-                narrative = replaceGenericPlaceholders(narrative, selectedGenre.id);
-
-                // Añadir influencia de otros géneros si hay múltiples
-                if (normalizedGenres.length > 1) {
-                    narrative = addMultiGenreInfluence(narrative, normalizedGenres);
-                }
-
-                appState.generatedNarrative = narrative;
-                displayNarrative();
-
-                // Generar imagen promocional si está habilitado
-                if (appState.useImageAI) {
-                    generatePromotionalImage(narrative, normalizedGenres, customElementsList);
-                }
-
-            } catch (error) {
-                console.error('Error generando narrativa:', error);
-            } finally {
-                appState.isGenerating = false;
-                updateGenerateButton();
-            }
-        };
-
-        // Función para generar imagen promocional
-        const generatePromotionalImage = async (narrative, genres, customElements) => {
-            appState.isGeneratingImage = true;
-            showImageSection(true);
-            showImageLoading(true);
-
-            try {
-                const imagePrompt = generateSpecificImagePrompt(narrative, genres, customElements);
-                const imageUrl = await simulateImageGeneration(imagePrompt);
-                
-                appState.generatedImageUrl = imageUrl;
-                showImageLoading(false);
-                displayImage(imageUrl);
-
-            } catch (error) {
-                console.error('Error generando imagen:', error);
-                showImageLoading(false);
-            } finally {
-                appState.isGeneratingImage = false;
-            }
-        };
-
-        // Función para generar prompt específico de imagen (estilo épico cinematográfico)
-        const generateSpecificImagePrompt = (narrative, genres, customElements) => {
-            console.log('🎬 Creando prompt épico específico para la narrativa...');
-            
-            let promptComponents = [];
-            
-            // Configuración épica base
-            promptComponents.push('epic cinematic scene');
-            promptComponents.push('movie still composition');
-            promptComponents.push('characters in dynamic action poses');
-            promptComponents.push('clear detailed elements interacting');
-            
-            // Añadir elementos personalizados específicos como protagonistas épicos
-            if (customElements.length > 0) {
-                customElements.forEach((element, index) => {
-                    if (index === 0) {
-                        // Primer elemento como protagonista épico en acción
-                        promptComponents.push(`${translateElementToEnglish(element)} as the main character in dramatic action`);
-                    } else if (index === 1) {
-                        // Segundo elemento interactuando dinámicamente
-                        promptComponents.push(`${translateElementToEnglish(element)} actively interacting with the main character`);
-                    } else if (index === 2) {
-                        // Tercer elemento como escenario épico
-                        if (element.toLowerCase().includes('biblioteca') || 
-                            element.toLowerCase().includes('gigantesca') ||
-                            element.toLowerCase().includes('lugar')) {
-                            promptComponents.push(`epic ${translateElementToEnglish(element)} as dramatic backdrop`);
-                        } else {
-                            promptComponents.push(`${translateElementToEnglish(element)} prominently visible in the scene`);
-                        }
-                    }
-                });
-            }
-
-            // Analizar narrativa específica para extraer elementos clave
-            const narrativeElements = extractSpecificNarrativeElements(narrative);
-            
-            // Añadir personajes en poses épicas
-            if (narrativeElements.characters.length > 0) {
-                promptComponents.push(`${narrativeElements.characters.join(' and ')} in heroic dramatic poses`);
-            }
-            
-            // Escenario épico
-            if (narrativeElements.setting) {
-                promptComponents.push(`magnificent ${narrativeElements.setting} with epic scale and detail`);
-            }
-            
-            // Objetos claramente visibles e interactuando
-            if (narrativeElements.objects.length > 0) {
-                promptComponents.push(`${narrativeElements.objects.join(' and ')} clearly visible and central to the action`);
-            }
-
-            // Detectar y añadir acción específica basada en la narrativa
-            const actionContext = extractActionFromNarrative(narrative);
-            if (actionContext) {
-                promptComponents.push(actionContext);
-            }
-
-            // Añadir estilos épicos basados en los géneros y sus pesos
-            const genreStyles = genres.map(genre => {
-                const genreWeight = genre.normalizedWeight;
-                const intensity = genreWeight > 40 ? 'intense' : genreWeight > 25 ? 'strong' : 'moderate';
-                
-                const epicStyleMap = {
-                    'terror': `${intensity} gothic horror with looming threats and supernatural energy`,
-                    'ciencia-ficcion': `${intensity} epic sci-fi with spectacular technology and cosmic scale`,
-                    'fantasia': `${intensity} grand fantasy with magical powers visibly manifesting`,
-                    'romance': `${intensity} passionate romantic tension with intimate character interaction`,
-                    'misterio': `${intensity} dramatic mystery with secrets being revealed`,
-                    'aventura': `${intensity} thrilling adventure with heroes in perilous action`
-                };
-                
-                return epicStyleMap[genre.id];
-            }).filter(Boolean);
-
-            promptComponents.push(...genreStyles);
-            
-            // Calificadores épicos específicos
-            promptComponents.push('dynamic composition with clear visual storytelling');
-            promptComponents.push('professional movie photography');
-            promptComponents.push('dramatic lighting that reveals all key elements');
-            promptComponents.push('characters and objects in clear visual relationship');
-            promptComponents.push('epic scale and grandeur');
-            promptComponents.push('high detail masterpiece quality');
-            promptComponents.push('visible emotional expressions and body language');
-
-            const finalPrompt = promptComponents.join(', ');
-            console.log('🎨 Prompt épico generado:', finalPrompt);
-            
-            return finalPrompt;
-        };
-
-        // Función para extraer elementos específicos de la narrativa
-        const extractSpecificNarrativeElements = (narrative) => {
-            const text = narrative.toLowerCase();
-            
-            const elements = {
-                characters: [],
-                setting: '',
-                objects: [],
-                actions: []
-            };
-
-            // Extraer personajes específicos mencionados
-            if (text.includes('programador')) elements.characters.push('programmer character');
-            if (text.includes('científico')) elements.characters.push('scientist character');
-            if (text.includes('bibliotecaria')) elements.characters.push('librarian character');
-            if (text.includes('detective')) elements.characters.push('detective character');
-            if (text.includes('investigador')) elements.characters.push('investigator character');
-            if (text.includes('artista')) elements.characters.push('artist character');
-
-            // Extraer escenarios específicos
-            if (text.includes('biblioteca gigantesca')) {
-                elements.setting = 'massive ancient library with towering bookshelves';
-            } else if (text.includes('parque de la ciudad')) {
-                elements.setting = 'urban city park with trees and pathways';
-            } else if (text.includes('laboratorio')) {
-                elements.setting = 'scientific laboratory with equipment';
-            } else if (text.includes('mansión')) {
-                elements.setting = 'gothic mansion';
-            } else if (text.includes('café')) {
-                elements.setting = 'cozy vintage café';
-            }
-
-            // Extraer objetos específicos del texto
-            if (text.includes('libro') && text.includes('voluminoso')) {
-                elements.objects.push('large ancient tome book');
-            }
-            if (text.includes('pececillo') || text.includes('plata')) {
-                elements.objects.push('silver fish creature');
-            }
-            if (text.includes('espejo')) elements.objects.push('ornate mirror');
-            if (text.includes('reloj')) elements.objects.push('antique clock');
-            if (text.includes('cristal')) elements.objects.push('glowing crystal');
-
-            return elements;
-        };
-
-        // Función para extraer contexto de acción épica de la narrativa
-        const extractActionFromNarrative = (narrative) => {
-            const text = narrative.toLowerCase();
-            
-            // Detectar acciones específicas para crear escenas épicas
-            if (text.includes('descubre') || text.includes('encuentra')) {
-                return 'moment of epic discovery with characters reacting in awe';
-            } else if (text.includes('busca') || text.includes('búsqueda')) {
-                return 'characters in determined quest pose, searching intensely';
-            } else if (text.includes('perseguido') || text.includes('persigue')) {
-                return 'intense chase scene with dramatic tension';
-            } else if (text.includes('batalla') || text.includes('lucha')) {
-                return 'epic battle scene with characters in combat poses';
-            } else if (text.includes('investiga') || text.includes('investigación')) {
-                return 'detective work in progress, examining clues intently';
-            } else if (text.includes('hereda') || text.includes('recibe')) {
-                return 'ceremonial moment of receiving important object';
-            } else if (text.includes('viaja') || text.includes('expedición')) {
-                return 'adventurous journey scene with travelers in motion';
-            } else if (text.includes('emprende') || text.includes('misión')) {
-                return 'heroes setting out on epic quest with determination';
-            } else if (text.includes('maldición') || text.includes('maldito')) {
-                return 'supernatural curse taking effect with visible magic';
-            } else if (text.includes('conecta') || text.includes('conexión')) {
-                return 'powerful emotional or mystical connection between characters';
-            }
-            
-            // Acción por defecto épica
-            return 'dramatic scene capturing the essence of the narrative in action';
-        };
-
-        // Función para traducir elementos al inglés
-        const translateElementToEnglish = (spanishElement) => {
-            const element = spanishElement.toLowerCase();
-            
-            // Traducciones específicas mejoradas
-            const translations = {
-                'pececillo de plata': 'silver fish creature',
-                'biblioteca gigantesca': 'massive ancient library',
-                'voluminoso y antiguo libro': 'large ancient tome',
-                'libro voluminoso': 'large ancient book',
-                'antiguo libro': 'ancient book',
-                'libro': 'book',
-                'biblioteca': 'library',
-                'gigantesca': 'massive',
-                'voluminoso': 'large',
-                'antiguo': 'ancient',
-                'espejo': 'ornate mirror',
-                'reloj': 'antique clock',
-                'tiempo': 'time',
-                'cristal': 'glowing crystal',
-                'llave': 'mysterious key',
-                'puerta': 'ornate door',
-                'ventana': 'gothic window',
-                'programador': 'programmer',
-                'científico': 'scientist',
-                'bibliotecario': 'librarian',
-                'detective': 'detective',
-                'investigador': 'investigator'
-            };
-
-            // Buscar traducciones exactas primero
-            for (const [spanish, english] of Object.entries(translations)) {
-                if (element.includes(spanish)) {
-                    return english;
-                }
-            }
-
-            // Si no se encuentra traducción específica, devolver procesado
-            return element.replace(/[áéíóú]/g, match => {
-                const accents = { 'á': 'a', 'é': 'e', 'í': 'i', 'ó': 'o', 'ú': 'u' };
-                return accents[match] || match;
-            });
-        };
-
-        // Función para simular generación de imagen
-        const simulateImageGeneration = async (prompt) => {
-            await new Promise(resolve => setTimeout(resolve, 2000 + Math.random() * 3000));
-            return generateSpecificProceduralImage(prompt);
-        };
-
-        // Función para generar imagen procedural épica específica
-        const generateSpecificProceduralImage = (prompt) => {
-            console.log('🎬 Generando imagen épica específica procedural...');
-            
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            canvas.width = 512;
-            canvas.height = 512;
-            
-            const promptLower = prompt.toLowerCase();
-            
-            // Detectar elementos específicos del prompt
-            const hasLibrary = promptLower.includes('library') || promptLower.includes('biblioteca');
-            const hasBook = promptLower.includes('book') || promptLower.includes('tome');
-            const hasSilverFish = promptLower.includes('silver fish') || promptLower.includes('pececillo');
-            const hasProgrammer = promptLower.includes('programmer');
-            const isEpicScene = promptLower.includes('epic') || promptLower.includes('cinematic');
-            
-            // Paleta de colores épica basada en géneros específicos
-            let primaryColor = { h: 200, s: 70, l: 45 };
-            let secondaryColor = { h: 230, s: 60, l: 35 };
-            let accentColor = { h: 280, s: 80, l: 65 };
-            
-            if (promptLower.includes('horror')) {
-                primaryColor = { h: 0, s: 40, l: 20 };
-                secondaryColor = { h: 20, s: 50, l: 30 };
-                accentColor = { h: 350, s: 70, l: 45 };
-            } else if (promptLower.includes('fantasy')) {
-                primaryColor = { h: 280, s: 80, l: 40 };
-                secondaryColor = { h: 320, s: 70, l: 50 };
-                accentColor = { h: 60, s: 90, l: 60 };
-            } else if (promptLower.includes('romance')) {
-                primaryColor = { h: 350, s: 80, l: 55 };
-                secondaryColor = { h: 30, s: 70, l: 65 };
-                accentColor = { h: 320, s: 90, l: 75 };
-            }
-            
-            // Crear fondo épico con mayor dramatismo
-            const epicGradient = ctx.createRadialGradient(256, 200, 0, 256, 350, 500);
-            epicGradient.addColorStop(0, `hsla(${primaryColor.h}, ${primaryColor.s}%, ${primaryColor.l + 25}%, 0.9)`);
-            epicGradient.addColorStop(0.6, `hsla(${secondaryColor.h}, ${secondaryColor.s}%, ${secondaryColor.l + 10}%, 0.8)`);
-            epicGradient.addColorStop(1, `hsla(${secondaryColor.h - 20}, ${secondaryColor.s}%, ${secondaryColor.l - 10}%, 0.9)`);
-            ctx.fillStyle = epicGradient;
-            ctx.fillRect(0, 0, 512, 512);
-            
-            // Añadir rayos de luz dramáticos
-            addEpicLightingEffects(ctx, primaryColor, accentColor);
-            
-            // Dibujar elementos específicos en poses épicas
-            if (hasLibrary) {
-                drawEpicLibraryScene(ctx, primaryColor, secondaryColor, accentColor);
-            }
-            
-            if (hasBook) {
-                drawEpicAncientBook(ctx, primaryColor, accentColor);
-            }
-            
-            if (hasSilverFish) {
-                drawEpicSilverFish(ctx, accentColor, primaryColor);
-            }
-            
-            if (hasProgrammer) {
-                drawEpicProgrammerScene(ctx, primaryColor, accentColor);
-            }
-            
-            // Añadir personajes en poses épicas si no hay elementos específicos
-            if (!hasLibrary && !hasBook && !hasSilverFish && !hasProgrammer) {
-                drawGenericEpicScene(ctx, primaryColor, secondaryColor, accentColor);
-            }
-            
-            // Efectos atmosféricos épicos
-            addEpicAtmosphere(ctx, primaryColor, secondaryColor, accentColor, promptLower);
-            
-            // Añadir destellos y efectos finales
-            addCinematicEffects(ctx, accentColor);
-            
-            return canvas.toDataURL();
-        };
-
-        // Funciones de dibujo específicas (simplificadas para el ejemplo)
-        const drawLibraryScene = (ctx, primaryColor, secondaryColor, accentColor) => {
-            // Estanterías gigantes
-            for (let i = 0; i < 5; i++) {
-                const x = 50 + i * 80;
-                const height = 300 + Math.random() * 150;
-                
-                // Estantería
-                ctx.fillStyle = `hsl(${primaryColor.h + 30}, 40%, 25%)`;
-                ctx.fillRect(x, 512 - height, 60, height);
-                
-                // Libros
-                for (let j = 0; j < height / 30; j++) {
-                    const bookY = 512 - height + j * 30;
-                    const bookColors = [
-                        `hsl(${accentColor.h}, 60%, 50%)`,
-                        `hsl(${secondaryColor.h}, 50%, 45%)`,
-                        `hsl(${primaryColor.h + 60}, 55%, 40%)`
-                    ];
-                    
-                    for (let k = 0; k < 6; k++) {
-                        ctx.fillStyle = bookColors[k % bookColors.length];
-                        ctx.fillRect(x + k * 10, bookY, 8, 25);
-                    }
-                }
-            }
-        };
-
-        const drawAncientBook = (ctx, primaryColor, accentColor) => {
-            const centerX = 200;
-            const centerY = 300;
-            const width = 120;
-            const height = 160;
-            
-            // Libro principal
-            ctx.fillStyle = `hsl(${primaryColor.h + 40}, 60%, 20%)`;
-            ctx.fillRect(centerX - width/2, centerY - height/2, width, height);
-            
-            // Detalles dorados
-            ctx.fillStyle = `hsl(${accentColor.h}, 80%, 60%)`;
-            ctx.fillRect(centerX - width/2 + 10, centerY - height/2 + 20, width - 20, 15);
-            ctx.fillRect(centerX - width/2 + 10, centerY + height/2 - 35, width - 20, 15);
-            
-            // Símbolo mágico en el centro
-            ctx.beginPath();
-            ctx.arc(centerX, centerY, 25, 0, Math.PI * 2);
-            ctx.fillStyle = `hsla(${accentColor.h}, 90%, 70%, 0.8)`;
-            ctx.fill();
-        };
-
-        const drawSilverFish = (ctx, accentColor) => {
-            const fishX = 350;
-            const fishY = 150;
-            
-            // Cuerpo del pez plateado
-            ctx.fillStyle = `hsla(${accentColor.h}, 20%, 80%, 0.9)`;
-            ctx.beginPath();
-            ctx.ellipse(fishX, fishY, 30, 15, 0, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // Cola
-            ctx.beginPath();
-            ctx.moveTo(fishX - 30, fishY);
-            ctx.lineTo(fishX - 50, fishY - 10);
-            ctx.lineTo(fishX - 50, fishY + 10);
-            ctx.closePath();
-            ctx.fill();
-            
-            // Ojo
-            ctx.fillStyle = `hsl(0, 0%, 10%)`;
-            ctx.beginPath();
-            ctx.arc(fishX + 15, fishY - 5, 3, 0, Math.PI * 2);
-            ctx.fill();
-        };
-
-        const drawProgrammerSilhouette = (ctx, primaryColor, accentColor) => {
-            const x = 100;
-            const y = 200;
-            
-            // Silueta del programador
-            ctx.fillStyle = `hsla(${primaryColor.h}, 40%, 20%, 0.8)`;
-            
-            // Cabeza
-            ctx.beginPath();
-            ctx.arc(x, y, 20, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // Torso
-            ctx.fillRect(x - 25, y + 20, 50, 80);
-            
-            // Pantalla de computadora
-            ctx.fillStyle = `hsl(${accentColor.h}, 70%, 30%)`;
-            ctx.fillRect(x + 60, y - 20, 80, 60);
-            
-            // Pantalla encendida
-            ctx.fillStyle = `hsl(${accentColor.h}, 80%, 60%)`;
-            ctx.fillRect(x + 65, y - 15, 70, 50);
-        };
-
-        // Funciones de efectos épicos
-        const addEpicLightingEffects = (ctx, primaryColor, accentColor) => {
-            // Rayos de luz dramáticos
-            for (let i = 0; i < 5; i++) {
-                const angle = (i / 5) * Math.PI * 2;
-                const gradient = ctx.createLinearGradient(
-                    256 + Math.cos(angle) * 200, 
-                    256 + Math.sin(angle) * 200,
-                    256 + Math.cos(angle) * 400,
-                    256 + Math.sin(angle) * 400
-                );
-                gradient.addColorStop(0, `hsla(${accentColor.h}, 70%, 80%, 0.3)`);
-                gradient.addColorStop(1, `hsla(${accentColor.h}, 70%, 80%, 0)`);
-                
-                ctx.fillStyle = gradient;
-                ctx.beginPath();
-                ctx.moveTo(256, 256);
-                ctx.arc(256, 256, 400, angle - 0.1, angle + 0.1);
-                ctx.closePath();
-                ctx.fill();
-            }
-        };
-
-        const drawEpicLibraryScene = (ctx, primaryColor, secondaryColor, accentColor) => {
-            // Biblioteca más épica con escala grandiosa
-            for (let i = 0; i < 6; i++) {
-                const x = 30 + i * 75;
-                const height = 350 + Math.random() * 120;
-                
-                // Estanterías más dramáticas
-                ctx.fillStyle = `hsl(${primaryColor.h + 30}, 50%, 25%)`;
-                ctx.fillRect(x, 512 - height, 65, height);
-                
-                // Libros con más detalle
-                for (let j = 0; j < height / 25; j++) {
-                    const bookY = 512 - height + j * 25;
-                    const bookColors = [
-                        `hsl(${accentColor.h}, 70%, 55%)`,
-                        `hsl(${secondaryColor.h}, 60%, 50%)`,
-                        `hsl(${primaryColor.h + 60}, 65%, 45%)`
-                    ];
-                    
-                    for (let k = 0; k < 7; k++) {
-                        ctx.fillStyle = bookColors[k % bookColors.length];
-                        ctx.fillRect(x + k * 9, bookY, 8, 20);
-                        
-                        // Detalles dorados en algunos libros
-                        if (Math.random() > 0.7) {
-                            ctx.fillStyle = `hsl(45, 80%, 70%)`;
-                            ctx.fillRect(x + k * 9 + 1, bookY + 2, 6, 2);
-                        }
-                    }
-                }
-            }
-            
-            // Escalera en espiral más épica
-            ctx.strokeStyle = `hsl(${accentColor.h}, 60%, 40%)`;
-            ctx.lineWidth = 4;
-            for (let i = 0; i < 25; i++) {
-                const angle = (i / 25) * Math.PI * 5;
-                const radius = 25 + i * 1.5;
-                const x = 420 + Math.cos(angle) * radius;
-                const y = 480 - i * 12;
-                
-                if (i > 0) {
-                    ctx.beginPath();
-                    ctx.moveTo(prevX, prevY);
-                    ctx.lineTo(x, y);
-                    ctx.stroke();
-                }
-                var prevX = x, prevY = y;
-            }
-            
-            // Figura heroica en la escalera
-            ctx.fillStyle = `hsl(${primaryColor.h}, 40%, 30%)`;
-            ctx.beginPath();
-            ctx.arc(400, 350, 15, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.fillRect(390, 365, 20, 40);
-        };
-
-        const drawEpicAncientBook = (ctx, primaryColor, accentColor) => {
-            const centerX = 180;
-            const centerY = 280;
-            const width = 140;
-            const height = 180;
-            
-            // Libro principal más detallado
-            ctx.fillStyle = `hsl(${primaryColor.h + 40}, 70%, 25%)`;
-            ctx.fillRect(centerX - width/2, centerY - height/2, width, height);
-            
-            // Detalles dorados más elaborados
-            ctx.fillStyle = `hsl(45, 90%, 65%)`;
-            ctx.fillRect(centerX - width/2 + 10, centerY - height/2 + 20, width - 20, 18);
-            ctx.fillRect(centerX - width/2 + 10, centerY + height/2 - 38, width - 20, 18);
-            
-            // Símbolo mágico más épico
-            ctx.beginPath();
-            ctx.arc(centerX, centerY, 30, 0, Math.PI * 2);
-            ctx.fillStyle = `hsla(${accentColor.h}, 95%, 75%, 0.9)`;
-            ctx.fill();
-            
-            // Runas alrededor del símbolo
-            for (let i = 0; i < 8; i++) {
-                const angle = (i / 8) * Math.PI * 2;
-                const x = centerX + Math.cos(angle) * 45;
-                const y = centerY + Math.sin(angle) * 45;
-                
-                ctx.fillStyle = `hsl(45, 85%, 70%)`;
-                ctx.fillRect(x - 2, y - 6, 4, 12);
-            }
-            
-            // Figura épica sosteniendo el libro
-            const personX = centerX + 100;
-            const personY = centerY;
-            
-            ctx.fillStyle = `hsl(${primaryColor.h}, 50%, 35%)`;
-            ctx.beginPath();
-            ctx.arc(personX, personY - 30, 18, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.fillRect(personX - 20, personY - 10, 40, 60);
-            
-            // Brazo extendido hacia el libro
-            ctx.fillRect(personX - 50, personY, 30, 12);
-            
-            // Energía mágica conectando libro y personaje
-            for (let i = 0; i < 15; i++) {
-                const progress = i / 15;
-                const x = centerX + (personX - centerX) * progress;
-                const y = centerY + Math.sin(progress * Math.PI * 3) * 20;
-                
-                ctx.fillStyle = `hsla(${accentColor.h}, 80%, 80%, ${0.8 - progress * 0.5})`;
-                ctx.beginPath();
-                ctx.arc(x, y, 3, 0, Math.PI * 2);
-                ctx.fill();
-            }
-        };
-
-        const drawEpicSilverFish = (ctx, accentColor, primaryColor) => {
-            const fishX = 320;
-            const fishY = 120;
-            
-            // Pez plateado más épico y grande
-            ctx.fillStyle = `hsla(${accentColor.h}, 30%, 85%, 0.95)`;
-            ctx.beginPath();
-            ctx.ellipse(fishX, fishY, 40, 20, 0, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // Cola más dramática
-            ctx.beginPath();
-            ctx.moveTo(fishX - 40, fishY);
-            ctx.lineTo(fishX - 70, fishY - 15);
-            ctx.lineTo(fishX - 70, fishY + 15);
-            ctx.closePath();
-            ctx.fill();
-            
-            // Aletas más detalladas
-            ctx.beginPath();
-            ctx.ellipse(fishX - 15, fishY + 18, 12, 8, Math.PI / 3, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // Ojo más expresivo
-            ctx.fillStyle = `hsl(0, 0%, 5%)`;
-            ctx.beginPath();
-            ctx.arc(fishX + 20, fishY - 8, 5, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // Pupila brillante
-            ctx.fillStyle = `hsl(${accentColor.h}, 80%, 90%)`;
-            ctx.beginPath();
-            ctx.arc(fishX + 22, fishY - 6, 2, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // Escamas detalladas
-            for (let i = 0; i < 3; i++) {
-                for (let j = 0; j < 5; j++) {
-                    ctx.strokeStyle = `hsla(${accentColor.h}, 40%, 75%, 0.6)`;
-                    ctx.lineWidth = 1;
-                    ctx.beginPath();
-                    ctx.arc(fishX - 20 + j * 8, fishY - 8 + i * 8, 4, 0, Math.PI);
-                    ctx.stroke();
-                }
-            }
-            
-            // Persona épica observando el pez
-            const observerX = fishX - 120;
-            const observerY = fishY + 80;
-            
-            ctx.fillStyle = `hsl(${primaryColor.h}, 45%, 30%)`;
-            ctx.beginPath();
-            ctx.arc(observerX, observerY - 25, 16, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.fillRect(observerX - 18, observerY - 5, 36, 50);
-            
-            // Brazo señalando al pez
-            const armAngle = Math.atan2(fishY - observerY, fishX - observerX);
-            ctx.save();
-            ctx.translate(observerX + 15, observerY + 5);
-            ctx.rotate(armAngle);
-            ctx.fillRect(0, -6, 40, 12);
-            ctx.restore();
-            
-            // Ondas mágicas alrededor del pez
-            for (let i = 0; i < 4; i++) {
-                ctx.strokeStyle = `hsla(${accentColor.h}, 70%, 80%, ${0.4 - i * 0.08})`;
-                ctx.lineWidth = 3;
-                ctx.beginPath();
-                ctx.arc(fishX, fishY, 50 + i * 20, 0, Math.PI * 2);
-                ctx.stroke();
-            }
-        };
-
-        const drawEpicProgrammerScene = (ctx, primaryColor, accentColor) => {
-            const x = 80;
-            const y = 180;
-            
-            // Programador en pose épica
-            ctx.fillStyle = `hsl(${primaryColor.h}, 50%, 25%)`;
-            
-            // Cabeza más detallada
-            ctx.beginPath();
-            ctx.arc(x, y, 22, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // Torso más heroico
-            ctx.fillRect(x - 30, y + 25, 60, 90);
-            
-            // Brazos en pose dramática
-            ctx.fillRect(x + 30, y + 45, 40, 18); // Brazo derecho extendido
-            ctx.fillRect(x - 70, y + 45, 40, 18); // Brazo izquierdo
-            
-            // Múltiples pantallas épicas
-            for (let i = 0; i < 3; i++) {
-                const screenX = x + 80 + i * 90;
-                const screenY = y - 30;
-                
-                // Marco de pantalla
-                ctx.fillStyle = `hsl(${accentColor.h}, 80%, 35%)`;
-                ctx.fillRect(screenX, screenY, 85, 70);
-                
-                // Pantalla encendida
-                ctx.fillStyle = `hsl(${accentColor.h + i * 30}, 90%, 65%)`;
-                ctx.fillRect(screenX + 5, screenY + 5, 75, 60);
-                
-                // Código épico con efectos
-                for (let j = 0; j < 10; j++) {
-                    const lineColor = `hsl(${accentColor.h + 120 + j * 10}, 80%, 85%)`;
-                    ctx.fillStyle = lineColor;
-                    ctx.fillRect(screenX + 10, screenY + 10 + j * 5, 30 + Math.random() * 40, 3);
-                }
-            }
-            
-            // Efectos de energía digital
-            for (let i = 0; i < 20; i++) {
-                const energyX = x + 70 + Math.random() * 200;
-                const energyY = y - 20 + Math.random() * 100;
-                
-                ctx.fillStyle = `hsla(${accentColor.h}, 85%, 80%, 0.7)`;
-                ctx.beginPath();
-                ctx.arc(energyX, energyY, 2 + Math.random() * 3, 0, Math.PI * 2);
-                ctx.fill();
-            }
-            
-            // Teclado épico
-            ctx.fillStyle = `hsl(${primaryColor.h}, 40%, 30%)`;
-            ctx.fillRect(x + 75, y + 75, 120, 25);
-            
-            // Teclas individuales
-            for (let i = 0; i < 15; i++) {
-                ctx.fillStyle = `hsl(${accentColor.h}, 60%, 50%)`;
-                ctx.fillRect(x + 80 + i * 7, y + 78, 5, 5);
-            }
-        };
-
-        const drawGenericEpicScene = (ctx, primaryColor, secondaryColor, accentColor) => {
-            // Escena épica genérica con múltiples personajes
-            const hero1X = 150;
-            const hero1Y = 250;
-            const hero2X = 300;
-            const hero2Y = 280;
-            
-            // Héroe 1 en pose dramática
-            ctx.fillStyle = `hsl(${primaryColor.h}, 55%, 30%)`;
-            ctx.beginPath();
-            ctx.arc(hero1X, hero1Y - 30, 20, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.fillRect(hero1X - 25, hero1Y - 5, 50, 70);
-            
-            // Héroe 2 en pose complementaria
-            ctx.fillStyle = `hsl(${secondaryColor.h}, 50%, 35%)`;
-            ctx.beginPath();
-            ctx.arc(hero2X, hero2Y - 35, 18, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.fillRect(hero2X - 22, hero2Y - 10, 44, 65);
-            
-            // Objeto mágico central
-            const objectX = (hero1X + hero2X) / 2;
-            const objectY = hero1Y - 50;
-            
-            ctx.fillStyle = `hsla(${accentColor.h}, 90%, 70%, 0.9)`;
-            ctx.beginPath();
-            ctx.arc(objectX, objectY, 25, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // Rayos de energía conectando a los héroes
-            for (let i = 0; i < 8; i++) {
-                const angle = (i / 8) * Math.PI * 2;
-                const endX = objectX + Math.cos(angle) * 100;
-                const endY = objectY + Math.sin(angle) * 100;
-                
-                ctx.strokeStyle = `hsla(${accentColor.h}, 80%, 75%, 0.5)`;
-                ctx.lineWidth = 3;
-                ctx.beginPath();
-                ctx.moveTo(objectX, objectY);
-                ctx.lineTo(endX, endY);
-                ctx.stroke();
-            }
-        };
-
-        const addEpicAtmosphere = (ctx, primaryColor, secondaryColor, accentColor, prompt) => {
-            if (prompt.includes('horror')) {
-                // Sombras épicas más dramáticas
-                for (let i = 0; i < 15; i++) {
-                    const x = Math.random() * 512;
-                    const y = Math.random() * 512;
-                    const size = 30 + Math.random() * 60;
-                    
-                    ctx.fillStyle = `hsla(${primaryColor.h}, 50%, 8%, 0.4)`;
-                    ctx.beginPath();
-                    ctx.arc(x, y, size, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-                
-                // Rayos siniestros
-                for (let i = 0; i < 5; i++) {
-                    ctx.strokeStyle = `hsla(${accentColor.h}, 60%, 40%, 0.3)`;
-                    ctx.lineWidth = 2;
-                    ctx.beginPath();
-                    ctx.moveTo(Math.random() * 512, 0);
-                    ctx.lineTo(Math.random() * 512, 512);
-                    ctx.stroke();
-                }
-            } else if (prompt.includes('fantasy')) {
-                // Partículas mágicas épicas
-                for (let i = 0; i < 80; i++) {
-                    const x = Math.random() * 512;
-                    const y = Math.random() * 512;
-                    const size = 2 + Math.random() * 5;
-                    
-                    ctx.fillStyle = `hsla(${accentColor.h + Math.random() * 120}, 85%, 75%, 0.7)`;
-                    ctx.beginPath();
-                    ctx.arc(x, y, size, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-                
-                // Círculos mágicos
-                for (let i = 0; i < 3; i++) {
-                    ctx.strokeStyle = `hsla(${accentColor.h + i * 40}, 70%, 65%, 0.4)`;
-                    ctx.lineWidth = 2;
-                    ctx.beginPath();
-                    ctx.arc(256, 256, 100 + i * 50, 0, Math.PI * 2);
-                    ctx.stroke();
-                }
-            } else if (prompt.includes('romance')) {
-                // Efectos bokeh épicos
-                for (let i = 0; i < 30; i++) {
-                    const x = Math.random() * 512;
-                    const y = Math.random() * 512;
-                    const size = 15 + Math.random() * 25;
-                    
-                    const bokeh = ctx.createRadialGradient(x, y, 0, x, y, size);
-                    bokeh.addColorStop(0, `hsla(${accentColor.h}, 70%, 75%, 0.4)`);
-                    bokeh.addColorStop(1, `hsla(${accentColor.h}, 70%, 75%, 0)`);
-                    
-                    ctx.fillStyle = bokeh;
-                    ctx.beginPath();
-                    ctx.arc(x, y, size, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-            }
-        };
-
-        const addCinematicEffects = (ctx, accentColor) => {
-            // Destellos cinematográficos
-            for (let i = 0; i < 10; i++) {
-                const x = Math.random() * 512;
-                const y = Math.random() * 512;
-                
-                ctx.fillStyle = `hsla(${accentColor.h}, 90%, 90%, 0.6)`;
-                ctx.beginPath();
-                ctx.arc(x, y, 1, 0, Math.PI * 2);
-                ctx.fill();
-                
-                // Cruz de destello
-                ctx.fillRect(x - 8, y - 1, 16, 2);
-                ctx.fillRect(x - 1, y - 8, 2, 16);
-            }
-            
-            // Viñeta cinematográfica sutil
-            const vignette = ctx.createRadialGradient(256, 256, 0, 256, 256, 400);
-            vignette.addColorStop(0, 'hsla(0, 0%, 0%, 0)');
-            vignette.addColorStop(0.8, 'hsla(0, 0%, 0%, 0)');
-            vignette.addColorStop(1, 'hsla(0, 0%, 0%, 0.3)');
-            
-            ctx.fillStyle = vignette;
-            ctx.fillRect(0, 0, 512, 512);
-        };
-
-        const addSpecificAtmosphere = addEpicAtmosphere;
-
-        // Funciones de interfaz de usuario
+        // Renderizar géneros
         const renderGenres = () => {
-            const genreGrid = document.getElementById('genreGrid');
-            genreGrid.innerHTML = '';
-
-            genres.forEach(genre => {
-                const button = document.createElement('button');
-                button.className = `genre-button p-3 rounded-lg border-2 transition-all duration-200 ${
-                    isGenreSelected(genre.id)
-                        ? `selected bg-gradient-to-r ${genre.color} border-white shadow-lg`
-                        : 'bg-gray-700 border-gray-600 hover:border-gray-500'
-                }`;
-                
-                button.innerHTML = `
-                    <div class="text-2xl mb-1">${genre.emoji}</div>
+            const grid = document.getElementById('genreGrid');
+            grid.innerHTML = '';
+            
+            Object.entries(genres).forEach(([id, genre]) => {
+                const card = document.createElement('div');
+                card.className = 'genre-card bg-gray-700 rounded-lg p-3 text-center';
+                card.dataset.genreId = id;
+                card.innerHTML = `
+                    <div class="text-2xl mb-1">${genre.icon}</div>
                     <div class="text-sm font-medium">${genre.name}</div>
                 `;
-                
-                button.addEventListener('click', () => toggleGenre(genre.id));
-                genreGrid.appendChild(button);
+                card.addEventListener('click', () => toggleGenre(id));
+                grid.appendChild(card);
             });
         };
 
-        const renderWeightControls = () => {
-            const weightControls = document.getElementById('weightControls');
-            const weightsContainer = document.getElementById('weightsContainer');
+        // Renderizar estilos visuales
+        const renderVisualStyles = () => {
+            const grid = document.getElementById('visualStyleGrid');
+            grid.innerHTML = '';
             
-            if (appState.selectedGenres.length > 0) {
-                weightControls.classList.remove('hidden');
-                weightsContainer.innerHTML = '';
-
-                appState.selectedGenres.forEach(selectedGenre => {
-                    const genre = genres.find(g => g.id === selectedGenre.id);
-                    
-                    const weightControl = document.createElement('div');
-                    weightControl.className = 'space-y-2';
-                    weightControl.innerHTML = `
-                        <div class="flex justify-between items-center">
-                            <span class="text-sm font-medium flex items-center">
-                                ${genre.emoji} ${genre.name}
-                            </span>
-                            <span class="text-sm text-purple-300" id="weight-${selectedGenre.id}">
-                                ${selectedGenre.weight}%
-                            </span>
-                        </div>
-                        <input
-                            type="range"
-                            min="10"
-                            max="80"
-                            value="${selectedGenre.weight}"
-                            class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider"
-                            id="slider-${selectedGenre.id}"
-                            style="background: linear-gradient(to right, rgb(147, 51, 234) 0%, rgb(147, 51, 234) ${selectedGenre.weight}%, rgb(55, 65, 81) ${selectedGenre.weight}%, rgb(55, 65, 81) 100%)"
-                        />
-                    `;
-                    
-                    const slider = weightControl.querySelector(`#slider-${selectedGenre.id}`);
-                    slider.addEventListener('input', (e) => {
-                        const newWeight = parseInt(e.target.value);
-                        updateGenreWeight(selectedGenre.id, newWeight);
-                        document.getElementById(`weight-${selectedGenre.id}`).textContent = `${newWeight}%`;
-                        e.target.style.background = `linear-gradient(to right, rgb(147, 51, 234) 0%, rgb(147, 51, 234) ${newWeight}%, rgb(55, 65, 81) ${newWeight}%, rgb(55, 65, 81) 100%)`;
-                    });
-                    
-                    weightsContainer.appendChild(weightControl);
-                });
-            } else {
-                weightControls.classList.add('hidden');
-            }
-        };
-
-        const updateGenerateButton = () => {
-            const btn = document.getElementById('generateBtn');
-            if (appState.isGenerating) {
-                btn.innerHTML = `
-                    <div class="spinner mr-2"></div>
-                    🎭 Creando tu historia específica...
-                `;
-                btn.disabled = true;
-                btn.classList.remove('pulse-glow');
-            } else {
-                btn.innerHTML = '✨ Generar Argumento Narrativo';
-                btn.disabled = appState.selectedGenres.length === 0;
-                if (!btn.disabled) {
-                    btn.classList.add('pulse-glow');
-                }
-            }
-        };
-
-        const showPlaceholder = (show) => {
-            const placeholder = document.getElementById('placeholderText');
-            const content = document.getElementById('narrativeContent');
-            const actions = document.getElementById('actionButtons');
-            
-            if (show) {
-                placeholder.classList.remove('hidden');
-                content.classList.add('hidden');
-                actions.classList.add('hidden');
-            } else {
-                placeholder.classList.add('hidden');
-                content.classList.remove('hidden');
-                actions.classList.remove('hidden');
-            }
-        };
-
-        const displayNarrative = () => {
-            const narrativeText = document.getElementById('narrativeText');
-            narrativeText.textContent = appState.generatedNarrative;
-            showPlaceholder(false);
-        };
-
-        const showImageSection = (show) => {
-            const imageSection = document.getElementById('imageSection');
-            if (show) {
-                imageSection.classList.remove('hidden');
-            } else {
-                imageSection.classList.add('hidden');
-            }
-        };
-
-        const showImageLoading = (show) => {
-            const loading = document.getElementById('imageLoading');
-            const placeholder = document.getElementById('imagePlaceholder');
-            const image = document.getElementById('narrativeImage');
-            
-            if (show) {
-                loading.classList.remove('hidden');
-                placeholder.classList.add('hidden');
-                image.classList.add('hidden');
-            } else {
-                loading.classList.add('hidden');
-            }
-        };
-
-        const displayImage = (imageUrl) => {
-            const image = document.getElementById('narrativeImage');
-            const placeholder = document.getElementById('imagePlaceholder');
-            const status = document.getElementById('imageStatus');
-            
-            image.src = imageUrl;
-            image.classList.remove('hidden');
-            placeholder.classList.add('hidden');
-            status.classList.remove('hidden');
-        };
-
-        // Funciones de exportación
-        const copyToClipboard = async () => {
-            if (!appState.generatedNarrative) {
-                alert('No hay ningún argumento generado para copiar.');
-                return;
-            }
-            
-            try {
-                await navigator.clipboard.writeText(appState.generatedNarrative);
-                const button = document.getElementById('copyButton');
-                const originalText = button.textContent;
-                button.textContent = '✅ Copiado';
-                setTimeout(() => {
-                    button.textContent = originalText;
-                }, 2000);
-            } catch (error) {
-                console.error('Error copiando al portapapeles:', error);
-                alert('Error al copiar al portapapeles. Selecciona y copia manualmente el texto.');
-            }
-        };
-
-        const exportToZip = async () => {
-            if (!appState.generatedNarrative) {
-                alert('No hay contenido para exportar.');
-                return;
-            }
-
-            try {
-                const zip = new JSZip();
-                
-                const genreInfo = appState.selectedGenres.map(g => {
-                    const genre = genres.find(genre => genre.id === g.id);
-                    return `${genre.name}: ${g.weight}%`;
-                }).join(', ');
-                
-                const narrativeContent = `GENERADOR DE ARGUMENTOS NARRATIVOS
-=====================================
-
-Géneros seleccionados: ${genreInfo}
-
-Elementos personalizados: ${appState.customElements || 'Ninguno'}
-
-ARGUMENTO GENERADO:
-${appState.generatedNarrative}
-
-Generado el: ${new Date().toLocaleString('es-ES')}
-`;
-                
-                zip.file('argumento_narrativo.txt', narrativeContent);
-                
-                if (appState.generatedImageUrl) {
-                    try {
-                        const response = await fetch(appState.generatedImageUrl);
-                        const blob = await response.blob();
-                        zip.file('imagen_promocional.png', blob);
-                    } catch (error) {
-                        console.warn('No se pudo incluir la imagen en el ZIP:', error);
-                    }
-                }
-                
-                const content = await zip.generateAsync({ type: 'blob' });
-                const url = URL.createObjectURL(content);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `argumento_narrativo_${Date.now()}.zip`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-                
-            } catch (error) {
-                console.error('Error exportando a ZIP:', error);
-                alert('Error al exportar a ZIP. Inténtalo de nuevo.');
-            }
-        };
-
-        // Event Listeners
-        document.getElementById('customElements').addEventListener('input', (e) => {
-            appState.customElements = e.target.value;
-        });
-
-        document.getElementById('useImageAI').addEventListener('change', (e) => {
-            appState.useImageAI = e.target.checked;
-            const info = document.getElementById('imageAIInfo');
-            if (appState.useImageAI) {
-                info.classList.remove('hidden');
-            } else {
-                info.classList.add('hidden');
-            }
-        });
-
-        document.getElementById('generateBtn').addEventListener('click', generateNarrative);
-        document.getElementById('copyButton').addEventListener('click', copyToClipboard);
-        document.getElementById('exportButton').addEventListener('click', exportToZip);
-
-        // Inicialización
-        renderGenres();
-        updateGenerateButton();
-    </script>
-</body>
-</html>
+            Object.entries(visualStyles).forEach(([id, style]) => {
+                const card = document.createElement('div');
+                card.className = 'visual-style-card bg-gray-700 rounded-lg p-3 text-center';
+                if (id === appState.visualStyle) card.classList.add('selected');
+                card.dataset.styleId = id;
+                card.innerHTML = `
+                    <div class="text-xl mb-1">${style.icon}</div>
+                    <div class="text-sm font-medium">${style.name}</div>
+                    <div class="text-xs text-gray-400
