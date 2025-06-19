@@ -1426,7 +1426,7 @@
             newImage.src = imageUrl;
         };
 
-        // Función de exportación ZIP
+        // Función mejorada de exportación ZIP con imagen JPG y formato MD
         const exportToZip = async () => {
             try {
                 const narrativeTextEditor = document.getElementById('narrativeTextEditor');
@@ -1456,56 +1456,254 @@
                 const timestamp = new Date().toISOString().slice(0, 19).replace(/[T:]/g, '-');
                 const filename = `narrativAI-${timestamp}`;
                 
-                // Añadir el texto narrativo
-                zip.file(`${filename}.txt`, textToExport);
+                // ✅ 1. NARRATIVA EN FORMATO MARKDOWN (.md)
+                const markdownNarrative = `# 🎭 Narrativa Épica - narrativAI
+
+**Generado el:** ${new Date().toLocaleDateString('es-ES', { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                })}
+
+## 📖 Tu Historia Épica
+
+${textToExport}
+
+---
+
+## ⚖️ Configuración de Géneros Balanceados
+
+${appState.selectedGenres.map(g => {
+                    const genreInfo = genres[g.id];
+                    return `### ${genreInfo.icon} ${genreInfo.name}
+**Peso:** ${Math.round(g.weight)}%  
+**Influencia:** ${g.weight > 40 ? 'Dominante' : g.weight > 25 ? 'Fuerte' : 'Moderada'}`;
+                }).join('\n\n')}
+
+## ✨ Elementos Personalizados Integrados
+
+${[
+                    document.getElementById('element1').value.trim(),
+                    document.getElementById('element2').value.trim(),
+                    document.getElementById('element3').value.trim()
+                ].filter(Boolean).map((el, index) => `${index + 1}. **${el}** - ${
+                    index === 0 ? 'Elemento principal (foco narrativo)' : 
+                    index === 1 ? 'Elemento secundario (apoyo)' : 
+                    'Elemento de contexto (escenario)'
+                }`).join('\n') || 'No se especificaron elementos personalizados.'}
+
+## 🎨 Configuración Visual
+
+${appState.useImageAI ? `
+**Generación de imágenes:** ✅ Activada  
+**Estilo visual:** ${document.getElementById('visualStyle').selectedOptions[0].text}  
+**Engine de imagen:** ${document.getElementById('imageEngine').selectedOptions[0].text}  
+**Posado/Acción:** ${document.getElementById('poseAction').selectedOptions[0].text}
+` : '**Generación de imágenes:** ❌ Desactivada'}
+
+## 📊 Estadísticas del Texto
+
+- **Palabras:** ${textToExport.split(/\s+/).filter(word => word.length > 0).length}
+- **Caracteres:** ${textToExport.length}
+- **Párrafos:** ${textToExport.split('\n\n').filter(p => p.trim().length > 0).length}
+
+---
+
+*Generado con ❤️ por **narrativAI*** 🎭✨
+`;
                 
-                // Crear archivo de metadatos con la configuración usada
+                zip.file(`${filename}.md`, markdownNarrative);
+                
+                // ✅ 2. PORCENTAJES DE GÉNEROS EN ARCHIVO SEPARADO
+                const genresBreakdown = `# 📊 Análisis de Géneros - narrativAI
+
+**Fecha de generación:** ${new Date().toLocaleString('es-ES')}
+
+## ⚖️ Distribución de Géneros Balanceados
+
+${appState.selectedGenres.map(g => {
+                    const genreInfo = genres[g.id];
+                    const percentage = Math.round(g.weight);
+                    const barLength = Math.round(percentage / 5); // Barra visual de 20 caracteres máximo
+                    const bar = '█'.repeat(barLength) + '░'.repeat(20 - barLength);
+                    
+                    return `### ${genreInfo.icon} ${genreInfo.name}
+**Porcentaje:** ${percentage}%  
+**Barra visual:** [${bar}] ${percentage}%  
+**Categoría:** ${percentage > 40 ? '🟦 Dominante' : percentage > 25 ? '🟨 Fuerte' : '🟩 Moderada'}  
+**Influencia narrativa:** ${getGenreInfluenceDescription(genreInfo.name.toLowerCase(), percentage)}`;
+                }).join('\n\n')}
+
+## 📈 Resumen Estadístico
+
+- **Total de géneros:** ${appState.selectedGenres.length}/3
+- **Género principal:** ${(() => {
+                    const maxGenre = appState.selectedGenres.reduce((max, g) => g.weight > max.weight ? g : max);
+                    return `${genres[maxGenre.id].icon} ${genres[maxGenre.id].name} (${Math.round(maxGenre.weight)}%)`;
+                })()}
+- **Distribución:** ${appState.selectedGenres.length === 1 ? 'Mono-género' : 
+                             appState.selectedGenres.length === 2 ? 'Bi-género balanceado' : 
+                             'Multi-género balanceado'}
+- **Balance total:** ${appState.selectedGenres.reduce((sum, g) => sum + g.weight, 0).toFixed(1)}%
+
+---
+
+*Análisis generado por **narrativAI*** 🎭📊
+`;
+                
+                zip.file(`${filename}-generos.md`, genresBreakdown);
+                
+                // ✅ 3. IMAGEN EN FORMATO JPG (si existe)
+                const imageContainer = document.querySelector('#imagePlaceholder img, #narrativeImage');
+                if (imageContainer && imageContainer.src && !imageContainer.src.includes('placeholder')) {
+                    try {
+                        console.log('🖼️ Convirtiendo imagen a JPG...');
+                        
+                        // Crear canvas para conversión a JPG
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        
+                        // Esperar a que la imagen cargue completamente
+                        const img = new Image();
+                        img.crossOrigin = 'anonymous';
+                        
+                        await new Promise((resolve, reject) => {
+                            img.onload = () => {
+                                canvas.width = img.naturalWidth || img.width;
+                                canvas.height = img.naturalHeight || img.height;
+                                
+                                // Fondo blanco para JPG
+                                ctx.fillStyle = 'white';
+                                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                                
+                                // Dibujar imagen
+                                ctx.drawImage(img, 0, 0);
+                                resolve();
+                            };
+                            img.onerror = reject;
+                        });
+                        
+                        img.src = imageContainer.src;
+                        
+                        // Convertir a JPG (calidad 90%)
+                        const jpgDataUrl = canvas.toDataURL('image/jpeg', 0.9);
+                        const jpgData = jpgDataUrl.split(',')[1]; // Remover prefijo data:image/jpeg;base64,
+                        
+                        zip.file(`${filename}-imagen.jpg`, jpgData, {base64: true});
+                        console.log('✅ Imagen JPG añadida al ZIP');
+                        
+                    } catch (error) {
+                        console.warn('⚠️ No se pudo convertir la imagen a JPG:', error);
+                        // Continuar sin la imagen
+                    }
+                }
+                
+                // Crear archivo de metadatos JSON (mejorado)
                 const metadata = {
                     generatedAt: new Date().toISOString(),
                     app: 'narrativAI',
-                    version: '1.0',
+                    version: '2.0',
                     configuration: {
                         selectedGenres: appState.selectedGenres.map(g => ({
+                            id: g.id,
                             name: genres[g.id].name,
                             icon: genres[g.id].icon,
-                            weight: Math.round(g.weight)
+                            weight: Math.round(g.weight),
+                            percentage: `${Math.round(g.weight)}%`,
+                            influence: g.weight > 40 ? 'Dominante' : g.weight > 25 ? 'Fuerte' : 'Moderada'
                         })),
                         customElements: [
                             document.getElementById('element1').value.trim(),
                             document.getElementById('element2').value.trim(),
                             document.getElementById('element3').value.trim()
                         ].filter(Boolean),
-                        visualStyle: appState.visualStyle,
-                        imageEngine: appState.imageEngine,
-                        useImageAI: appState.useImageAI
+                        visualConfiguration: {
+                            useImageAI: appState.useImageAI,
+                            visualStyle: appState.visualStyle,
+                            visualStyleName: document.getElementById('visualStyle').selectedOptions[0].text,
+                            imageEngine: appState.imageEngine,
+                            imageEngineName: document.getElementById('imageEngine').selectedOptions[0].text,
+                            poseAction: appState.poseAction,
+                            poseActionName: document.getElementById('poseAction').selectedOptions[0].text
+                        }
                     },
-                    textLength: textToExport.length,
-                    wordCount: textToExport.split(/\s+/).filter(word => word.length > 0).length
+                    statistics: {
+                        textLength: textToExport.length,
+                        wordCount: textToExport.split(/\s+/).filter(word => word.length > 0).length,
+                        paragraphCount: textToExport.split('\n\n').filter(p => p.trim().length > 0).length,
+                        genreCount: appState.selectedGenres.length,
+                        elementCount: [
+                            document.getElementById('element1').value.trim(),
+                            document.getElementById('element2').value.trim(),
+                            document.getElementById('element3').value.trim()
+                        ].filter(Boolean).length,
+                        hasImage: !!imageContainer && !!imageContainer.src
+                    }
                 };
                 
-                zip.file(`${filename}-config.json`, JSON.stringify(metadata, null, 2));
+                zip.file(`${filename}-metadatos.json`, JSON.stringify(metadata, null, 2));
                 
-                // Crear README con instrucciones
-                const readme = `# narrativAI Export
-                
-Archivo generado por narrativAI
-Fecha: ${new Date().toLocaleString()}
+                // README mejorado
+                const readme = `# 🎭 narrativAI Export Package
 
-## Contenido:
-- ${filename}.txt: Tu narrativa épica generada/editada
-- ${filename}-config.json: Configuración utilizada para la generación
+**Paquete generado el:** ${new Date().toLocaleString('es-ES')}  
+**Versión:** narrativAI v2.0
 
-## Configuración utilizada:
-${appState.selectedGenres.map(g => `- ${genres[g.id].icon} ${genres[g.id].name}: ${Math.round(g.weight)}%`).join('\n')}
+## 📦 Contenido del Paquete
 
-## Elementos personalizados:
+| Archivo | Descripción | Formato |
+|---------|-------------|---------|
+| \`${filename}.md\` | 📖 Narrativa épica completa | Markdown |
+| \`${filename}-generos.md\` | 📊 Análisis detallado de géneros | Markdown |
+| \`${filename}-imagen.jpg\` | 🖼️ Imagen épica generada ${imageContainer ? '✅' : '❌'} | JPEG |
+| \`${filename}-metadatos.json\` | ⚙️ Configuración técnica | JSON |
+| \`README.md\` | 📋 Este archivo de información | Markdown |
+
+## ⚖️ Configuración de Géneros Balanceados
+
+${appState.selectedGenres.map(g => `- ${genres[g.id].icon} **${genres[g.id].name}**: ${Math.round(g.weight)}%`).join('\n')}
+
+## ✨ Elementos Personalizados Integrados
+
 ${[
     document.getElementById('element1').value.trim(),
     document.getElementById('element2').value.trim(),
     document.getElementById('element3').value.trim()
-].filter(Boolean).map(el => `- ${el}`).join('\n') || '- Ninguno'}
+].filter(Boolean).map((el, index) => `${index + 1}. **${el}**`).join('\n') || 'Ningún elemento personalizado especificado.'}
 
-¡Disfruta de tu narrativa épica! 🎭✨
+## 🎨 Configuración Visual
+
+${appState.useImageAI ? `✅ **Imagen épica generada**
+- **Estilo:** ${document.getElementById('visualStyle').selectedOptions[0].text}
+- **Engine:** ${document.getElementById('imageEngine').selectedOptions[0].text}
+- **Acción:** ${document.getElementById('poseAction').selectedOptions[0].text}` : '❌ **Generación de imágenes desactivada**'}
+
+## 📊 Estadísticas del Contenido
+
+- **Palabras:** ${textToExport.split(/\s+/).filter(word => word.length > 0).length}
+- **Caracteres:** ${textToExport.length}
+- **Géneros:** ${appState.selectedGenres.length}/3
+- **Elementos:** ${[
+    document.getElementById('element1').value.trim(),
+    document.getElementById('element2').value.trim(),
+    document.getElementById('element3').value.trim()
+].filter(Boolean).length}/3
+
+---
+
+## 🚀 Cómo Usar Este Paquete
+
+1. **Lectura:** Abre \`${filename}.md\` para leer tu narrativa épica completa
+2. **Análisis:** Revisa \`${filename}-generos.md\` para el desglose detallado de géneros
+3. **Visual:** ${imageContainer ? 'Visualiza `' + filename + '-imagen.jpg` para ver la escena épica' : 'La imagen no se generó en esta sesión'}
+4. **Técnico:** Consulta \`${filename}-metadatos.json\` para la configuración completa
+
+¡Disfruta de tu narrativa épica personalizada! 🎭✨
+
+*Generado con ❤️ por **narrativAI*** | [Más información](https://narrativ-ai.vercel.app)
 `;
                 
                 zip.file('README.md', readme);
@@ -1513,10 +1711,14 @@ ${[
                 // Generar el ZIP y descargarlo
                 const exportBtn = document.getElementById('exportBtn');
                 const originalText = exportBtn.textContent;
-                exportBtn.textContent = '📦 Generando ZIP...';
+                exportBtn.textContent = '📦 Generando ZIP completo...';
                 exportBtn.disabled = true;
                 
-                const blob = await zip.generateAsync({type: 'blob'});
+                const blob = await zip.generateAsync({
+                    type: 'blob',
+                    compression: 'DEFLATE',
+                    compressionOptions: { level: 6 }
+                });
                 
                 // Crear enlace de descarga
                 const url = URL.createObjectURL(blob);
@@ -1528,14 +1730,21 @@ ${[
                 document.body.removeChild(link);
                 URL.revokeObjectURL(url);
                 
-                // Feedback visual
-                exportBtn.textContent = '✅ ZIP Descargado';
+                // Feedback visual mejorado
+                exportBtn.textContent = '✅ ZIP Completo Descargado';
                 setTimeout(() => {
                     exportBtn.textContent = originalText;
                     exportBtn.disabled = false;
-                }, 3000);
+                }, 4000);
                 
-                console.log('📦 ZIP exportado exitosamente:', filename);
+                console.log('📦 ZIP completo exportado exitosamente:', filename);
+                console.log('📋 Contenido incluido:', {
+                    narrativaMD: true,
+                    generosMD: true,
+                    imagenJPG: !!imageContainer,
+                    metadatosJSON: true,
+                    readmeMD: true
+                });
                 
             } catch (error) {
                 console.error('❌ Error exportando ZIP:', error);
@@ -1545,6 +1754,30 @@ ${[
                 exportBtn.textContent = '💾 Exportar ZIP';
                 exportBtn.disabled = false;
             }
+        };
+
+        // Función auxiliar para describir la influencia del género
+        const getGenreInfluenceDescription = (genreName, percentage) => {
+            const descriptions = {
+                'terror': percentage > 40 ? 'Atmósfera predominantemente siniestra y sobrenatural' : 
+                         percentage > 25 ? 'Elementos de suspense y misterio' : 'Toques sutiles de tensión',
+                'fantasía': percentage > 40 ? 'Mundo mágico rico en criaturas y hechizos' : 
+                           percentage > 25 ? 'Elementos mágicos significativos' : 'Toques de magia y maravilla',
+                'romance': percentage > 40 ? 'Historia centrada en relaciones amorosas' : 
+                          percentage > 25 ? 'Subtrama romántica importante' : 'Elementos románticos sutiles',
+                'misterio': percentage > 40 ? 'Trama compleja llena de enigmas' : 
+                           percentage > 25 ? 'Elementos de investigación y secretos' : 'Toques de intriga',
+                'ciencia ficción': percentage > 40 ? 'Universo futurista con tecnología avanzada' : 
+                                  percentage > 25 ? 'Elementos tecnológicos significativos' : 'Toques sci-fi',
+                'aventura': percentage > 40 ? 'Épica llena de desafíos y exploración' : 
+                           percentage > 25 ? 'Elementos de acción y descubrimiento' : 'Toques aventureros',
+                'comedia': percentage > 40 ? 'Tono predominantemente humorístico' : 
+                          percentage > 25 ? 'Momentos cómicos frecuentes' : 'Toques de humor',
+                'drama': percentage > 40 ? 'Profundidad emocional y conflictos internos' : 
+                        percentage > 25 ? 'Elementos dramáticos importantes' : 'Toques emotivos'
+            };
+            
+            return descriptions[genreName] || 'Influencia narrativa balanceada';
         };
 
         // Funciones de dibujo específicas (simplificadas para el ejemplo)
