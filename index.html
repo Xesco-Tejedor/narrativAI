@@ -364,4 +364,58 @@
                 card.innerHTML = `
                     <div class="text-xl mb-1">${style.icon}</div>
                     <div class="text-sm font-medium">${style.name}</div>
-                    <div class="text-xs text-gray-400
+                    <div class="text-xs text-gray-400 mt-1">${style.description}</div>
+                `;
+                card.addEventListener('click', () => selectVisualStyle(id));
+                grid.appendChild(card);
+            });
+        };
+
+        // Renderizar engines de IA
+        const renderImageEngines = () => {
+            const grid = document.getElementById('imageEngineGrid');
+            grid.innerHTML = '';
+            
+            Object.entries(imageEngines).forEach(([id, engine]) => {
+                const card = document.createElement('div');
+                card.className = 'visual-style-card bg-gray-700 rounded-lg p-3 text-center';
+                if (id === appState.imageEngine) card.classList.add('selected');
+                card.dataset.engineId = id;
+                card.innerHTML = `
+                    <div class="text-xl mb-1">${engine.icon}</div>
+                    <div class="text-sm font-medium">${engine.name}</div>
+                    <div class="text-xs text-gray-400 mt-1">${engine.description}</div>
+                `;
+                card.addEventListener('click', () => selectImageEngine(id));
+                grid.appendChild(card);
+            });
+        };
+
+        // Alternar selección de género
+        const toggleGenre = (genreId) => {
+            const genreCard = document.querySelector(`[data-genre-id="${genreId}"]`);
+            const isSelected = appState.selectedGenres.some(g => g.id === genreId);
+            
+            if (isSelected) {
+                // Remover género
+                appState.selectedGenres = appState.selectedGenres.filter(g => g.id !== genreId);
+                genreCard.classList.remove('selected');
+            } else {
+                // Añadir género (máximo 3)
+                if (appState.selectedGenres.length < 3) {
+                    // Calcular redistribución proporcional para el nuevo género
+                    const currentGenresCount = appState.selectedGenres.length;
+                    
+                    if (currentGenresCount === 0) {
+                        // Primer género: 100%
+                        appState.selectedGenres.push({
+                            id: genreId,
+                            weight: 100
+                        });
+                    } else {
+                        // Reducir proporcionalmente los géneros existentes
+                        const newGenreWeight = 100 / (currentGenresCount + 1);
+                        const existingTotalWeight = 100 - newGenreWeight;
+                        const scaleFactor = existingTotalWeight / 100;
+                        
+                        // Ajustar géneros existentes
