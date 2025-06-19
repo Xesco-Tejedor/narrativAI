@@ -3,87 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>narrativAI - Generador de Narrativas Épicas</title>
+    <title>🎭 narrativAI</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
-            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            background: linear-gradient(135deg, #0f0f23, #1a1a2e, #16213e);
             min-height: 100vh;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         }
-        
         .genre-card {
             transition: all 0.3s ease;
-            cursor: pointer;
             border: 2px solid transparent;
         }
-        
+        .genre-card.selected {
+            border-color: #8b5cf6;
+            background: rgba(139, 92, 246, 0.1);
+        }
         .genre-card:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3);
-            border-color: rgba(139, 92, 246, 0.5);
         }
-        
-        .genre-card.selected {
-            background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(168, 85, 247, 0.1));
-            border-color: #8b5cf6;
-            box-shadow: 0 4px 20px rgba(139, 92, 246, 0.4);
+        .weight-slider {
+            accent-color: #8b5cf6;
         }
-        
-        .visual-style-card {
-            transition: all 0.3s ease;
-            cursor: pointer;
-            border: 2px solid transparent;
-        }
-        
-        .visual-style-card:hover {
-            transform: translateY(-1px);
-            border-color: rgba(34, 197, 94, 0.5);
-        }
-        
-        .visual-style-card.selected {
-            background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(16, 185, 129, 0.1));
-            border-color: #22c55e;
-            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
-        }
-        
         .loading-animation {
             animation: pulse 2s infinite;
         }
-        
         @keyframes pulse {
-            0%, 100% { opacity: 0.4; }
-            50% { opacity: 1; }
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
-        
-        .weight-slider {
-            background: linear-gradient(to right, #8b5cf6 0%, #6366f1 100%);
-            height: 6px;
-            border-radius: 3px;
-            outline: none;
-            -webkit-appearance: none;
-        }
-        
-        .weight-slider::-webkit-slider-thumb {
-            appearance: none;
-            width: 18px;
-            height: 18px;
-            background: #8b5cf6;
-            border-radius: 50%;
-            cursor: pointer;
-            box-shadow: 0 2px 6px rgba(139, 92, 246, 0.4);
-        }
-        
-        .weight-slider::-moz-range-thumb {
-            width: 18px;
-            height: 18px;
-            background: #8b5cf6;
-            border-radius: 50%;
-            cursor: pointer;
-            border: none;
-            box-shadow: 0 2px 6px rgba(139, 92, 246, 0.4);
-        }
-        
         .generated-text {
             animation: fadeIn 0.8s ease-in;
         }
@@ -122,272 +70,343 @@
     </style>
 </head>
 <body class="text-white">
-    <div class="container mx-auto px-4 py-6 max-w-4xl">
-        <!-- Header -->
+    <div class="container mx-auto px-4 py-8 max-w-6xl">
         <div class="text-center mb-8">
-            <h1 class="text-4xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent mb-2">
+            <h1 class="text-4xl md:text-5xl font-bold bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 bg-clip-text text-transparent mb-4">
                 🎭 narrativAI
             </h1>
-            <p class="text-gray-300 text-lg">Generador de narrativas épicas con IA visual</p>
-            <div class="flex justify-center items-center mt-3 space-x-2">
-                <span class="text-sm text-purple-300">v2.0</span>
-                <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                <span class="text-sm text-green-300">Editor Mejorado</span>
-            </div>
-        </div>
-
-        <!-- Selección de Géneros -->
-        <div class="bg-gray-800/50 rounded-xl p-6 mb-6 backdrop-blur-sm border border-gray-700">
-            <h2 class="text-xl font-semibold mb-4 flex items-center">
-                🎪 Selecciona tus géneros (máximo 3)
-                <span id="genreCount" class="ml-2 text-sm bg-purple-600 px-2 py-1 rounded-full">0/3</span>
-            </h2>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-3" id="genreGrid">
-                <!-- Se llenarán dinámicamente -->
-            </div>
+            <p class="text-xl text-gray-300 mb-2">
+                📚 Narrativas específicas con elementos personalizados literales
+            </p>
+            <p class="text-lg text-purple-300 mb-4">
+                🎬 Hasta 3 géneros balanceados + Imágenes épicas cinematográficas usando IA real
+            </p>
             
-            <!-- Control de pesos -->
-            <div id="weightControls" class="mt-6 hidden">
-                <h3 class="text-lg font-medium mb-3 text-purple-300">⚖️ Ajustar influencia de géneros</h3>
-                <div id="weightSliders" class="space-y-3">
-                    <!-- Se llenarán dinámicamente -->
+            <!-- Banner conceptual -->
+            <div class="max-w-4xl mx-auto mb-6 p-6 bg-gradient-to-r from-purple-900/30 to-pink-900/30 rounded-xl border border-purple-500/30">
+                <div class="text-center">
+                    <div class="text-6xl mb-4">🎭✨📚</div>
+                    <p class="text-lg text-purple-200 mb-2">
+                        <strong>Transforma elementos simples en narrativas épicas</strong>
+                    </p>
+                    <p class="text-md text-gray-300">
+                        Elementos personalizados + Géneros balanceados + IA cinematográfica
+                    </p>
+                    <p class="text-sm text-purple-300 mt-2">
+                        ⬇️ <em>Tus elementos cobran vida en historias únicas con imágenes épicas</em> ⬇️
+                    </p>
                 </div>
             </div>
         </div>
 
-        <!-- Elementos Personalizados -->
-        <div class="bg-gray-800/50 rounded-xl p-6 mb-6 backdrop-blur-sm border border-gray-700">
-            <h2 class="text-xl font-semibold mb-4">✨ Elementos personalizados</h2>
-            <div class="grid md:grid-cols-3 gap-4">
-                <input type="text" id="element1" placeholder="ej: pececillo de plata" 
-                       class="bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:border-purple-500">
-                <input type="text" id="element2" placeholder="ej: biblioteca misteriosa" 
-                       class="bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:border-purple-500">
-                <input type="text" id="element3" placeholder="ej: secretos antiguos" 
-                       class="bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:border-purple-500">
-            </div>
-        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Panel de configuración -->
+            <div class="space-y-6">
+                <!-- Selección de géneros con límite -->
+                <div class="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700">
+                    <h3 class="text-lg font-semibold text-purple-400 mb-4 flex items-center">
+                        🎭 Selecciona géneros (máximo 3)
+                        <span id="genreCount" class="ml-2 text-sm bg-purple-600 px-2 py-1 rounded-full">0/3</span>
+                    </h3>
+                    
+                    <div class="grid grid-cols-2 gap-3 mb-4" id="genreGrid">
+                        <!-- Géneros se generan dinámicamente -->
+                    </div>
 
-        <!-- Configuración de IA de Imágenes -->
-        <div class="bg-gray-800/50 rounded-xl p-6 mb-6 backdrop-blur-sm border border-gray-700">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-xl font-semibold">🎨 Generación de imágenes IA</h2>
-                <label class="flex items-center space-x-3 cursor-pointer">
-                    <input type="checkbox" id="useImageAI" class="form-checkbox h-5 w-5 text-purple-600 rounded">
-                    <span class="text-gray-300">Activar IA visual</span>
-                </label>
-            </div>
-            
-            <div id="imageAIInfo" class="hidden">
-                <p class="text-sm text-gray-400 mb-4">
-                    🎬 La IA generará imágenes épicas basadas en tu narrativa editada
-                </p>
-                
-                <!-- Estilos Visuales -->
-                <div id="visualStylesSection" class="mb-4">
-                    <h3 class="text-lg font-medium mb-3 text-green-300">🎨 Estilo visual</h3>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3" id="visualStyleGrid">
-                        <!-- Se llenarán dinámicamente -->
+                    <!-- Controles de peso para géneros seleccionados -->
+                    <div id="weightControls" class="space-y-3 hidden">
+                        <h4 class="text-md font-medium text-gray-300 border-t border-gray-600 pt-3">
+                            ⚖️ Ajustar influencia de géneros
+                        </h4>
+                        <div id="weightSliders"></div>
                     </div>
                 </div>
 
-                <!-- Engine de IA -->
-                <div id="imageEngineSection">
-                    <h3 class="text-lg font-medium mb-3 text-blue-300">🚀 Engine de IA</h3>
-                    <div class="grid grid-cols-2 gap-3" id="imageEngineGrid">
-                        <!-- Se llenarán dinámicamente -->
+                <!-- Elementos personalizados mejorados -->
+                <div class="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700">
+                    <h3 class="text-lg font-semibold text-purple-400 mb-4">
+                        ✨ Elementos personalizados (aparecen literalmente)
+                    </h3>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-sm text-gray-300 mb-1">
+                                🎯 Elemento principal (foco de la historia)
+                            </label>
+                            <input type="text" id="element1" placeholder="ej: pececillo de plata" class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-purple-500 text-white">
+                        </div>
+                        <div>
+                            <label class="block text-sm text-gray-300 mb-1">
+                                🔸 Elemento secundario (apoyo narrativo)
+                            </label>
+                            <input type="text" id="element2" placeholder="ej: biblioteca gigantesca" class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-purple-500 text-white">
+                        </div>
+                        <div>
+                            <label class="block text-sm text-gray-300 mb-1">
+                                🏛️ Elemento de contexto (puede definir escenario)
+                            </label>
+                            <input type="text" id="element3" placeholder="ej: voluminoso y antiguo libro" class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-purple-500 text-white">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Configuración de IA para imágenes -->
+                <div class="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <input type="checkbox" id="useImageAI" class="w-5 h-5 text-purple-600 bg-gray-700 border-gray-600 rounded focus:ring-purple-500">
+                        <label for="useImageAI" class="text-lg font-semibold text-purple-400">
+                            🎬 Generar imagen épica cinematográfica
+                        </label>
+                    </div>
+                    
+                    <div id="imageAIInfo" class="hidden mt-2 p-3 bg-blue-900/20 border border-blue-500/30 rounded text-sm text-blue-300">
+                        🎬 <strong>Imagen épica cinematográfica:</strong> Se generará una imagen real usando IA<br />
+                        <small class="opacity-80">🎭 La imagen aparecerá como una nueva forma en el canvas con el estilo seleccionado</small>
+                    </div>
+
+                    <!-- Estilos visuales predeterminados -->
+                    <div id="visualStylesSection" class="hidden mt-4">
+                        <label for="visualStyle" class="block text-sm font-medium text-gray-300 mb-2">
+                            🎨 Estilo visual predeterminado
+                        </label>
+                        <select id="visualStyle" class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-purple-500 text-white">
+                            <option value="auto">Automático (basado en géneros)</option>
+                            <option value="mignola-style">🎨 Estilo Mike Mignola (sombras dramáticas)</option>
+                            <option value="toth-style">🎨 Estilo Alex Toth (líneas elegantes)</option>
+                            <option value="sienkiewicz-style">🎨 Estilo Bill Sienkiewicz (expresionista)</option>
+                            <option value="williams-style">🎨 Estilo J H Williams III (layouts innovadores)</option>
+                            <option value="schuiten-style">🎨 Estilo François Schuiten (ligne claire)</option>
+                            <option value="hogarth-style">🎨 Estilo Burne Hogarth (anatomía dinámica)</option>
+                            <option value="wrightson-style">🎨 Estilo Bernie Wrightson (horror gótico)</option>
+                            <option value="frazetta-style">🎨 Estilo Frank Frazetta (fantasía heroica)</option>
+                            <option value="graphic-novel">Novela gráfica clásica</option>
+                            <option value="photorealistic">Fotorrealista</option>
+                            <option value="digital-art">Arte digital</option>
+                            <option value="concept-art">Arte conceptual</option>
+                            <option value="cinematic">Cinematográfico</option>
+                            <option value="fantasy-art">Arte fantástico</option>
+                            <option value="vintage-poster">Póster vintage</option>
+                        </select>
+                    </div>
+
+                    <!-- Posados y acciones de portada -->
+                    <div id="poseActionsSection" class="hidden mt-4">
+                        <label for="poseAction" class="block text-sm font-medium text-gray-300 mb-2">
+                            🎭 Posado/Acción de portada
+                        </label>
+                        <select id="poseAction" class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-purple-500 text-white">
+                            <option value="auto">Automático (basado en narrativa)</option>
+                            <option value="hero-stance">Postura heroica central</option>
+                            <option value="discovery-moment">Momento de descubrimiento</option>
+                            <option value="action-dynamic">Acción dinámica</option>
+                            <option value="contemplative-gaze">Mirada contemplativa al horizonte</option>
+                            <option value="confrontation">Confrontación dramática</option>
+                            <option value="group-formation">Formación de grupo</option>
+                            <option value="silhouette-dramatic">Silueta dramática</option>
+                            <option value="embrace-romantic">Abrazo romántico</option>
+                            <option value="mystery-investigation">Investigación misteriosa</option>
+                            <option value="magical-casting">Conjuro mágico</option>
+                            <option value="chase-escape">Persecución/Escape</option>
+                            <option value="throne-power">Posición de poder</option>
+                        </select>
+                    </div>
+
+                    <!-- Engine de imagen -->
+                    <div id="imageEngineSection" class="hidden mt-4">
+                        <label for="imageEngine" class="block text-sm font-medium text-gray-300 mb-2">
+                            🚀 Engine de generación de imagen
+                        </label>
+                        <select id="imageEngine" class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-purple-500 text-white">
+                            <option value="auto">🔄 Auto (selección inteligente según el estilo)</option>
+                            <option value="gpt-image-1">🎬 gpt-image-1 (rápido y confiable)</option>
+                            <option value="seedimage-3">🎨 SeedImage 3.0 (alta calidad artística)</option>
+                        </select>
+                        <div class="mt-2 text-xs text-gray-400 space-y-1">
+                            <div id="engineInfo" class="p-2 bg-gray-800/50 rounded border border-gray-600">
+                                <p class="font-medium text-purple-300">🔄 Selección automática:</p>
+                                <p>• Estilos de cómic maestros → SeedImage 3.0</p>
+                                <p>• Fotorrealista/Cinematográfico → gpt-image-1</p>
+                                <p>• Genera la mejor calidad según tu elección de estilo</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botón de generación -->
+                <button id="generateBtn" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
+                    <span id="generateBtnText">🎭 Generar Argumento Épico</span>
+                </button>
+            </div>
+
+            <!-- Panel de resultados -->
+            <div class="space-y-6">
+                <!-- Argumento generado -->
+                <div class="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700">
+                    <h3 class="text-lg font-semibold text-purple-400 mb-4">📖 Argumento Generado</h3>
+                    
+                    <div id="narrativePlaceholder" class="text-center text-gray-400 py-12">
+                        <div class="text-4xl mb-3">📚</div>
+                        <p>Selecciona géneros y elementos para generar tu narrativa épica</p>
+                    </div>
+                    
+                    <div id="narrativeContent" class="hidden">
+                        <div class="bg-gray-900/50 rounded-lg border-l-4 border-purple-500">
+                            <!-- Área de texto editable -->
+                            <div class="relative">
+                                <textarea 
+                                    id="narrativeTextEditor" 
+                                    class="w-full min-h-48 p-4 bg-transparent text-gray-100 leading-relaxed resize-none border-none outline-none"
+                                    placeholder="Tu narrativa editada aparecerá aquí..."
+                                    style="font-family: inherit; line-height: 1.6;"
+                                ></textarea>
+                                <div class="absolute top-2 right-2 opacity-60 hover:opacity-100 transition-opacity">
+                                    <span class="text-xs text-purple-300 bg-purple-900/50 px-2 py-1 rounded">
+                                        ✏️ Editable
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex flex-wrap gap-2 mt-4">
+                            <button id="copyBtn" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors text-sm">
+                                📋 Copiar texto
+                            </button>
+                            <button id="exportBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors text-sm">
+                                💾 Exportar ZIP
+                            </button>
+                            <button id="generateImageBtn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors text-sm hidden">
+                                🎬 Generar Imagen del Texto Editado
+                            </button>
+                            <button id="regenerateNarrativeBtn" class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg transition-colors text-sm">
+                                🎭 Regenerar Narrativa
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="loadingNarrative" class="hidden text-center py-8">
+                        <div class="loading-animation text-4xl mb-3">🎭</div>
+                        <p class="text-purple-300">Creando tu narrativa épica...</p>
+                    </div>
+                </div>
+
+                <!-- Área de imagen generada -->
+                <div class="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700">
+                    <h3 class="text-lg font-semibold text-purple-400 mb-4">🎬 Imagen Épica Cinematográfica</h3>
+                    
+                    <h4 class="text-md font-medium text-purple-300 mb-3">🎭 Tu imagen épica aparecerá aquí:</h4>
+                        
+                        <div id="imagePlaceholder" class="text-center text-gray-400 py-8 border-2 border-dashed border-gray-600 rounded-lg">
+                            <div class="text-3xl mb-2">🖼️</div>
+                            <p class="text-sm">Activa la generación de imágenes para ver tu escena épica personalizada</p>
+                        </div>
+                        
+                        <img id="narrativeImage" class="hidden w-full rounded-lg shadow-xl border border-gray-600 hover:shadow-2xl transition-shadow duration-300" alt="Imagen épica generada">
+                        
+                        <div id="loadingImage" class="hidden text-center py-8 border-2 border-dashed border-purple-500 rounded-lg">
+                            <div class="loading-animation text-3xl mb-2">🎬</div>
+                            <p class="text-purple-300 text-sm">Generando tu imagen épica cinematográfica...</p>
+                        </div>
+                        
+                        <div id="imageStatus" class="mt-3 p-2 bg-green-900/30 rounded border border-green-500/50 text-xs text-green-300 hidden">
+                            <!-- Status se actualiza dinámicamente -->
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Botón de Generación -->
-        <div class="text-center mb-8">
-            <button id="generateBtn" class="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 
-                                         text-white font-semibold px-8 py-4 rounded-xl transition-all duration-300 
-                                         transform hover:scale-105 hover:shadow-lg disabled:opacity-50">
-                <span id="generateBtnText">🎭 Generar Argumento Épico</span>
-            </button>
-        </div>
-
-        <!-- Loading States -->
-        <div id="loadingNarrative" class="hidden mb-6">
-            <div class="bg-gray-800/50 rounded-xl p-6 border border-gray-700 text-center">
-                <div class="loading-animation text-4xl mb-2">🎭</div>
-                <p class="text-purple-300 font-medium">Generando narrativa épica...</p>
-                <div class="mt-3 w-full bg-gray-700 rounded-full h-2">
-                    <div class="bg-purple-600 h-2 rounded-full animate-pulse" style="width: 65%"></div>
-                </div>
-            </div>
-        </div>
-
-        <div id="loadingImage" class="hidden mb-6">
-            <div class="bg-gray-800/50 rounded-xl p-6 border border-gray-700 text-center">
-                <div class="loading-animation text-4xl mb-2">🎨</div>
-                <p class="text-green-300 font-medium">Generando imagen cinematográfica...</p>
-                <div class="mt-3 w-full bg-gray-700 rounded-full h-2">
-                    <div class="bg-green-600 h-2 rounded-full animate-pulse" style="width: 80%"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Argumento Generado -->
-        <div id="narrativePlaceholder" class="text-center text-gray-400 mb-6">
-            <div class="text-4xl mb-2">📝</div>
-            <p>Tu narrativa épica aparecerá aquí</p>
-        </div>
-
-        <div id="narrativeContent" class="hidden mb-6">
-            <h2 class="text-2xl font-semibold mb-4 flex items-center">
-                📖 Argumento Generado
-                <span class="ml-3 text-sm bg-green-600 px-2 py-1 rounded-full">Editable</span>
-            </h2>
-            <div class="bg-gray-900/50 rounded-lg border-l-4 border-purple-500">
-                <!-- Área de texto editable -->
-                <div class="relative">
-                    <textarea 
-                        id="narrativeTextEditor" 
-                        class="w-full min-h-48 p-4 bg-transparent text-gray-100 leading-relaxed resize-none border-none outline-none"
-                        placeholder="Tu narrativa editada aparecerá aquí..."
-                        style="font-family: inherit; line-height: 1.6;"
-                    ></textarea>
-                    <div class="absolute top-2 right-2 opacity-60 hover:opacity-100 transition-opacity">
-                        <span class="text-xs text-purple-300 bg-purple-900/50 px-2 py-1 rounded">
-                            ✏️ Editable
-                        </span>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="flex flex-wrap gap-2 mt-4">
-                <button id="copyBtn" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors text-sm">
-                    📋 Copiar texto
-                </button>
-                <button id="exportBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors text-sm">
-                    💾 Exportar ZIP
-                </button>
-                <button id="generateImageBtn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors text-sm hidden">
-                    🎬 Generar Imagen del Texto Editado
-                </button>
-                <button id="regenerateNarrativeBtn" class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg transition-colors text-sm">
-                    🎭 Regenerar Narrativa
-                </button>
-            </div>
-        </div>
-
-        <!-- Imagen Generada -->
-        <div id="imagePlaceholder" class="text-center text-gray-400 mb-6">
-            <div class="text-4xl mb-2">🎬</div>
-            <p>La imagen épica aparecerá aquí</p>
-        </div>
-
-        <div id="imageStatus" class="hidden bg-green-900/30 rounded-lg p-3 border border-green-500/50 text-center">
-            <p class="text-green-300 font-medium">🎨 ¡Imagen épica generada exitosamente!</p>
+        <!-- Footer -->
+        <div class="mt-12 text-center text-gray-400 text-sm">
+            <p>
+                ✨ Generador de Argumentos Narrativos - Narrativas específicas con elementos personalizados literales
+            </p>
+            <p class="mt-1">
+                🎬 Hasta 3 géneros balanceados + Imágenes épicas cinematográficas de tus elementos en acción
+            </p>
+            <p class="mt-4 text-xs">
+                🙏 Agradecimientos especiales a <a href="https://perchance.org" target="_blank" rel="noopener noreferrer" class="text-purple-400 hover:text-purple-300 transition-colors underline">Perchance.org</a> por su increíble plataforma de generación AI
+            </p>
         </div>
     </div>
 
-    <script>
+    <script type="module">
         // Estado de la aplicación
-        const appState = {
-            selectedGenres: [],
-            visualStyle: 'cinematico',
-            imageEngine: 'gpt-image-1',
+        let appState = {
+            selectedGenres: [], // Array de objetos: { id, weight }
+            customElements: '',
+            generatedNarrative: '',
+            generatedImageUrl: '',
             useImageAI: false,
+            visualStyle: 'auto',
+            poseAction: 'auto',
+            imageEngine: 'auto',
             isGenerating: false,
-            isGeneratingImage: false,
-            generatedNarrative: ''
+            isGeneratingImage: false
         };
 
-        // Definición de géneros
+        // Definición de géneros disponibles
         const genres = {
-            terror: { name: 'Terror', icon: '👻', keywords: ['suspenso', 'miedo', 'sombras', 'escalofríos', 'oscuridad'] },
-            fantasia: { name: 'Fantasía', icon: '🧙‍♂️', keywords: ['magia', 'criaturas', 'hechizos', 'aventura', 'misterio'] },
-            romance: { name: 'Romance', icon: '💕', keywords: ['amor', 'pasión', 'corazón', 'ternura', 'encuentro'] },
-            accion: { name: 'Acción', icon: '⚔️', keywords: ['batalla', 'velocidad', 'adrenalina', 'combate', 'épico'] },
-            misterio: { name: 'Misterio', icon: '🔍', keywords: ['enigma', 'secreto', 'investigación', 'pistas', 'revelación'] },
-            cienciaficcion: { name: 'Ciencia Ficción', icon: '🚀', keywords: ['futuro', 'tecnología', 'espacio', 'robots', 'dimensiones'] },
-            drama: { name: 'Drama', icon: '🎭', keywords: ['emocional', 'conflicto', 'humano', 'decisiones', 'transformación'] },
-            comedia: { name: 'Comedia', icon: '😂', keywords: ['divertido', 'situaciones', 'humor', 'alegría', 'sorpresas'] }
+            'terror': {
+                name: 'Terror',
+                icon: '👻',
+                color: 'from-red-600 to-red-800'
+            },
+            'ciencia-ficcion': {
+                name: 'Ciencia Ficción',
+                icon: '🚀',
+                color: 'from-blue-600 to-blue-800'
+            },
+            'fantasia': {
+                name: 'Fantasía',
+                icon: '🧙‍♂️',
+                color: 'from-purple-600 to-purple-800'
+            },
+            'romance': {
+                name: 'Romance',
+                icon: '💕',
+                color: 'from-pink-600 to-pink-800'
+            },
+            'misterio': {
+                name: 'Misterio',
+                icon: '🔍',
+                color: 'from-yellow-600 to-yellow-800'
+            },
+            'aventura': {
+                name: 'Aventura',
+                icon: '⚔️',
+                color: 'from-green-600 to-green-800'
+            },
+            'comedia': {
+                name: 'Comedia',
+                icon: '😄',
+                color: 'from-orange-600 to-orange-800'
+            },
+            'drama': {
+                name: 'Drama',
+                icon: '🎭',
+                color: 'from-indigo-600 to-indigo-800'
+            }
         };
 
-        // Estilos visuales
-        const visualStyles = {
-            cinematico: { name: 'Cinematográfico', icon: '🎬', description: 'Épico como película' },
-            artistico: { name: 'Artístico', icon: '🎨', description: 'Estilo pictórico' },
-            realista: { name: 'Fotorealista', icon: '📸', description: 'Máximo realismo' },
-            fantasia: { name: 'Fantasía', icon: '✨', description: 'Mundo mágico' }
-        };
-
-        // Engines de IA
-        const imageEngines = {
-            'gpt-image-1': { name: 'GPT-Image-1', icon: '🧠', description: 'Equilibrio perfecto' },
-            'seedimage-3': { name: 'SeedImage 3.0', icon: '🌟', description: 'Máxima calidad artística' }
-        };
-
-        // Inicializar la aplicación
-        const initializeApp = () => {
-            renderGenres();
-            renderVisualStyles();
-            renderImageEngines();
-            setupEventListeners();
-            console.log('🎭 narrativAI inicializado correctamente');
-        };
-
-        // Renderizar géneros
-        const renderGenres = () => {
-            const grid = document.getElementById('genreGrid');
-            grid.innerHTML = '';
+        // Crear elementos de género en el DOM
+        const createGenreElements = () => {
+            const genreGrid = document.getElementById('genreGrid');
             
-            Object.entries(genres).forEach(([id, genre]) => {
-                const card = document.createElement('div');
-                card.className = 'genre-card bg-gray-700 rounded-lg p-3 text-center';
-                card.dataset.genreId = id;
-                card.innerHTML = `
-                    <div class="text-2xl mb-1">${genre.icon}</div>
+            Object.keys(genres).forEach(genreId => {
+                const genre = genres[genreId];
+                const genreCard = document.createElement('div');
+                genreCard.className = `genre-card bg-gradient-to-br ${genre.color} p-4 rounded-lg cursor-pointer text-center`;
+                genreCard.dataset.genreId = genreId;
+                
+                genreCard.innerHTML = `
+                    <div class="text-2xl mb-2">${genre.icon}</div>
                     <div class="text-sm font-medium">${genre.name}</div>
                 `;
-                card.addEventListener('click', () => toggleGenre(id));
-                grid.appendChild(card);
-            });
-        };
-
-        // Renderizar estilos visuales
-        const renderVisualStyles = () => {
-            const grid = document.getElementById('visualStyleGrid');
-            grid.innerHTML = '';
-            
-            Object.entries(visualStyles).forEach(([id, style]) => {
-                const card = document.createElement('div');
-                card.className = 'visual-style-card bg-gray-700 rounded-lg p-3 text-center';
-                if (id === appState.visualStyle) card.classList.add('selected');
-                card.dataset.styleId = id;
-                card.innerHTML = `
-                    <div class="text-xl mb-1">${style.icon}</div>
-                    <div class="text-sm font-medium">${style.name}</div>
-                    <div class="text-xs text-gray-400 mt-1">${style.description}</div>
-                `;
-                card.addEventListener('click', () => selectVisualStyle(id));
-                grid.appendChild(card);
-            });
-        };
-
-        // Renderizar engines de IA
-        const renderImageEngines = () => {
-            const grid = document.getElementById('imageEngineGrid');
-            grid.innerHTML = '';
-            
-            Object.entries(imageEngines).forEach(([id, engine]) => {
-                const card = document.createElement('div');
-                card.className = 'visual-style-card bg-gray-700 rounded-lg p-3 text-center';
-                if (id === appState.imageEngine) card.classList.add('selected');
-                card.dataset.engineId = id;
-                card.innerHTML = `
-                    <div class="text-xl mb-1">${engine.icon}</div>
-                    <div class="text-sm font-medium">${engine.name}</div>
-                    <div class="text-xs text-gray-400 mt-1">${engine.description}</div>
-                `;
-                card.addEventListener('click', () => selectImageEngine(id));
-                grid.appendChild(card);
+                
+                genreCard.addEventListener('click', () => {
+                    toggleGenre(genreId);
+                });
+                
+                genreGrid.appendChild(genreCard);
             });
         };
 
@@ -419,3 +438,1224 @@
                         const scaleFactor = existingTotalWeight / 100;
                         
                         // Ajustar géneros existentes
+                        appState.selectedGenres.forEach(genre => {
+                            genre.weight = genre.weight * scaleFactor;
+                        });
+                        
+                        // Añadir nuevo género
+                        appState.selectedGenres.push({
+                            id: genreId,
+                            weight: newGenreWeight
+                        });
+                    }
+                    
+                    genreCard.classList.add('selected');
+                } else {
+                    alert('Máximo 3 géneros permitidos. Deselecciona uno primero.');
+                    return;
+                }
+            }
+            
+            updateGenreCount();
+            updateWeightControls();
+        };
+
+        // Redistribuir pesos para que sumen exactamente 100
+        const redistributeWeights = () => {
+            if (appState.selectedGenres.length === 0) return;
+            
+            const totalCurrent = appState.selectedGenres.reduce((sum, g) => sum + g.weight, 0);
+            
+            if (Math.abs(totalCurrent - 100) > 0.1) {
+                // Si no hay pesos establecidos o la suma está muy desbalanceada
+                if (totalCurrent === 0 || appState.selectedGenres.every(g => g.weight === 0)) {
+                    // Distribución inicial equitativa
+                    const equalWeight = 100 / appState.selectedGenres.length;
+                    appState.selectedGenres.forEach(genre => {
+                        genre.weight = equalWeight;
+                    });
+                } else {
+                    // Normalizar manteniendo proporciones existentes
+                    const scaleFactor = 100 / totalCurrent;
+                    appState.selectedGenres.forEach(genre => {
+                        genre.weight = genre.weight * scaleFactor;
+                    });
+                }
+            }
+        };
+
+        // Redistribuir pesos cuando uno cambia (método fluido y proporcional)
+        const redistributeWeightsFromChange = (changedIndex, newWeight) => {
+            const oldWeight = appState.selectedGenres[changedIndex].weight;
+            const weightDifference = newWeight - oldWeight;
+            
+            // Obtener otros géneros que no cambiaron
+            const otherGenres = appState.selectedGenres.filter((_, index) => index !== changedIndex);
+            
+            if (otherGenres.length === 0) return;
+            
+            // Calcular el peso total actual de los otros géneros
+            const totalOtherWeights = otherGenres.reduce((sum, genre) => sum + genre.weight, 0);
+            
+            if (totalOtherWeights === 0) {
+                // Si todos los otros están en 0, distribuir equitativamente
+                const remainingWeight = 100 - newWeight;
+                const equalWeight = remainingWeight / otherGenres.length;
+                
+                appState.selectedGenres.forEach((genre, index) => {
+                    if (index !== changedIndex) {
+                        genre.weight = equalWeight;
+                    }
+                });
+            } else {
+                // Redistribuir proporcionalmente basado en pesos actuales
+                const targetTotalOther = 100 - newWeight;
+                const scaleFactor = targetTotalOther / totalOtherWeights;
+                
+                // Aplicar el factor de escala manteniendo proporciones
+                appState.selectedGenres.forEach((genre, index) => {
+                    if (index !== changedIndex) {
+                        genre.weight = Math.max(5, genre.weight * scaleFactor);
+                    }
+                });
+                
+                // Ajuste fino para asegurar que sume exactamente 100
+                const currentTotal = appState.selectedGenres.reduce((sum, g) => sum + g.weight, 0);
+                if (Math.abs(currentTotal - 100) > 0.1) {
+                    const adjustment = (100 - currentTotal) / otherGenres.length;
+                    appState.selectedGenres.forEach((genre, index) => {
+                        if (index !== changedIndex) {
+                            genre.weight = Math.max(5, genre.weight + adjustment);
+                        }
+                    });
+                }
+            }
+        };
+
+        // Actualizar todas las visualizaciones de peso
+        const updateAllWeightDisplays = () => {
+            const sliders = document.querySelectorAll('.weight-slider');
+            const percentages = document.querySelectorAll('.text-xs.text-gray-400');
+            
+            appState.selectedGenres.forEach((genre, index) => {
+                if (sliders[index]) {
+                    sliders[index].value = Math.round(genre.weight);
+                }
+                if (percentages[index]) {
+                    percentages[index].textContent = `${Math.round(genre.weight)}%`;
+                }
+            });
+            
+            // Actualizar indicador total
+            const totalIndicator = document.getElementById('totalWeightIndicator');
+            if (totalIndicator) {
+                const total = appState.selectedGenres.reduce((sum, g) => sum + g.weight, 0);
+                totalIndicator.textContent = `Total: ${Math.round(total)}%`;
+                totalIndicator.className = Math.abs(total - 100) < 0.1 ? 
+                    'text-sm font-medium text-green-400' : 
+                    'text-sm font-medium text-yellow-400';
+            }
+        };
+
+        // Actualizar contador de géneros
+        const updateGenreCount = () => {
+            const genreCount = document.getElementById('genreCount');
+            genreCount.textContent = `${appState.selectedGenres.length}/3`;
+        };
+
+        // Actualizar controles de peso
+        const updateWeightControls = () => {
+            const weightControls = document.getElementById('weightControls');
+            const weightSliders = document.getElementById('weightSliders');
+            
+            if (appState.selectedGenres.length === 0) {
+                weightControls.classList.add('hidden');
+                return;
+            }
+            
+            weightControls.classList.remove('hidden');
+            weightSliders.innerHTML = '';
+            
+            // Asegurar que los pesos sumen 100
+            redistributeWeights();
+            
+            appState.selectedGenres.forEach((genre, index) => {
+                const genreInfo = genres[genre.id];
+                const sliderContainer = document.createElement('div');
+                sliderContainer.className = 'flex items-center space-x-3';
+                
+                sliderContainer.innerHTML = `
+                    <div class="flex items-center space-x-2 w-20">
+                        <span class="text-lg">${genreInfo.icon}</span>
+                        <span class="text-xs text-gray-400 w-8 text-right">${Math.round(genre.weight)}%</span>
+                    </div>
+                    <input type="range" 
+                           class="weight-slider flex-1" 
+                           min="5" 
+                           max="85" 
+                           value="${Math.round(genre.weight)}"
+                           data-genre-id="${genre.id}"
+                           data-index="${index}">
+                    <span class="text-xs text-gray-300 min-w-16">${genreInfo.name}</span>
+                `;
+                
+                const slider = sliderContainer.querySelector('input');
+                const percentage = sliderContainer.querySelector('.text-xs.text-gray-400');
+                
+                slider.addEventListener('input', (e) => {
+                    const newWeight = parseInt(e.target.value);
+                    const genreIndex = parseInt(e.target.dataset.index);
+                    
+                    // Asegurar que el peso mínimo sea 5% para evitar dominancia total
+                    const adjustedWeight = Math.max(5, Math.min(85, newWeight));
+                    
+                    // Actualizar el peso del género actual
+                    appState.selectedGenres[genreIndex].weight = adjustedWeight;
+                    
+                    // Redistribuir automáticamente los otros géneros de forma proporcional
+                    redistributeWeightsFromChange(genreIndex, adjustedWeight);
+                    
+                    // Actualizar la visualización de todos los controles
+                    updateAllWeightDisplays();
+                });
+                
+                weightSliders.appendChild(sliderContainer);
+            });
+            
+            // Añadir indicador del total
+            const totalIndicator = document.createElement('div');
+            totalIndicator.className = 'mt-3 pt-2 border-t border-gray-600 text-center';
+            totalIndicator.innerHTML = `
+                <span id="totalWeightIndicator" class="text-sm font-medium text-green-400">
+                    Total: 100%
+                </span>
+            `;
+            weightSliders.appendChild(totalIndicator);
+        };
+
+        // Normalizar pesos para que sumen 100%
+        const normalizeWeights = () => {
+            const totalWeight = appState.selectedGenres.reduce((sum, g) => sum + g.weight, 0);
+            return appState.selectedGenres.map(g => ({
+                ...g,
+                normalizedWeight: (g.weight / totalWeight) * 100
+            }));
+        };
+
+        // Event listeners para checkboxes y selects
+        document.getElementById('useImageAI').addEventListener('change', (e) => {
+            appState.useImageAI = e.target.checked;
+            const info = document.getElementById('imageAIInfo');
+            const visualStylesSection = document.getElementById('visualStylesSection');
+            const poseActionsSection = document.getElementById('poseActionsSection');
+            const imageEngineSection = document.getElementById('imageEngineSection');
+            const generateImageBtn = document.getElementById('generateImageBtn');
+            
+            if (appState.useImageAI) {
+                info.classList.remove('hidden');
+                visualStylesSection.classList.remove('hidden');
+                poseActionsSection.classList.remove('hidden');
+                imageEngineSection.classList.remove('hidden');
+                
+                // Mostrar botón de imagen si ya hay texto generado
+                const narrativeContent = document.getElementById('narrativeContent');
+                if (!narrativeContent.classList.contains('hidden')) {
+                    generateImageBtn.classList.remove('hidden');
+                }
+            } else {
+                info.classList.add('hidden');
+                visualStylesSection.classList.add('hidden');
+                poseActionsSection.classList.add('hidden');
+                imageEngineSection.classList.add('hidden');
+                generateImageBtn.classList.add('hidden');
+            }
+        });
+
+        document.getElementById('visualStyle').addEventListener('change', (e) => {
+            appState.visualStyle = e.target.value;
+        });
+
+        document.getElementById('poseAction').addEventListener('change', (e) => {
+            appState.poseAction = e.target.value;
+        });
+
+        document.getElementById('imageEngine').addEventListener('change', (e) => {
+            appState.imageEngine = e.target.value;
+            updateEngineInfo();
+        });
+
+        // Templates de narrativas específicas por género
+        const narrativeTemplates = {
+            'terror': [
+                "En las profundidades de {LUGAR_ESPECIFICO}, {PROTAGONISTA} descubre que {ELEMENTO_PERSONAL_1} tiene propiedades sobrenaturales aterradoras que se remontan a {ORIGEN_MISTERIOSO}. Cada vez que interactúa con este objeto, {CONSECUENCIA_TERROR} se intensifica de manera exponencial, manifestándose primero como {MANIFESTACION_INICIAL}, luego como {MANIFESTACION_INTERMEDIA}, hasta que finalmente {CLIMAX_TERROR}. La presencia de {ELEMENTO_PERSONAL_2} no hace más que amplificar estos efectos, creando un ambiente donde {ATMOSFERA_TERROR} se vuelve palpable. {ELEMENTO_PERSONAL_3} sirve como el último refugio, pero incluso allí, {PROTAGONISTA} descubre que {REVELACION_FINAL} y que su destino está inexorablemente ligado a {DESTINO_TRAGICO}.",
+                
+                "Una serie de eventos inexplicables comienza cuando {PROTAGONISTA} encuentra {ELEMENTO_PERSONAL_1} en {LUGAR_ESPECIFICO}. Este objeto, aparentemente inocuo, desencadena {FENOMENO_SOBRENATURAL} que transforma completamente la realidad circundante. {ELEMENTO_PERSONAL_2} se convierte en un catalizador que acelera {PROCESO_HORROR}, mientras que {LUGAR_ESPECIFICO} se transforma gradualmente en {LUGAR_MALDITO}. Los susurros que emergen de {ELEMENTO_PERSONAL_3} revelan que {VERDAD_ATERRADORA}, y {PROTAGONISTA} debe enfrentar la realización de que {DILEMA_MORAL} antes de que {AMENAZA_FINAL} consume todo lo que conoce y ama."
+            ],
+            
+            'ciencia-ficcion': [
+                "En el año {FECHA_FUTURA}, {PROTAGONISTA} es {PROFESION_CIENTIFICA} especializado en {CAMPO_CIENTIFICO} cuando descubre que {ELEMENTO_PERSONAL_1} contiene {TECNOLOGIA_AVANZADA} que podría revolucionar la comprensión de {CONCEPTO_CIENTIFICO}. Utilizando {ELEMENTO_PERSONAL_2} como {HERRAMIENTA_CIENTIFICA}, logra {DESCUBRIMIENTO_REVOLUCIONARIO}, pero pronto se da cuenta de que {CONSECUENCIA_IMPREVISTA} amenaza {ESCALA_COSMICA}. La investigación lo lleva a {ELEMENTO_PERSONAL_3}, que resulta ser {ARTEFACTO_ALIEN}, y {PROTAGONISTA} debe {DECISION_ETICA} para evitar que {CATASTROFE_TECNOLOGICA} y así {SALVACION_HUMANIDAD}.",
+                
+                "Durante una misión de exploración en {PLANETA_DISTANT}, el equipo de {PROTAGONISTA} descubre {ELEMENTO_PERSONAL_1} enterrado en {ESTRUCTURA_ALIEN}. Este artefacto emite {ENERGIA_DESCONOCIDA} que interactúa de manera impredecible con {ELEMENTO_PERSONAL_2}, creando {FENOMENO_TEMPORAL} que amenaza con {PARADOJA_TEMPORAL}. Mientras investigan en {ELEMENTO_PERSONAL_3}, que sirve como {LABORATORIO_IMPROVISADO}, {PROTAGONISTA} descifra que {MENSAJE_ALIEN} y debe {MISION_CRUCIAL} antes de que {INVASION_ALIEN} y {DESTINO_GALAXIA} quede sellado para siempre."
+            ],
+            
+            'fantasia': [
+                "En los reinos místicos de {REINO_FANTASTICO}, {PROTAGONISTA} es {ROL_FANTASTICO} que descubre que {ELEMENTO_PERSONAL_1} es en realidad {ARTEFACTO_MAGICO} forjado por {CIVILIZACION_ANTIGUA}. Este objeto reacciona mágicamente con {ELEMENTO_PERSONAL_2}, liberando {PODER_MAGICO} que había permanecido dormido durante {TIEMPO_MILENARIO}. Su búsqueda los lleva a {ELEMENTO_PERSONAL_3}, que se revela como {LUGAR_SAGRADO} donde {PROFECIA_ANTIGUA} debe cumplirse. {PROTAGONISTA} debe dominar {HABILIDAD_MAGICA} y superar {PRUEBA_MAGICA} para evitar que {AMENAZA_MAGICA} y así {DESTINO_MUNDO_MAGICO}.",
+                
+                "Cuando {EVENTO_MAGICO} sacude los cimientos de {MUNDO_FANTASTICO}, {PROTAGONISTA} descubre que {ELEMENTO_PERSONAL_1} es la clave para {RITUAL_MAGICO} que podría restaurar el equilibrio. Con la ayuda de {ELEMENTO_PERSONAL_2}, que posee {PROPIEDAD_MAGICA}, emprende una búsqueda que los lleva a {ELEMENTO_PERSONAL_3}, un lugar donde {MAGIA_ANTIGUA} aún pulsa con fuerza. Allí, {PROTAGONISTA} debe enfrentar {GUARDIAN_MAGICO} y demostrar que {VIRTUD_HEROICA} antes de poder {ACCION_HEROICA} y {RESTAURACION_MAGICA}."
+            ],
+            
+            'romance': [
+                "En {AMBIENTE_ROMANTICO}, {PROTAGONISTA} conoce a {INTERES_ROMANTICO} en circunstancias relacionadas con {ELEMENTO_PERSONAL_1}. Este objeto se convierte en un símbolo de {CONEXION_EMOCIONAL} entre ellos, especialmente cuando descubren que ambos tienen una conexión especial con {ELEMENTO_PERSONAL_2}. Sus encuentros en {ELEMENTO_PERSONAL_3} se vuelven cada vez más {INTENSIDAD_EMOCIONAL}, pero {OBSTACULO_ROMANTICO} amenaza con separarlos. {PROTAGONISTA} debe {ACCION_ROMANTICA} y demostrar que {VERDAD_AMOR} puede superar {ADVERSIDAD_ROMANTICA} para que {FINAL_ROMANTICO}.",
+                
+                "La vida de {PROTAGONISTA} cambia para siempre cuando {ELEMENTO_PERSONAL_1} los conecta inesperadamente con {INTERES_ROMANTICO}. A través de {ELEMENTO_PERSONAL_2}, descubren que comparten {PASION_COMUN} que los lleva a pasar tiempo juntos en {ELEMENTO_PERSONAL_3}. Sin embargo, {CONFLICTO_ROMANTICO} pone a prueba {RELACION_AMOROSA}, y {PROTAGONISTA} debe elegir entre {DILEMA_PERSONAL} y {AMOR_VERDADERO}. Solo cuando {MOMENTO_REVELACION} puede {RESOLUCION_ROMANTICA} y {UNION_DEFINITIVA}."
+            ],
+            
+            'misterio': [
+                "El detective {PROTAGONISTA} se enfrenta a su caso más desconcertante cuando {ELEMENTO_PERSONAL_1} aparece en la escena de {CRIMEN_MISTERIOSO}. Esta pista lo lleva a investigar {ELEMENTO_PERSONAL_2}, que revela conexiones con {RED_CONSPIRATORIA}. Su investigación lo conduce a {ELEMENTO_PERSONAL_3}, donde descubre que {PISTA_CRUCIAL} había estado oculta todo el tiempo. A medida que desentraña {MISTERIO_CENTRAL}, {PROTAGONISTA} se da cuenta de que {REVELACION_SORPRENDENTE} y debe {ACCION_DETECTIVE} antes de que {CRIMINAL_MISTERIOSO} y {JUSTICIA_FINAL}.",
+                
+                "Cuando {ELEMENTO_PERSONAL_1} desaparece misteriosamente de {LUGAR_MISTERIOSO}, {PROTAGONISTA} se ve envuelto en una investigación que revela {SECRETO_OCULTO}. Las pistas lo llevan a {ELEMENTO_PERSONAL_2}, que contiene {EVIDENCIA_CRUCIAL} sobre {SUCESO_PASADO}. Su búsqueda culmina en {ELEMENTO_PERSONAL_3}, donde {TESTIGO_CLAVE} revela que {VERDAD_OCULTA} y que {PROTAGONISTA} debe {DECISION_MORAL} para {RESOLUCION_MISTERIO} y {CIERRE_CASO}."
+            ],
+            
+            'aventura': [
+                "El intrépido {PROTAGONISTA} emprende una búsqueda épica cuando descubre que {ELEMENTO_PERSONAL_1} es la clave para encontrar {TESORO_LEGENDARIO}. Su aventura los lleva a través de {TERRITORIO_PELIGROSO}, donde {ELEMENTO_PERSONAL_2} se convierte en {HERRAMIENTA_ESENCIAL} para superar {OBSTACULOS_FISICOS}. La búsqueda culmina en {ELEMENTO_PERSONAL_3}, un lugar donde {PRUEBA_FINAL} debe ser superada. {PROTAGONISTA} debe demostrar {CUALIDAD_HEROICA} y superar {ENEMIGO_FORMIDABLE} para {LOGRO_HEROICO} y {RECOMPENSA_AVENTURA}.",
+                
+                "Una expedición hacia {DESTINO_EXOTICO} cambia el destino de {PROTAGONISTA} cuando encuentra {ELEMENTO_PERSONAL_1} en {RUINAS_ANTIGUAS}. Este descubrimiento desencadena {CADENA_AVENTURAS} que los lleva a buscar {ELEMENTO_PERSONAL_2} a través de {PAISAJES_PELIGROSOS}. Su viaje culmina en {ELEMENTO_PERSONAL_3}, donde {GUARDIÁN_ANCESTRAL} pone a prueba {VALOR_AVENTURERO}. Solo superando {DESAFIO_ULTIMO} puede {PROTAGONISTA} {MISION_COMPLETADA} y {GLORIA_AVENTURERA}."
+            ],
+            
+            'comedia': [
+                "La vida de {PROTAGONISTA} se vuelve hilarantemente caótica cuando {ELEMENTO_PERSONAL_1} aparece inesperadamente en {SITUACION_COTIDIANA}. Lo que comienza como {MALENTENDIDO_INICIAL} se complica cuando {ELEMENTO_PERSONAL_2} se convierte en el centro de {ENREDO_COMICO} que involucra a {PERSONAJES_EXCENTRICOS}. Las cosas llegan al absurdo cuando {ELEMENTO_PERSONAL_3} desencadena {CLIMAX_COMICO}, y {PROTAGONISTA} debe {SOLUCION_INGENIOSA} para {RESOLUCION_DIVERTIDA} y aprender que {LECCION_HUMORISTICA}.",
+                
+                "Un día aparentemente normal se convierte en {AVENTURA_COMICA} cuando {PROTAGONISTA} decide {PLAN_DESCABELLADO} usando {ELEMENTO_PERSONAL_1}. Con la ayuda poco convencional de {ELEMENTO_PERSONAL_2}, emprende una misión que lo lleva a {ELEMENTO_PERSONAL_3}, donde {SITUACION_ABSURDA} pone a prueba su {RECURSO_INGENIOSO}. A través de {SERIE_ENREDOS} y {MOMENTOS_COMICOS}, {PROTAGONISTA} descubre que {MENSAJE_OPTIMISTA} y {FINAL_ALEGRE}."
+            ],
+            
+            'drama': [
+                "La vida de {PROTAGONISTA} se tambalea cuando {ELEMENTO_PERSONAL_1} se convierte en el catalizador de {CRISIS_PERSONAL} que pone en evidencia {CONFLICTO_INTERNO}. Su relación con {ELEMENTO_PERSONAL_2} refleja las {TENSIONES_FAMILIARES} que han estado latentes durante años, mientras que {ELEMENTO_PERSONAL_3} representa {SIMBOLO_ESPERANZA} en medio de la tormenta emocional. {PROTAGONISTA} debe enfrentar {VERDAD_DOLOROSA} y tomar {DECISION_DIFICIL} para {CRECIMIENTO_PERSONAL} y {RECONCILIACION_FINAL}.",
+                
+                "En un momento de {PUNTO_INFLEXION}, {PROTAGONISTA} se ve obligado a confrontar su pasado cuando {ELEMENTO_PERSONAL_1} resurge en su vida. Este encuentro desencadena {REVELACION_EMOCIONAL} que afecta profundamente su relación con {ELEMENTO_PERSONAL_2}. Su búsqueda de {REDENCION_PERSONAL} lo lleva a {ELEMENTO_PERSONAL_3}, donde debe {SACRIFICIO_SIGNIFICATIVO} y demostrar que {TRANSFORMACION_INTERIOR} es posible. Solo así puede {PROTAGONISTA} {SANACION_EMOCIONAL} y {NUEVA_PERSPECTIVA}."
+            ]
+        };
+
+        // Placeholders específicos para cada género
+        const genrePlaceholders = {
+            'terror': {
+                'LUGAR_ESPECIFICO': ['una mansión abandonada', 'un cementerio olvidado', 'un hospital psiquiátrico cerrado', 'una casa victoriana', 'un bosque tenebroso'],
+                'PROTAGONISTA': ['un investigador paranormal', 'una escritora de novelas góticas', 'un historiador obsesivo', 'una médium experimentada', 'un arqueólogo temerario'],
+                'ORIGEN_MISTERIOSO': ['rituales ancestrales', 'experimentos prohibidos', 'maldiciones familiares', 'tragedias del pasado', 'pactos sobrenaturales'],
+                'CONSECUENCIA_TERROR': ['las pesadillas se vuelven realidad', 'las sombras cobran vida', 'los muertos susurran', 'la realidad se distorsiona', 'el tiempo se fragmenta'],
+                'MANIFESTACION_INICIAL': ['susurros en idiomas olvidados', 'sombras que se mueven solas', 'temperaturas que descienden bruscamente', 'objetos que se mueven', 'ecos de voces del pasado'],
+                'MANIFESTACION_INTERMEDIA': ['apariciones espectrales', 'sangre que gotea de las paredes', 'puertas que se abren solas', 'espejos que muestran otros mundos', 'escritura que aparece misteriosamente'],
+                'CLIMAX_TERROR': ['las criaturas emergen de las sombras', 'el velo entre mundos se rompe', 'los muertos reclaman a los vivos', 'la casa cobra conciencia propia', 'el pasado devora el presente'],
+                'ATMOSFERA_TERROR': ['el miedo ancestral', 'la desesperación absoluta', 'la locura susurrante', 'el horror primordial', 'la presencia maligna'],
+                'REVELACION_FINAL': ['él es el último heredero de la maldición', 'su familia fue la causante original', 'está condenado a repetir los eventos', 'es parte del ritual desde siempre', 'su alma ya pertenece a la oscuridad'],
+                'DESTINO_TRAGICO': ['una condena eterna', 'la perpetuación del ciclo maldito', 'la transformación en guardián espectral', 'la pérdida de su humanidad', 'el sacrificio de su alma']
+            },
+            
+            'ciencia-ficcion': {
+                'FECHA_FUTURA': ['2157', '2289', '2445', '2501', '2633'],
+                'PROFESION_CIENTIFICA': ['un xenobiólogo', 'una física cuántica', 'un ingeniero de realidad virtual', 'una especialista en inteligencia artificial', 'un arquitecto de ecosistemas'],
+                'CAMPO_CIENTIFICO': ['manipulación temporal', 'comunicación interdimensional', 'bioingeniería evolutiva', 'computación cuántica', 'terraformación planetaria'],
+                'TECNOLOGIA_AVANZADA': ['nanotecnología autoconsciente', 'energía de punto cero', 'matrices de información cuántica', 'campos de distorsión espacial', 'cristales de memoria orgánica'],
+                'CONCEPTO_CIENTIFICO': ['la naturaleza del tiempo', 'las dimensiones paralelas', 'la consciencia artificial', 'la evolución dirigida', 'la comunicación galáctica'],
+                'HERRAMIENTA_CIENTIFICA': ['interface neural directa', 'analizador molecular avanzado', 'simulador de realidades alternativas', 'amplificador de campos cuánticos', 'sincronizador temporal'],
+                'DESCUBRIMIENTO_REVOLUCIONARIO': ['viaje instantáneo entre galaxias', 'comunicación con inteligencias superiores', 'control total sobre la materia', 'acceso a universos paralelos', 'manipulación de la evolución'],
+                'CONSECUENCIA_IMPREVISTA': ['una cascada de paradojas temporales', 'la atención de una civilización hostil', 'el colapso de la realidad local', 'una guerra interdimensional', 'la evolución descontrolada de la IA'],
+                'ESCALA_COSMICA': ['toda la galaxia', 'el continuum espacio-temporal', 'múltiples dimensiones', 'la supervivencia de la especie', 'el equilibrio universal'],
+                'ARTEFACTO_ALIEN': ['un repositorio de conocimiento galáctico', 'una llave a otras dimensiones', 'un mapa del universo', 'una semilla de civilización', 'un guardián durmiente'],
+                'DECISION_ETICA': ['sacrificar el conocimiento por la seguridad', 'elegir entre la humanidad y el progreso', 'destruir el descubrimiento', 'compartir el secreto con la humanidad', 'asumir la responsabilidad cósmica'],
+                'CATASTROFE_TECNOLOGICA': ['la singularidad descontrolada se extienda', 'la realidad se fragmente irreparablemente', 'las máquinas dominen completamente', 'el tiempo se colapse sobre sí mismo', 'la consciencia se digitalice forzosamente'],
+                'SALVACION_HUMANIDAD': ['preservar la libre voluntad', 'mantener el equilibrio cósmico', 'asegurar la evolución natural', 'proteger la diversidad universal', 'garantizar un futuro sostenible']
+            },
+            
+            'fantasia': {
+                'REINO_FANTASTICO': ['Aethermoor', 'Valdris', 'Nytheran', 'Zephyria', 'Drakmoor'],
+                'ROL_FANTASTICO': ['un mago archivista', 'una guardiana élfica', 'un forjador de runas', 'una sanadora druida', 'un bardo cronista'],
+                'ARTEFACTO_MAGICO': ['el Cristal de las Memorias Perdidas', 'la Vara de los Elementos Primordiales', 'el Amuleto del Equilibrio Cósmico', 'la Esfera de los Sueños Manifiestos', 'el Grimorio de las Verdades Ocultas'],
+                'CIVILIZACION_ANTIGUA': ['los Primigenios Constructores', 'la Orden de los Tejedores de Destino', 'los Guardianes del Primer Fuego', 'la Hermandad de las Estrellas', 'los Maestros del Equilibrio Elemental'],
+                'PODER_MAGICO': ['el control sobre los elementos primordiales', 'la habilidad de tejer la realidad', 'el dominio sobre el tiempo y el espacio', 'la comunicación con los espíritus ancestrales', 'la manipulación de la esencia vital'],
+                'TIEMPO_MILENARIO': ['mil años', 'tres milenios', 'desde el amanecer de los tiempos', 'cinco mil años', 'desde la Era de los Dioses'],
+                'LUGAR_SAGRADO': ['el Templo de las Convergencias', 'la Biblioteca de las Almas', 'el Círculo de Piedras Cantoras', 'la Fuente de la Sabiduría Eterna', 'el Jardín de los Recuerdos'],
+                'PROFECIA_ANTIGUA': ['el Despertar del Último Guardián', 'la Convergencia de los Mundos', 'el Retorno del Equilibrio Perdido', 'la Reunión de los Fragmentos Primordiales', 'el Renacimiento de la Magia Pura'],
+                'HABILIDAD_MAGICA': ['la Resonancia Elemental', 'la Visión Verdadera', 'el Canto de las Estrellas', 'la Forja de Realidades', 'la Comunión Espiritual'],
+                'PRUEBA_MAGICA': ['el Laberinto de los Reflejos Interiores', 'la Prueba de los Cuatro Elementos', 'el Juicio de los Ancestros', 'la Travesía del Reino de Sombras', 'el Desafío de la Sabiduría Pura'],
+                'AMENAZA_MAGICA': ['el Vacío Devorador se expanda', 'las barreras entre mundos colapsen', 'la magia se corrompa irreversiblemente', 'los elementos se desequilibren', 'la oscuridad primordial regrese'],
+                'DESTINO_MUNDO_MAGICO': ['la armonía entre todos los seres sea restaurada', 'la magia fluya libremente de nuevo', 'los reinos paralelos permanezcan en paz', 'la sabiduría antigua sea preservada', 'el ciclo eterno continúe']
+            },
+            
+            'romance': {
+                'AMBIENTE_ROMANTICO': ['una librería de libros antiguos', 'un café bohemio', 'un festival de arte', 'una escuela de danza', 'un mercado de flores'],
+                'INTERES_ROMANTICO': ['un músico apasionado', 'una artista independiente', 'un chef creativo', 'una escritora de viajes', 'un arquitecto soñador'],
+                'CONEXION_EMOCIONAL': ['su pasión compartida', 'sus sueños similares', 'su comprensión mutua', 'su química instantánea', 'su destino entrelazado'],
+                'INTENSIDAD_EMOCIONAL': ['íntimos y reveladores', 'apasionados y honestos', 'tiernos y vulnerables', 'intensos y transformadores', 'mágicos y únicos'],
+                'OBSTACULO_ROMANTICO': ['diferencias de clase social', 'obligaciones familiares', 'miedos del pasado', 'distancia geográfica', 'malentendidos dolorosos'],
+                'ACCION_ROMANTICA': ['luchar por su amor', 'superar sus miedos', 'arriesgar todo', 'hacer un gesto épico', 'abrir completamente su corazón'],
+                'VERDAD_AMOR': ['el amor verdadero', 'la conexión del alma', 'el destino compartido', 'la pasión auténtica', 'el compromiso total'],
+                'ADVERSIDAD_ROMANTICA': ['cualquier obstáculo', 'las presiones externas', 'los fantasmas del pasado', 'las diferencias aparentes', 'el miedo al compromiso'],
+                'FINAL_ROMANTICO': ['puedan estar juntos para siempre', 'construyan un futuro compartido', 'se unan en matrimonio', 'cumplan sus sueños juntos', 'vivan su historia de amor'],
+                'CONFLICTO_ROMANTICO': ['una revelación sobre el pasado', 'presiones familiares', 'una oportunidad profesional', 'los celos y malentendidos', 'diferencias fundamentales'],
+                'RELACION_AMOROSA': ['su relación floreciente', 'su amor creciente', 'su conexión profunda', 'su romance apasionado', 'su vínculo especial'],
+                'DILEMA_PERSONAL': ['sus ambiciones personales', 'la seguridad', 'las expectativas familiares', 'la comodidad', 'los miedos'],
+                'AMOR_VERDADERO': ['el amor de su vida', 'la felicidad auténtica', 'su alma gemela', 'la pasión verdadera', 'su destino romántico'],
+                'MOMENTO_REVELACION': ['comprende lo que realmente importa', 'supera sus miedos', 'se da cuenta de sus sentimientos', 'elige el amor', 'encuentra el valor'],
+                'RESOLUCION_ROMANTICA': ['luchar por su amor', 'hacer el sacrificio necesario', 'tomar la decisión correcta', 'seguir su corazón', 'arriesgar todo por amor'],
+                'UNION_DEFINITIVA': ['encontrar la felicidad juntos', 'construir una vida compartida', 'realizarse mutuamente', 'vivir su cuento de hadas', 'cumplir su destino romántico']
+            },
+            
+            'misterio': {
+                'CRIMEN_MISTERIOSO': ['un robo imposible', 'una desaparición inexplicable', 'un asesinato sin motivo aparente', 'un fraude elaborado', 'una conspiración compleja'],
+                'RED_CONSPIRATORIA': ['una sociedad secreta', 'una red de corrupción', 'una organización criminal', 'un complot político', 'una conspiración familiar'],
+                'PISTA_CRUCIAL': ['la evidencia decisiva', 'el testimonio clave', 'la conexión perdida', 'el motivo real', 'la identidad del culpable'],
+                'MISTERIO_CENTRAL': ['la verdadera identidad del criminal', 'el motivo oculto', 'la conexión entre las víctimas', 'el método del crimen', 'la conspiración completa'],
+                'REVELACION_SORPRENDENTE': ['el culpable era quien menos sospechaba', 'había múltiples conspiradores', 'el motivo era completamente diferente', 'él estaba siendo manipulado', 'la víctima fingió su muerte'],
+                'ACCION_DETECTIVE': ['exponer la verdad', 'tender una trampa', 'confrontar al culpable', 'reunir todas las evidencias', 'resolver el rompecabezas final'],
+                'CRIMINAL_MISTERIOSO': ['escape con su crimen', 'destruya las evidencias', 'elimine a los testigos', 'complete su plan', 'desaparezca para siempre'],
+                'JUSTICIA_FINAL': ['la verdad sea revelada', 'el culpable sea arrestado', 'las víctimas obtengan justicia', 'la conspiración sea desmantelada', 'el orden sea restaurado'],
+                'LUGAR_MISTERIOSO': ['un museo prestigioso', 'una mansión familiar', 'una biblioteca privada', 'un banco de alta seguridad', 'una galería de arte'],
+                'SECRETO_OCULTO': ['una identidad falsa', 'un crimen del pasado', 'una herencia disputada', 'un chantaje sistemático', 'una doble vida'],
+                'EVIDENCIA_CRUCIAL': ['documentos comprometedores', 'fotografías reveladoras', 'grabaciones secretas', 'correspondencia privada', 'registros financieros'],
+                'SUCESO_PASADO': ['un escándalo familiar', 'un accidente encubierto', 'una traición empresarial', 'un crimen sin resolver', 'un amor prohibido'],
+                'TESTIGO_CLAVE': ['un empleado descontento', 'un familiar traicionado', 'un socio abandonado', 'una víctima superviviente', 'un cómplice arrepentido'],
+                'VERDAD_OCULTA': ['todo estaba planificado desde el principio', 'había estado siendo vigilado', 'era parte del plan', 'conocía al culpable', 'tenía la clave desde siempre'],
+                'DECISION_MORAL': ['exponer la verdad completa', 'proteger a los inocentes', 'enfrentar las consecuencias', 'hacer justicia', 'revelar todos los secretos'],
+                'RESOLUCION_MISTERIO': ['resolver completamente el caso', 'exponer toda la conspiración', 'arrestar a todos los culpables', 'revelar todos los secretos', 'obtener justicia completa'],
+                'CIERRE_CASO': ['se haga justicia', 'se revele toda la verdad', 'se restaure el orden', 'se compense a las víctimas', 'se prevenga que vuelva a ocurrir']
+            },
+            
+            'aventura': {
+                'TESORO_LEGENDARIO': ['el Oro de los Conquistadores Perdidos', 'las Joyas del Reino Sumergido', 'el Mapa de las Rutas Secretas', 'el Artefacto de los Exploradores', 'la Corona del Rey Aventurero'],
+                'TERRITORIO_PELIGROSO': ['selvas inexploradas', 'montañas traicioneras', 'desiertos implacables', 'mares tempestuosos', 'cavernas laberínticas'],
+                'HERRAMIENTA_ESENCIAL': ['brújula mágica', 'cuerda de escalada especial', 'mapa ancestral', 'detector de trampas', 'llave maestra antigua'],
+                'OBSTACULOS_FISICOS': ['acantilados verticales', 'ríos torrentosos', 'trampas mortales', 'bestias salvajes', 'laberintos complejos'],
+                'PRUEBA_FINAL': ['el Desafío del Valor', 'la Prueba de la Sabiduría', 'el Test de la Resistencia', 'el Examen del Honor', 'la Demostración de Destreza'],
+                'CUALIDAD_HEROICA': ['valentía extraordinaria', 'ingenio brillante', 'resistencia inquebrantable', 'lealtad absoluta', 'determinación férrea'],
+                'ENEMIGO_FORMIDABLE': ['un rival ancestral', 'una bestia legendaria', 'un guardián mágico', 'un señor de la guerra', 'un conquistador despiadado'],
+                'LOGRO_HEROICO': ['reclamar el tesoro perdido', 'liberar a los oprimidos', 'descubrir tierras nuevas', 'superar lo imposible', 'convertirse en leyenda'],
+                'RECOMPENSA_AVENTURA': ['gloria eterna', 'riquezas inmensas', 'conocimiento invaluable', 'poder legendario', 'honor imperecedero'],
+                'DESTINO_EXOTICO': ['islas remotas', 'ciudades perdidas', 'reinos ocultos', 'dimensiones alternativas', 'mundos inexplorados'],
+                'RUINAS_ANTIGUAS': ['templos olvidados', 'ciudades enterradas', 'fortalezas abandonadas', 'palacios sumergidos', 'monumentos misteriosos'],
+                'CADENA_AVENTURAS': ['una búsqueda épica', 'una serie de desafíos', 'una misión peligrosa', 'una expedición arriesgada', 'una odisea increíble'],
+                'PAISAJES_PELIGROSOS': ['pantanos venenosos', 'glaciares traicioneros', 'volcanes activos', 'bosques encantados', 'cañones profundos'],
+                'GUARDIÁN_ANCESTRAL': ['el Protector de los Secretos', 'el Guardián de las Tradiciones', 'el Custodio del Conocimiento', 'el Vigilante Eterno', 'el Maestro de las Pruebas'],
+                'VALOR_AVENTURERO': ['su coraje en batalla', 'su nobleza de espíritu', 'su perseverancia inquebrantable', 'su sabiduría en la adversidad', 'su honor intachable'],
+                'DESAFIO_ULTIMO': ['la Prueba Suprema', 'el Combate Final', 'el Sacrificio Heroico', 'la Decisión Definitiva', 'el Momento de la Verdad'],
+                'MISION_COMPLETADA': ['cumplir su destino', 'alcanzar la gloria', 'obtener la recompensa', 'lograr lo imposible', 'convertirse en héroe'],
+                'GLORIA_AVENTURERA': ['ser recordado para siempre', 'inspirar a futuras generaciones', 'alcanzar la inmortalidad', 'obtener el reconocimiento eterno', 'convertirse en leyenda viviente']
+            },
+            
+            'comedia': {
+                'SITUACION_COTIDIANA': ['su trabajo rutinario', 'una reunión familiar', 'una cita a ciegas', 'el supermercado del barrio', 'la consulta del dentista'],
+                'MALENTENDIDO_INICIAL': ['un mensaje confuso', 'una identidad equivocada', 'una broma que salió mal', 'un autocorrector traicionero', 'una traducción errónea'],
+                'ENREDO_COMICO': ['una cadena de mentiras piadosas', 'una serie de coincidencias absurdas', 'un plan que sale al revés', 'una apuesta ridícula', 'un intercambio de identidades'],
+                'PERSONAJES_EXCENTRICOS': ['vecinos entrometidos', 'familiares chiflados', 'compañeros de trabajo peculiares', 'mascotas traviesas', 'empleados incompetentes'],
+                'CLIMAX_COMICO': ['una persecución absurda', 'una presentación desastrosa', 'una fiesta caótica', 'un malentendido épico', 'una confesión inesperada'],
+                'SOLUCION_INGENIOSA': ['improvisar brillantemente', 'usar la honestidad radical', 'aprovechar el caos', 'convertir el error en ventaja', 'unir fuerzas inesperadas'],
+                'RESOLUCION_DIVERTIDA': ['resolver todo con risas', 'convertir el desastre en triunfo', 'encontrar amor en el caos', 'hacer amigos inesperados', 'descubrir un talento oculto'],
+                'LECCION_HUMORISTICA': ['las cosas simples son las mejores', 'reírse de uno mismo es liberador', 'los errores pueden ser oportunidades', 'la honestidad siempre gana', 'la vida es mejor con humor'],
+                'AVENTURA_COMICA': ['una misión imposible doméstica', 'una búsqueda del tesoro urbana', 'un plan para impresionar', 'una estrategia de supervivencia social', 'una operación de rescate familiar'],
+                'PLAN_DESCABELLADO': ['organizar la boda perfecta en 24 horas', 'convertirse en influencer de la noche a la mañana', 'ganar un concurso sin talento', 'reconciliar a sus padres divorciados', 'salvar el negocio familiar'],
+                'SITUACION_ABSURDA': ['un concurso de talentos improvisado', 'una confusión de idiomas', 'una cadena de favores impossibles', 'un intercambio de roles', 'una invasión de suegras'],
+                'RECURSO_INGENIOSO': ['creatividad desesperada', 'timing cómico perfecto', 'capacidad de improvisación', 'encanto natural', 'suerte principiante'],
+                'SERIE_ENREDOS': ['malentendidos en cascada', 'mentiras que se complican', 'coincidencias imposibles', 'errores que se multiplican', 'planes que chocan entre sí'],
+                'MOMENTOS_COMICOS': ['diálogos disparatados', 'situaciones embarazosas', 'físico cómico involuntario', 'ironías del destino', 'reacciones exageradas'],
+                'MENSAJE_OPTIMISTA': ['la risa es la mejor medicina', 'los errores nos hacen humanos', 'la familia es todo', 'cada día es una nueva oportunidad', 'la felicidad está en los detalles'],
+                'FINAL_ALEGRE': ['encuentra el amor verdadero', 'descubre su vocación real', 'reúne a la familia', 'alcanza un sueño inesperado', 'aprende a valorar lo que tiene']
+            },
+            
+            'drama': {
+                'CRISIS_PERSONAL': ['la pérdida de un ser querido', 'una enfermedad inesperada', 'la ruptura de un matrimonio', 'la pérdida del trabajo', 'un secreto familiar revelado'],
+                'CONFLICTO_INTERNO': ['culpa no resuelta', 'miedo al compromiso', 'baja autoestima', 'resentimiento acumulado', 'crisis de identidad'],
+                'TENSIONES_FAMILIARES': ['rivalidades entre hermanos', 'expectativas no cumplidas', 'secretos generacionales', 'diferencias de valores', 'traumas del pasado'],
+                'SIMBOLO_ESPERANZA': ['una carta no enviada', 'una fotografía antigua', 'un lugar especial de la infancia', 'una tradición familiar', 'un sueño compartido'],
+                'VERDAD_DOLOROSA': ['que había estado viviendo una mentira', 'que había herido a alguien profundamente', 'que había perdido años valiosos', 'que sus miedos lo habían paralizado', 'que había juzgado mal a otros'],
+                'DECISION_DIFICIL': ['perdonar a quien lo lastimó', 'enfrentar sus propios errores', 'dejar ir el pasado', 'luchar por lo que ama', 'aceptar ayuda de otros'],
+                'CRECIMIENTO_PERSONAL': ['encontrar paz interior', 'desarrollar empatía genuina', 'ganar confianza en sí mismo', 'aprender a amar incondicionalmente', 'descubrir su propósito'],
+                'RECONCILIACION_FINAL': ['sanar las heridas familiares', 'rebuilder relaciones rotas', 'encontrar un nuevo equilibrio', 'crear nuevas tradiciones', 'honrar el legado familiar'],
+                'PUNTO_INFLEXION': ['una llamada inesperada', 'un encuentro fortuito', 'una crisis de salud', 'un aniversario significativo', 'una confesión necesaria'],
+                'REVELACION_EMOCIONAL': ['comprende el dolor de otros', 'reconoce sus propias heridas', 'acepta su vulnerabilidad', 'descubre fortalezas ocultas', 'encuentra compasión por sí mismo'],
+                'REDENCION_PERSONAL': ['hacer las paces con el pasado', 'reparar el daño causado', 'convertirse en mejor persona', 'honrar la memoria de otros', 'construir un legado positivo'],
+                'SACRIFICIO_SIGNIFICATIVO': ['renunciar a sus propios deseos', 'arriesgar su comodidad', 'enfrentar sus peores miedos', 'admitir sus errores públicamente', 'poner a otros antes que a él'],
+                'TRANSFORMACION_INTERIOR': ['el cambio genuino', 'la sanación emocional', 'el crecimiento espiritual', 'la madurez emocional', 'la sabiduría ganada'],
+                'SANACION_EMOCIONAL': ['cerrar heridas del pasado', 'liberarse de la culpa', 'encontrar paz con las pérdidas', 'reconstruir la confianza', 'aprender a perdonarse'],
+                'NUEVA_PERSPECTIVA': ['valorar las relaciones verdaderas', 'encontrar significado en el sufrimiento', 'apreciar los momentos simples', 'construir un futuro mejor', 'vivir con autenticidad']
+            }
+        };
+
+        // Función para reemplazar placeholders genéricos
+        const replacePlaceholders = (template, customElements) => {
+            let text = template;
+            
+            // Reemplazar elementos personalizados
+            text = text.replace(/\{ELEMENTO_PERSONAL_1\}/g, customElements[0] || 'un objeto misterioso');
+            text = text.replace(/\{ELEMENTO_PERSONAL_2\}/g, customElements[1] || 'un elemento significativo');
+            text = text.replace(/\{ELEMENTO_PERSONAL_3\}/g, customElements[2] || 'un lugar especial');
+            
+            // Reemplazar placeholders específicos del género
+            const placeholderRegex = /\{([^}]+)\}/g;
+            text = text.replace(placeholderRegex, (match, placeholder) => {
+                // Buscar el placeholder en todos los géneros seleccionados
+                for (const genre of appState.selectedGenres) {
+                    const genrePlaceholderSet = genrePlaceholders[genre.id];
+                    if (genrePlaceholderSet && genrePlaceholderSet[placeholder]) {
+                        const options = genrePlaceholderSet[placeholder];
+                        return options[Math.floor(Math.random() * options.length)];
+                    }
+                }
+                return match; // Si no se encuentra, mantener el placeholder
+            });
+            
+            return text;
+        };
+
+        // Función para seleccionar género principal por peso
+        const selectPrimaryGenre = (normalizedGenres) => {
+            const random = Math.random() * 100;
+            let cumulative = 0;
+            
+            for (const genre of normalizedGenres) {
+                cumulative += genre.normalizedWeight;
+                if (random <= cumulative) {
+                    return genre.id;
+                }
+            }
+            
+            return normalizedGenres[0].id; // Fallback
+        };
+
+        // Función principal para generar narrativa
+        const generateNarrative = () => {
+            if (appState.selectedGenres.length === 0) {
+                alert('Selecciona al menos un género');
+                return;
+            }
+            
+            // Obtener elementos personalizados
+            const customElements = [
+                document.getElementById('element1').value.trim(),
+                document.getElementById('element2').value.trim(),
+                document.getElementById('element3').value.trim()
+            ].filter(Boolean);
+            
+            if (customElements.length === 0) {
+                alert('Ingresa al menos un elemento personalizado');
+                return;
+            }
+            
+            // Normalizar pesos
+            const normalizedGenres = normalizeWeights();
+            
+            // Seleccionar género principal
+            const primaryGenre = selectPrimaryGenre(normalizedGenres);
+            
+            // Seleccionar template aleatorio del género principal
+            const templates = narrativeTemplates[primaryGenre];
+            const selectedTemplate = templates[Math.floor(Math.random() * templates.length)];
+            
+            // Generar narrativa reemplazando placeholders
+            const narrative = replacePlaceholders(selectedTemplate, customElements);
+            
+            return narrative;
+        };
+
+        // Función para seleccionar el modelo de imagen automáticamente
+        const selectImageModel = (visualStyle, imageEngine) => {
+            if (imageEngine !== 'auto') {
+                return imageEngine === 'seedimage-3' ? 'seedimage-3' : 'gpt-image-1';
+            }
+            
+            // Selección inteligente automática
+            const artisticStyles = ['mignola-style', 'toth-style', 'sienkiewicz-style', 'williams-style', 'schuiten-style', 'hogarth-style', 'wrightson-style', 'frazetta-style', 'graphic-novel', 'fantasy-art', 'concept-art', 'vintage-poster'];
+            const photorealisticStyles = ['photorealistic', 'cinematic', 'digital-art'];
+            
+            if (artisticStyles.includes(visualStyle)) {
+                return 'seedimage-3'; // Mejor para estilos artísticos específicos
+            } else if (photorealisticStyles.includes(visualStyle)) {
+                return 'gpt-image-1'; // Mejor para fotorrealismo
+            } else {
+                return 'gpt-image-1'; // Default confiable
+            }
+        };
+
+        // Función para generar imagen usando la ruta de imágenes de Hatch
+        const simulateImageGeneration = async (prompt, selectedModel = null) => {
+            const model = selectedModel || selectImageModel(appState.visualStyle, appState.imageEngine);
+            console.log(`🎨 Generando imagen con ${model} y prompt:`, prompt);
+            
+            try {
+                // Generar ID único para la imagen
+                const imageId = `img_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+                console.log('🆔 ID de imagen generado:', imageId);
+                
+                // Simular delay apropiado según el modelo
+                const delayTime = model === 'seedimage-3' ? 6000 : 4000;
+                await new Promise(resolve => setTimeout(resolve, delayTime));
+                
+                // Crear URL de imagen usando el sistema de keys de Hatch
+                const encodedPrompt = encodeURIComponent(prompt);
+                const imageUrl = `keys/${imageId}?prompt=${encodedPrompt}`;
+                
+                console.log('✅ Imagen generada exitosamente');
+                console.log('🔗 URL de imagen:', imageUrl);
+                
+                // Retornar la URL de la imagen generada
+                return {
+                    id: imageId,
+                    url: imageUrl,
+                    model: model
+                };
+                
+            } catch (error) {
+                console.error('❌ Error generando imagen:', error);
+                throw error;
+            }
+        };
+
+        // Función para generar prompt específico de imagen (estilo épico cinematográfico)
+        const generateSpecificImagePrompt = (narrative, genres, customElements) => {
+            console.log('🎬 Creando prompt épico específico para la narrativa...');
+            
+            let promptComponents = [];
+            
+            // Aplicar estilo visual predeterminado inspirado en maestros del cómic
+            const visualStylePrompts = {
+                'photorealistic': 'photorealistic, high-detail photography',
+                'digital-art': 'digital art, highly detailed illustration',
+                'oil-painting': 'oil painting style, classical art technique',
+                'concept-art': 'professional concept art, game art style',
+                'cinematic': 'cinematic movie still, professional cinematography',
+                'graphic-novel': 'Mike Mignola inspired graphic novel style, bold shadows and minimal color palette',
+                'fantasy-art': 'fantasy art, magical realism style',
+                'vintage-poster': 'vintage movie poster style, retro aesthetic',
+                'mignola-style': 'Mike Mignola art style, dramatic black shadows, simplified forms, bold contrast',
+                'toth-style': 'Alex Toth art style, clean lines, elegant compositions, minimal detail maximum impact',
+                'sienkiewicz-style': 'Bill Sienkiewicz art style, expressionist mixed media, painterly textures, experimental layouts',
+                'williams-style': 'J H Williams III art style, innovative panel layouts, architectural precision, detailed linework',
+                'schuiten-style': 'François Schuiten art style, ligne claire technique, architectural fantasy, precise European comic art',
+                'hogarth-style': 'Burne Hogarth art style, dynamic anatomy, extreme muscular definition, theatrical poses, dramatic perspective',
+                'wrightson-style': 'Bernie Wrightson art style, gothic horror, intricate crosshatching, detailed decay, macabre atmosphere',
+                'frazetta-style': 'Frank Frazetta art style, heroic fantasy, powerful muscular anatomy, warm earthy colors, dramatic lighting'
+            };
+
+            if (appState.visualStyle !== 'auto') {
+                promptComponents.push(visualStylePrompts[appState.visualStyle]);
+                
+                // Añadir características específicas de cada maestro
+                if (appState.visualStyle === 'mignola-style') {
+                    promptComponents.push('heavy black shadows', 'simplified geometric forms', 'limited color palette', 'hellboy comic style');
+                } else if (appState.visualStyle === 'toth-style') {
+                    promptComponents.push('clean precise linework', 'elegant minimalist composition', 'space ghost animation style', 'maximum impact with minimal detail');
+                } else if (appState.visualStyle === 'sienkiewicz-style') {
+                    promptComponents.push('mixed media textures', 'painterly brushstrokes', 'experimental composition', 'new mutants comic style');
+                } else if (appState.visualStyle === 'williams-style') {
+                    promptComponents.push('innovative panel layout design', 'architectural precision', 'detailed technical linework', 'promethea comic style');
+                } else if (appState.visualStyle === 'schuiten-style') {
+                    promptComponents.push('ligne claire technique', 'architectural fantasy elements', 'precise European comic art', 'cities of the fantastic style');
+                } else if (appState.visualStyle === 'hogarth-style') {
+                    promptComponents.push('extreme dynamic anatomy', 'hypertrophied muscular definition', 'theatrical dramatic poses', 'exaggerated perspective', 'tarzan comic book style', 'three-dimensional volume emphasis');
+                } else if (appState.visualStyle === 'wrightson-style') {
+                    promptComponents.push('intricate crosshatching technique', 'gothic horror atmosphere', 'detailed organic decay', 'macabre shadows', 'swamp thing comic style', 'fine line precision with heavy shadows');
+                } else if (appState.visualStyle === 'frazetta-style') {
+                    promptComponents.push('heroic fantasy composition', 'powerful muscular anatomy', 'warm earthy color palette', 'dramatic chiaroscuro lighting', 'conan barbarian style', 'gestural brushstrokes with explosive dynamism');
+                }
+            } else {
+                promptComponents.push('epic graphic novel scene in the style of comic book masters');
+                promptComponents.push('dramatic comic book composition with artistic flair');
+            }
+
+            // Aplicar posado/acción predeterminado
+            const poseActionPrompts = {
+                'hero-stance': 'character in heroic stance at center, confident pose, looking forward',
+                'discovery-moment': 'moment of discovery, character examining object with wonder and awe',
+                'action-dynamic': 'dynamic action scene, character in motion, energy and movement',
+                'contemplative-gaze': 'character gazing contemplatively at distant horizon, thoughtful expression',
+                'confrontation': 'dramatic confrontation scene, tension between characters',
+                'group-formation': 'characters arranged in powerful group formation, team composition',
+                'silhouette-dramatic': 'dramatic silhouette against epic backdrop, striking outline',
+                'embrace-romantic': 'romantic embrace, intimate connection between characters',
+                'mystery-investigation': 'character investigating mystery, examining clues intently',
+                'magical-casting': 'character casting magic, mystical energy flowing around them',
+                'chase-escape': 'intense chase or escape scene, dynamic movement and urgency',
+                'throne-power': 'character in position of power, commanding presence'
+            };
+
+            if (appState.poseAction !== 'auto') {
+                promptComponents.push(poseActionPrompts[appState.poseAction]);
+            } else {
+                promptComponents.push('characters in dynamic action poses');
+                promptComponents.push('clear detailed elements interacting');
+            }
+
+            // Aplicar patrones arquetípicos de portada
+            const coverArchetypes = [
+                'central focused composition with main element prominently displayed',
+                'directed character gaze that establishes connection with viewer',
+                'diagonal and convergent structural lines for dynamic energy',
+                'strategic use of negative space for visual breathing room',
+                'beautiful color contrast for visual hierarchy and emotional impact'
+            ];
+            
+            // Seleccionar 2-3 arquetipos aleatoriamente
+            const selectedArchetypes = coverArchetypes
+                .sort(() => Math.random() - 0.5)
+                .slice(0, 2 + Math.floor(Math.random() * 2));
+            promptComponents.push(...selectedArchetypes);
+            
+            // Añadir elementos personalizados específicos como protagonistas épicos
+            if (customElements.length > 0) {
+                customElements.forEach((element, index) => {
+                    if (index === 0) {
+                        // Primer elemento como protagonista épico en acción
+                        promptComponents.push(`${translateElementToEnglish(element)} as the main character in dramatic action`);
+                    } else if (index === 1) {
+                        // Segundo elemento interactuando dinámicamente
+                        promptComponents.push(`${translateElementToEnglish(element)} actively interacting with the main character`);
+                    } else if (index === 2) {
+                        // Tercer elemento como escenario épico
+                        if (element.toLowerCase().includes('biblioteca') || 
+                            element.toLowerCase().includes('gigantesca') ||
+                            element.toLowerCase().includes('lugar')) {
+                            promptComponents.push(`epic ${translateElementToEnglish(element)} as dramatic backdrop`);
+                        } else {
+                            promptComponents.push(`${translateElementToEnglish(element)} prominently visible in the scene`);
+                        }
+                    }
+                });
+            }
+
+            // Analizar narrativa específica para extraer elementos clave
+            const narrativeElements = extractSpecificNarrativeElements(narrative);
+            
+            // Añadir personajes en poses épicas
+            if (narrativeElements.characters.length > 0) {
+                promptComponents.push(`${narrativeElements.characters.join(' and ')} in heroic dramatic poses`);
+            }
+            
+            // Escenario épico
+            if (narrativeElements.setting) {
+                promptComponents.push(`magnificent ${narrativeElements.setting} with epic scale and detail`);
+            }
+            
+            // Objetos claramente visibles e interactuando
+            if (narrativeElements.objects.length > 0) {
+                promptComponents.push(`${narrativeElements.objects.join(' and ')} clearly visible and central to the action`);
+            }
+
+            // Detectar y añadir acción específica basada en la narrativa (solo si es automático)
+            if (appState.poseAction === 'auto') {
+                const actionContext = extractSafeActionFromNarrative(narrative);
+                if (actionContext) {
+                    promptComponents.push(actionContext);
+                }
+            }
+
+            // Añadir estilos épicos basados en los géneros y sus pesos (filtrados para seguridad)
+            const genreStyles = genres.map(genre => {
+                const genreWeight = genre.normalizedWeight;
+                const intensity = genreWeight > 40 ? 'dramatic' : genreWeight > 25 ? 'strong' : 'subtle';
+                
+                const epicStyleMap = {
+                    'terror': `${intensity} gothic atmosphere with mysterious shadows and supernatural elements`,
+                    'ciencia-ficcion': `${intensity} science fiction with futuristic technology and cosmic themes`,
+                    'fantasia': `${intensity} fantasy setting with magical elements and enchanted atmosphere`,
+                    'romance': `${intensity} romantic mood with emotional connection between characters`,
+                    'misterio': `${intensity} mystery atmosphere with intriguing secrets and clues`,
+                    'aventura': `${intensity} adventure scene with heroic characters in action`,
+                    'comedia': `${intensity} comedic atmosphere with bright lighting and cheerful expressions`,
+                    'drama': `${intensity} dramatic emotional scene with expressive character poses and meaningful lighting`
+                };
+                
+                return epicStyleMap[genre.id];
+            }).filter(Boolean);
+
+            promptComponents.push(...genreStyles);
+            
+            // Calificadores específicos (filtrados y seguros)
+            if (appState.visualStyle === 'auto' || appState.visualStyle === 'cinematic') {
+                promptComponents.push('beautiful composition with clear visual storytelling');
+                promptComponents.push('professional comic book art style');
+                promptComponents.push('appealing lighting and atmosphere');
+                promptComponents.push('characters and objects in harmonious relationship');
+                promptComponents.push('grand scale and artistic beauty');
+            } else if (appState.visualStyle.includes('-style')) {
+                // Para estilos de maestros del cómic, enfocar en la narrativa visual
+                promptComponents.push('masterful comic book illustration');
+                promptComponents.push('iconic character design');
+                promptComponents.push('professional comic book cover style');
+                promptComponents.push('expressive visual storytelling');
+            } else {
+                promptComponents.push('beautiful composition with clear visual narrative');
+                promptComponents.push('professional artwork style');
+                promptComponents.push('appealing lighting and atmosphere');
+            }
+            
+            promptComponents.push('high quality detailed illustration');
+            promptComponents.push('expressive character emotions and poses');
+            promptComponents.push('professional cover art design');
+            
+            // Añadir elementos de narrativa visual específicos para estilos de cómic
+            if (appState.visualStyle.includes('-style') || appState.visualStyle === 'graphic-novel') {
+                promptComponents.push('comic book storytelling style');
+                promptComponents.push('graphic novel panel design');
+                promptComponents.push('illustrated book aesthetic');
+            }
+
+            const finalPrompt = promptComponents.join(', ');
+            console.log('🎨 Prompt épico generado:', finalPrompt);
+            
+            return finalPrompt;
+        };
+
+        // Función para extraer acción específica de la narrativa (filtrada para seguridad)
+        const extractSafeActionFromNarrative = (narrative) => {
+            const text = narrative.toLowerCase();
+            
+            if (text.includes('descubre') || text.includes('encuentra')) {
+                return 'moment of discovery with character examining something with curiosity';
+            }
+            if (text.includes('explora') || text.includes('aventura')) {
+                return 'exploration scene with character in adventurous pose';
+            }
+            if (text.includes('conjura') || text.includes('magia')) {
+                return 'magical scene with mystical atmosphere and enchanting elements';
+            }
+            if (text.includes('investiga') || text.includes('misterio')) {
+                return 'investigation scene with character thoughtfully examining clues';
+            }
+            if (text.includes('biblioteca') || text.includes('libro')) {
+                return 'scholarly scene in library setting with books and reading atmosphere';
+            }
+            if (text.includes('romance') || text.includes('amor')) {
+                return 'romantic scene with emotional warmth between characters';
+            }
+            if (text.includes('viaja') || text.includes('camino')) {
+                return 'journey scene with character on path or adventure';
+            }
+            if (text.includes('ciencia') || text.includes('tecnología')) {
+                return 'scientific scene with futuristic or technological elements';
+            }
+            
+            return 'dramatic character portrait with expressive pose';
+        };
+
+        // Función auxiliar para traducir elementos al inglés
+        const translateElementToEnglish = (element) => {
+            const translations = {
+                'pececillo de plata': 'silverfish',
+                'biblioteca gigantesca': 'gigantic library',
+                'libro voluminoso': 'voluminous book',
+                'libro antiguo': 'ancient book',
+                'espada mágica': 'magical sword',
+                'cristal brillante': 'brilliant crystal',
+                'mapa del tesoro': 'treasure map',
+                'llave dorada': 'golden key',
+                'rosa negra': 'black rose',
+                'espejo mágico': 'magic mirror',
+                'collar de perlas': 'pearl necklace',
+                'daga ceremonial': 'ceremonial dagger',
+                'pergamino antiguo': 'ancient scroll',
+                'anillo de poder': 'ring of power',
+                'bastón mágico': 'magic staff'
+            };
+            
+            return translations[element.toLowerCase()] || element;
+        };
+
+        // Función auxiliar para extraer elementos narrativos específicos
+        const extractSpecificNarrativeElements = (narrative) => {
+            const characters = [];
+            const objects = [];
+            let setting = '';
+            
+            // Detectar personajes comunes
+            if (narrative.includes('investigador') || narrative.includes('detective')) {
+                characters.push('investigator');
+            }
+            if (narrative.includes('mago') || narrative.includes('hechicero')) {
+                characters.push('wizard');
+            }
+            if (narrative.includes('escritor') || narrative.includes('autor')) {
+                characters.push('writer');
+            }
+            
+            // Detectar escenarios comunes
+            if (narrative.includes('biblioteca')) {
+                setting = 'library';
+            } else if (narrative.includes('bosque')) {
+                setting = 'forest';
+            } else if (narrative.includes('castillo')) {
+                setting = 'castle';
+            } else if (narrative.includes('laboratorio')) {
+                setting = 'laboratory';
+            }
+            
+            return { characters, objects, setting };
+        };
+
+        // Funciones de UI
+        const displayNarrative = (narrative) => {
+            const placeholder = document.getElementById('narrativePlaceholder');
+            const content = document.getElementById('narrativeContent');
+            const textEditor = document.getElementById('narrativeTextEditor');
+            const generateImageBtn = document.getElementById('generateImageBtn');
+            
+            textEditor.value = narrative;
+            textEditor.classList.add('generated-text');
+            
+            placeholder.classList.add('hidden');
+            content.classList.remove('hidden');
+            
+            // Mostrar botón de generar imagen si la IA está activada
+            if (appState.useImageAI) {
+                generateImageBtn.classList.remove('hidden');
+            }
+            
+            appState.generatedNarrative = narrative;
+            
+            // Auto-ajustar altura del textarea
+            autoResizeTextarea(textEditor);
+        };
+
+        // Función para auto-ajustar la altura del textarea
+        const autoResizeTextarea = (textarea) => {
+            textarea.style.height = 'auto';
+            textarea.style.height = Math.max(192, textarea.scrollHeight) + 'px'; // Mínimo 192px (min-h-48)
+        };
+
+        const displayImage = (imageResult) => {
+            const placeholder = document.getElementById('imagePlaceholder');
+            const status = document.getElementById('imageStatus');
+            
+            // Mostrar la imagen generada directamente en el área placeholder
+            placeholder.innerHTML = `
+                <div class="relative">
+                    <img 
+                        src="${imageResult.url}" 
+                        alt="Imagen épica generada basada en tu narrativa" 
+                        class="w-full rounded-lg shadow-xl border border-gray-600 hover:shadow-2xl transition-shadow duration-300"
+                        onload="this.style.opacity='1'" 
+                        style="opacity:0; transition: opacity 0.5s ease-in"
+                    />
+                    <div class="absolute bottom-2 right-2 bg-black/70 backdrop-blur-sm rounded px-2 py-1">
+                        <p class="text-xs text-green-300">✨ ${imageResult.model}</p>
+                    </div>
+                </div>
+            `;
+            
+            // Actualizar el texto del status
+            status.innerHTML = `
+                <div class="flex items-center justify-between">
+                    <span>🎨 ¡Imagen épica generada exitosamente!</span>
+                    <span class="text-xs text-gray-400">ID: ${imageResult.id}</span>
+                </div>
+            `;
+            status.classList.remove('hidden');
+        };
+
+        // Sistema de generación de imágenes optimizado para HTML
+        console.log('🎭 Sistema de generación de imágenes inicializado para HTML');
+
+        // Función de exportación ZIP
+        const exportToZip = async () => {
+            try {
+                const narrativeTextEditor = document.getElementById('narrativeTextEditor');
+                const textToExport = narrativeTextEditor ? narrativeTextEditor.value : appState.generatedNarrative;
+                
+                if (!textToExport || textToExport.trim() === '') {
+                    alert('No hay contenido para exportar. Genera una narrativa primero.');
+                    return;
+                }
+
+                // Importar JSZip desde CDN
+                if (typeof JSZip === 'undefined') {
+                    const script = document.createElement('script');
+                    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+                    document.head.appendChild(script);
+                    
+                    // Esperar a que cargue
+                    await new Promise((resolve, reject) => {
+                        script.onload = resolve;
+                        script.onerror = reject;
+                    });
+                }
+
+                const zip = new JSZip();
+                
+                // Generar nombre de archivo con timestamp
+                const timestamp = new Date().toISOString().slice(0, 19).replace(/[T:]/g, '-');
+                const filename = `narrativAI-${timestamp}`;
+                
+                // Añadir el texto narrativo
+                zip.file(`${filename}.txt`, textToExport);
+                
+                // Crear archivo de metadatos con la configuración usada
+                const metadata = {
+                    generatedAt: new Date().toISOString(),
+                    app: 'narrativAI',
+                    version: '1.0',
+                    configuration: {
+                        selectedGenres: appState.selectedGenres.map(g => ({
+                            name: genres[g.id].name,
+                            icon: genres[g.id].icon,
+                            weight: Math.round(g.weight)
+                        })),
+                        customElements: [
+                            document.getElementById('element1').value.trim(),
+                            document.getElementById('element2').value.trim(),
+                            document.getElementById('element3').value.trim()
+                        ].filter(Boolean),
+                        visualStyle: appState.visualStyle,
+                        imageEngine: appState.imageEngine,
+                        useImageAI: appState.useImageAI
+                    },
+                    textLength: textToExport.length,
+                    wordCount: textToExport.split(/\s+/).filter(word => word.length > 0).length
+                };
+                
+                zip.file(`${filename}-config.json`, JSON.stringify(metadata, null, 2));
+                
+                // Crear README con instrucciones
+                const readme = `# narrativAI Export
+                
+Archivo generado por narrativAI
+Fecha: ${new Date().toLocaleString()}
+
+## Contenido:
+- ${filename}.txt: Tu narrativa épica generada/editada
+- ${filename}-config.json: Configuración utilizada para la generación
+
+## Configuración utilizada:
+${appState.selectedGenres.map(g => `- ${genres[g.id].icon} ${genres[g.id].name}: ${Math.round(g.weight)}%`).join('\n')}
+
+## Elementos personalizados:
+${[
+    document.getElementById('element1').value.trim(),
+    document.getElementById('element2').value.trim(),
+    document.getElementById('element3').value.trim()
+].filter(Boolean).map(el => `- ${el}`).join('\n') || '- Ninguno'}
+
+¡Disfruta de tu narrativa épica! 🎭✨
+`;
+                
+                zip.file('README.md', readme);
+                
+                // Generar el ZIP y descargarlo
+                const exportBtn = document.getElementById('exportBtn');
+                const originalText = exportBtn.textContent;
+                exportBtn.textContent = '📦 Generando ZIP...';
+                exportBtn.disabled = true;
+                
+                const blob = await zip.generateAsync({type: 'blob'});
+                
+                // Crear enlace de descarga
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `${filename}.zip`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+                
+                // Feedback visual
+                exportBtn.textContent = '✅ ZIP Descargado';
+                setTimeout(() => {
+                    exportBtn.textContent = originalText;
+                    exportBtn.disabled = false;
+                }, 3000);
+                
+                console.log('📦 ZIP exportado exitosamente:', filename);
+                
+            } catch (error) {
+                console.error('❌ Error exportando ZIP:', error);
+                alert('Error al exportar ZIP: ' + error.message);
+                
+                const exportBtn = document.getElementById('exportBtn');
+                exportBtn.textContent = '💾 Exportar ZIP';
+                exportBtn.disabled = false;
+            }
+        };
+
+        // Funciones de dibujo específicas (simplificadas para el ejemplo)
+
+        // Función principal de generación (solo narrativa)
+        const handleGeneration = async () => {
+            if (appState.isGenerating) return;
+            
+            const generateBtn = document.getElementById('generateBtn');
+            const generateBtnText = document.getElementById('generateBtnText');
+            const loadingNarrative = document.getElementById('loadingNarrative');
+            
+            try {
+                appState.isGenerating = true;
+                generateBtn.disabled = true;
+                generateBtnText.textContent = '🎭 Generando...';
+                
+                // Mostrar loading de narrativa
+                loadingNarrative.classList.remove('hidden');
+                
+                // Generar narrativa
+                await new Promise(resolve => setTimeout(resolve, 1500)); // Simular delay
+                const narrative = generateNarrative();
+                
+                if (!narrative) {
+                    throw new Error('No se pudo generar la narrativa');
+                }
+                
+                // Mostrar narrativa
+                loadingNarrative.classList.add('hidden');
+                displayNarrative(narrative);
+                
+            } catch (error) {
+                console.error('Error en la generación:', error);
+                alert('Error al generar contenido: ' + error.message);
+                
+                loadingNarrative.classList.add('hidden');
+            } finally {
+                appState.isGenerating = false;
+                generateBtn.disabled = false;
+                generateBtnText.textContent = '🎭 Generar Argumento Épico';
+            }
+        };
+
+        // Función separada para generar imagen basada en texto editado
+        const handleImageGeneration = async () => {
+            if (appState.isGeneratingImage) return;
+            
+            const generateImageBtn = document.getElementById('generateImageBtn');
+            const loadingImage = document.getElementById('loadingImage');
+            const narrativeTextEditor = document.getElementById('narrativeTextEditor');
+            
+            const editedNarrative = narrativeTextEditor.value.trim();
+            if (!editedNarrative) {
+                alert('El texto narrativo está vacío. Agrega contenido antes de generar la imagen.');
+                return;
+            }
+            
+            try {
+                appState.isGeneratingImage = true;
+                generateImageBtn.disabled = true;
+                generateImageBtn.textContent = '🎬 Generando...';
+                loadingImage.classList.remove('hidden');
+                
+                // Obtener elementos personalizados
+                const customElements = [
+                    document.getElementById('element1').value.trim(),
+                    document.getElementById('element2').value.trim(),
+                    document.getElementById('element3').value.trim()
+                ].filter(Boolean);
+                
+                // Generar prompt específico basado en el texto editado
+                const normalizedGenres = normalizeWeights();
+                const imagePrompt = generateSpecificImagePrompt(editedNarrative, normalizedGenres, customElements);
+                
+                // Seleccionar modelo y generar imagen
+                const selectedModel = selectImageModel(appState.visualStyle, appState.imageEngine);
+                console.log(`🚀 Usando engine: ${selectedModel} con texto editado`);
+                const imageResult = await simulateImageGeneration(imagePrompt, selectedModel);
+                
+                loadingImage.classList.add('hidden');
+                displayImage(imageResult);
+                
+            } catch (error) {
+                console.error('Error generando imagen:', error);
+                alert('Error al generar imagen: ' + error.message);
+                loadingImage.classList.add('hidden');
+            } finally {
+                appState.isGeneratingImage = false;
+                generateImageBtn.disabled = false;
+                generateImageBtn.textContent = '🎬 Generar Imagen del Texto Editado';
+            }
+        };
+
+        // Función para copiar texto
+        const copyToClipboard = () => {
+            const narrativeTextEditor = document.getElementById('narrativeTextEditor');
+            const textToCopy = narrativeTextEditor ? narrativeTextEditor.value : appState.generatedNarrative;
+            
+            if (textToCopy) {
+                navigator.clipboard.writeText(textToCopy)
+                    .then(() => {
+                        const copyBtn = document.getElementById('copyBtn');
+                        const originalText = copyBtn.textContent;
+                        copyBtn.textContent = '✅ Copiado';
+                        setTimeout(() => {
+                            copyBtn.textContent = originalText;
+                        }, 2000);
+                    })
+                    .catch(() => {
+                        alert('Error al copiar al portapapeles');
+                    });
+            } else {
+                alert('No hay texto para copiar');
+            }
+        };
+
+        // Función exportToZip ya está definida más arriba con funcionalidad completa
+
+        // Event listeners
+        document.getElementById('generateBtn').addEventListener('click', handleGeneration);
+        document.getElementById('copyBtn').addEventListener('click', copyToClipboard);
+        document.getElementById('exportBtn').addEventListener('click', exportToZip);
+        document.getElementById('generateImageBtn').addEventListener('click', handleImageGeneration);
+        document.getElementById('regenerateNarrativeBtn').addEventListener('click', handleGeneration);
+
+        // Auto-resize del textarea cuando el usuario edita
+        document.addEventListener('DOMContentLoaded', () => {
+            const narrativeTextEditor = document.getElementById('narrativeTextEditor');
+            if (narrativeTextEditor) {
+                narrativeTextEditor.addEventListener('input', () => {
+                    autoResizeTextarea(narrativeTextEditor);
+                    // Actualizar el estado con el texto editado
+                    appState.generatedNarrative = narrativeTextEditor.value;
+                });
+            }
+        });
+
+        // Inicialización
+        createGenreElements();
+        updateGenreCount();
+        
+        // Función para actualizar información del engine
+        const updateEngineInfo = () => {
+            const engineInfo = document.getElementById('engineInfo');
+            const selectedEngine = appState.imageEngine;
+            
+            const engineDescriptions = {
+                'auto': {
+                    title: '🔄 Selección automática:',
+                    details: [
+                        '• Estilos de cómic maestros → SeedImage 3.0',
+                        '• Fotorrealista/Cinematográfico → gpt-image-1',
+                        '• Genera la mejor calidad según tu elección de estilo'
+                    ]
+                },
+                'gpt-image-1': {
+                    title: '🎬 gpt-image-1 (rápido y confiable):',
+                    details: [
+                        '• Generación rápida (3-4 segundos)',
+                        '• Excelente para fotorrealismo y escenas cinematográficas',
+                        '• Resolución estándar 512x512',
+                        '• Modelo optimizado y estable'
+                    ]
+                },
+                'seedimage-3': {
+                    title: '🎨 SeedImage 3.0 (alta calidad artística):',
+                    details: [
+                        '• Alta resolución nativa (1024x1024)',
+                        '• Perfecto para estilos de cómic y arte conceptual',
+                        '• Mayor detalle y consistencia visual',
+                        '• Tiempo de generación extendido (5-6 segundos)'
+                    ]
+                }
+            };
+            
+            const info = engineDescriptions[selectedEngine];
+            engineInfo.innerHTML = `
+                <p class="font-medium text-purple-300">${info.title}</p>
+                ${info.details.map(detail => `<p>${detail}</p>`).join('')}
+            `;
+        };
+
+        console.log('🎭 Generador de Argumentos Narrativos inicializado');
+        updateEngineInfo();
+    </script>
+</body>
+</html>
