@@ -1352,6 +1352,80 @@
         // Sistema de generación de imágenes optimizado para HTML
         console.log('🎭 Sistema de generación de imágenes inicializado para HTML');
 
+        // Función para regenerar imagen (compatible con GitHub Pages)
+        window.regenerateImage = () => {
+            const imageContainer = document.getElementById('imageContainer');
+            const narrativeText = document.getElementById('narrativeTextEditor').value || appState.generatedNarrative;
+            
+            if (!narrativeText) {
+                alert('Genera una narrativa primero para crear una imagen relacionada.');
+                return;
+            }
+            
+            // Mostrar loading
+            imageContainer.innerHTML = `
+                <div class="flex items-center justify-center h-64 bg-gray-800 rounded-lg border-2 border-dashed border-gray-600">
+                    <div class="text-center">
+                        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-400 mx-auto mb-4"></div>
+                        <p class="text-gray-300">🔄 Regenerando imagen...</p>
+                    </div>
+                </div>
+            `;
+            
+            // Generar nueva imagen con timestamp para evitar cache
+            const timestamp = Date.now();
+            const selectedGenres = appState.selectedGenres.map(g => genres[g.id].name.toLowerCase());
+            
+            let imageUrl;
+            if (selectedGenres.includes('terror')) {
+                imageUrl = `https://source.unsplash.com/800x600/?dark,gothic,mystery&t=${timestamp}`;
+            } else if (selectedGenres.includes('fantasía')) {
+                imageUrl = `https://source.unsplash.com/800x600/?fantasy,magical,castle&t=${timestamp}`;
+            } else if (selectedGenres.includes('romance')) {
+                imageUrl = `https://source.unsplash.com/800x600/?romance,sunset,couple&t=${timestamp}`;
+            } else if (selectedGenres.includes('ciencia ficción')) {
+                imageUrl = `https://source.unsplash.com/800x600/?space,technology,future&t=${timestamp}`;
+            } else if (selectedGenres.includes('acción')) {
+                imageUrl = `https://source.unsplash.com/800x600/?action,adventure,hero&t=${timestamp}`;
+            } else {
+                imageUrl = `https://picsum.photos/800/600?random=${timestamp}`;
+            }
+            
+            const newImage = new Image();
+            newImage.onload = () => {
+                imageContainer.innerHTML = `
+                    <div class="relative">
+                        <img src="${imageUrl}" alt="Imagen regenerada de la narrativa" 
+                             class="w-full rounded-lg shadow-lg border border-gray-600 max-h-96 object-cover">
+                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4 rounded-b-lg">
+                            <p class="text-white text-sm font-medium">🎨 Imagen inspirada en: ${document.getElementById('visualStyle').selectedOptions[0].text}</p>
+                        </div>
+                    </div>
+                    <div class="mt-2 text-center">
+                        <p class="text-xs text-gray-400">📸 Imagen de referencia visual regenerada</p>
+                        <button onclick="regenerateImage()" class="mt-2 px-3 py-1 bg-purple-600 hover:bg-purple-700 rounded text-xs">
+                            🔄 Regenerar Imagen
+                        </button>
+                    </div>
+                `;
+            };
+            
+            newImage.onerror = () => {
+                imageContainer.innerHTML = `
+                    <div class="flex items-center justify-center h-64 bg-gradient-to-br from-purple-900 to-blue-900 rounded-lg border border-purple-500">
+                        <div class="text-center text-white">
+                            <div class="text-6xl mb-4">🎭</div>
+                            <p class="text-lg font-bold">narrativAI</p>
+                            <p class="text-sm mt-2 opacity-75">Tu narrativa épica generada</p>
+                            <p class="text-xs mt-4 opacity-50">Estilo: ${document.getElementById('visualStyle').selectedOptions[0].text}</p>
+                        </div>
+                    </div>
+                `;
+            };
+            
+            newImage.src = imageUrl;
+        };
+
         // Función de exportación ZIP
         const exportToZip = async () => {
             try {
