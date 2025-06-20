@@ -327,7 +327,22 @@
                     
                     <div id="narrativeContent" class="hidden">
                         <div class="bg-gray-900/50 rounded-lg border-l-4 border-purple-500 p-4">
-                            <div id="narrativeText" class="text-gray-100 leading-relaxed"></div>
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-sm text-purple-300">📝 Narrativa (editable)</span>
+                                <div class="flex gap-2">
+                                    <button id="editNarrativeBtn" onclick="toggleNarrativeEdit()" class="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded text-xs">
+                                        ✏️ Editar
+                                    </button>
+                                    <button id="saveNarrativeBtn" onclick="saveNarrativeEdit()" class="hidden px-3 py-1 bg-green-600 hover:bg-green-700 rounded text-xs">
+                                        ✅ Guardar
+                                    </button>
+                                    <button id="cancelNarrativeBtn" onclick="cancelNarrativeEdit()" class="hidden px-3 py-1 bg-gray-600 hover:bg-gray-700 rounded text-xs">
+                                        ❌ Cancelar
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="narrativeDisplay" class="text-gray-100 leading-relaxed"></div>
+                            <textarea id="narrativeEditor" class="hidden w-full h-40 p-3 bg-gray-800 border border-gray-600 rounded text-gray-100 leading-relaxed resize-vertical focus:outline-none focus:border-purple-500" placeholder="Edita tu narrativa aquí..."></textarea>
                         </div>
                         
                         <div class="flex flex-wrap gap-2 mt-4">
@@ -1205,7 +1220,13 @@
                 // Mostrar narrativa
                 await new Promise(resolve => setTimeout(resolve, 1500));
                 loadingNarrative.classList.add('hidden');
-                narrativeText.innerHTML = narrative.replace(/\n/g, '<br><br>');
+                
+                // Actualizar el display de narrativa
+                const narrativeDisplay = document.getElementById('narrativeDisplay');
+                if (narrativeDisplay) {
+                    narrativeDisplay.innerHTML = narrative.replace(/\n/g, '<br><br>');
+                }
+                
                 narrativeContent.classList.remove('hidden');
                 
                 // Actualizar vista previa del prompt
@@ -1657,6 +1678,11 @@
             markdownContent += '**Proyecto generado el:** ' + new Date().toLocaleString('es-ES') + '\n\n';
             markdownContent += '## 📖 Tu Historia Épica\n\n';
             markdownContent += appState.generatedNarrative + '\n\n';
+            
+            // Agregar nota si la narrativa fue editada
+            if (originalNarrativeText && originalNarrativeText !== appState.generatedNarrative) {
+                markdownContent += '*📝 Nota: Esta narrativa fue editada manualmente después de la generación inicial.*\n\n';
+            }
             markdownContent += '## ⚖️ Configuración de Géneros\n\n';
             markdownContent += '**Géneros seleccionados:** ' + appState.selectedGenres.map(id => genres[id].icon + ' ' + genres[id].name + ' (' + (appState.genreIntensities[id] || 70) + '%)').join(', ') + '\n\n';
             markdownContent += '## 🎯 Elementos Personalizados\n\n';
@@ -1718,6 +1744,126 @@
         window.previewImage = function(imageId) {
             openImageModal(imageId);
         };
+
+        // Variables para edición de narrativa
+        let originalNarrativeText = '';
+        let isEditingNarrative = false;
+
+        // Función para activar/desactivar modo de edición
+        window.toggleNarrativeEdit = function() {
+            const narrativeDisplay = document.getElementById('narrativeDisplay');
+            const narrativeEditor = document.getElementById('narrativeEditor');
+            const editBtn = document.getElementById('editNarrativeBtn');
+            const saveBtn = document.getElementById('saveNarrativeBtn');
+            const cancelBtn = document.getElementById('cancelNarrativeBtn');
+            
+            if (!isEditingNarrative) {
+                // Activar modo edición
+                isEditingNarrative = true;
+                originalNarrativeText = appState.generatedNarrative;
+                
+                // Ocultar display y mostrar editor
+                narrativeDisplay.classList.add('hidden');
+                narrativeEditor.classList.remove('hidden');
+                narrativeEditor.value = appState.generatedNarrative;
+                narrativeEditor.focus();
+                
+                // Cambiar botones
+                editBtn.classList.add('hidden');
+                saveBtn.classList.remove('hidden');
+                cancelBtn.classList.remove('hidden');
+                
+                console.log('📝 Modo edición activado');
+            }
+        };
+
+        // Función para guardar cambios
+        window.saveNarrativeEdit = function() {
+            const narrativeDisplay = document.getElementById('narrativeDisplay');
+            const narrativeEditor = document.getElementById('narrativeEditor');
+            const editBtn = document.getElementById('editNarrativeBtn');
+            const saveBtn = document.getElementById('saveNarrativeBtn');
+            const cancelBtn = document.getElementById('cancelNarrativeBtn');
+            
+            if (isEditingNarrative) {
+                const newText = narrativeEditor.value.trim();
+                
+                if (newText === '') {
+                    alert('La narrativa no puede estar vacía.');
+                    return;
+                }
+                
+                // Actualizar estado de la aplicación
+                appState.generatedNarrative = newText;
+                
+                // Actualizar display
+                narrativeDisplay.innerHTML = newText.replace(/\n/g, '<br><br>');
+                
+                // Volver a modo display
+                narrativeDisplay.classList.remove('hidden');
+                narrativeEditor.classList.add('hidden');
+                
+                // Cambiar botones
+                editBtn.classList.remove('hidden');
+                saveBtn.classList.add('hidden');
+                cancelBtn.classList.add('hidden');
+                
+                isEditingNarrative = false;
+                
+                // Actualizar vista previa del prompt si imagen IA está activada
+                if (appState.useImageAI) {
+                    updatePromptPreview();
+                }
+                
+                console.log('✅ Narrativa editada y guardada');
+            }
+        };
+
+        // Función para cancelar edición
+        window.cancelNarrativeEdit = function() {
+            const narrativeDisplay = document.getElementById('narrativeDisplay');
+            const narrativeEditor = document.getElementById('narrativeEditor');
+            const editBtn = document.getElementById('editNarrativeBtn');
+            const saveBtn = document.getElementById('saveNarrativeBtn');
+            const cancelBtn = document.getElementById('cancelNarrativeBtn');
+            
+            if (isEditingNarrative) {
+                // Restaurar texto original
+                narrativeEditor.value = originalNarrativeText;
+                
+                // Volver a modo display
+                narrativeDisplay.classList.remove('hidden');
+                narrativeEditor.classList.add('hidden');
+                
+                // Cambiar botones
+                editBtn.classList.remove('hidden');
+                saveBtn.classList.add('hidden');
+                cancelBtn.classList.add('hidden');
+                
+                isEditingNarrative = false;
+                
+                console.log('❌ Edición de narrativa cancelada');
+            }
+        };
+
+        // Función para manejar teclas en el editor
+        function setupNarrativeEditorKeyboard() {
+            const narrativeEditor = document.getElementById('narrativeEditor');
+            if (narrativeEditor) {
+                narrativeEditor.addEventListener('keydown', function(e) {
+                    // Ctrl+Enter para guardar rápido
+                    if (e.ctrlKey && e.key === 'Enter') {
+                        e.preventDefault();
+                        saveNarrativeEdit();
+                    }
+                    // Escape para cancelar
+                    else if (e.key === 'Escape') {
+                        e.preventDefault();
+                        cancelNarrativeEdit();
+                    }
+                });
+            }
+        }
 
 
 
@@ -1822,6 +1968,9 @@
                 
                 // Configurar event listeners
                 setupEventListeners();
+                
+                // Configurar editor de narrativa
+                setupNarrativeEditorKeyboard();
                 
                 // Verificar estado inicial del checkbox
                 const useImageAICheckbox = document.getElementById('useImageAI');
