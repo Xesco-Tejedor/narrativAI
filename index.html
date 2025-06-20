@@ -357,8 +357,14 @@
                     
                     <div id="imagePlaceholder" class="text-center text-gray-400 py-8 border-2 border-dashed border-gray-600 rounded-lg">
                         <div class="text-3xl mb-2">🎨</div>
-                        <p class="text-sm">Activa la generación de IA para crear imágenes basadas en tu narrativa</p>
-                        <p class="text-xs mt-1 opacity-75">✅ Las imágenes se acumularán en líneas hasta cambiar el prompt</p>
+                        <div id="placeholderMessage">
+                            <p class="text-sm">Activa la generación de IA para crear imágenes basadas en tu narrativa</p>
+                            <p class="text-xs mt-1 opacity-75">✅ Las imágenes se acumularán en líneas hasta cambiar el prompt</p>
+                        </div>
+                        <div id="readyMessage" class="hidden">
+                            <p class="text-sm text-green-300">✅ Imagen IA activada - Genera una narrativa para crear la imagen</p>
+                            <p class="text-xs mt-1 opacity-75">🎭 El sistema creará automáticamente una imagen basada en tu historia</p>
+                        </div>
                     </div>
                     
                     <div id="loadingImage" class="hidden text-center py-8 border-2 border-dashed border-purple-500 rounded-lg">
@@ -1180,6 +1186,18 @@
                 appState.useImageAI = imageAICheckbox.checked;
                 console.log('🎨 Estado imagen IA al generar:', appState.useImageAI);
                 
+                // Actualizar mensaje del placeholder según el estado actual
+                const placeholderMessage = document.getElementById('placeholderMessage');
+                const readyMessage = document.getElementById('readyMessage');
+                
+                if (appState.useImageAI) {
+                    if (placeholderMessage) placeholderMessage.classList.add('hidden');
+                    if (readyMessage) readyMessage.classList.remove('hidden');
+                } else {
+                    if (placeholderMessage) placeholderMessage.classList.remove('hidden');
+                    if (readyMessage) readyMessage.classList.add('hidden');
+                }
+                
                 // Generar narrativa
                 const narrative = generateNarrative();
                 appState.generatedNarrative = narrative;
@@ -1740,12 +1758,18 @@
                     const info = document.getElementById('imageAIInfo');
                     const controlsSection = document.getElementById('imageControlsSection');
                     const promptPreview = document.getElementById('promptPreview');
+                    const placeholderMessage = document.getElementById('placeholderMessage');
+                    const readyMessage = document.getElementById('readyMessage');
                     
                     console.log('🎨 Imagen IA activada:', appState.useImageAI);
                     
                     if (appState.useImageAI) {
                         if (info) info.classList.remove('hidden');
                         if (controlsSection) controlsSection.classList.remove('hidden');
+                        
+                        // Actualizar mensaje del placeholder
+                        if (placeholderMessage) placeholderMessage.classList.add('hidden');
+                        if (readyMessage) readyMessage.classList.remove('hidden');
                         
                         // Si ya hay narrativa, actualizar preview inmediatamente
                         if (appState.generatedNarrative) {
@@ -1755,6 +1779,10 @@
                         if (info) info.classList.add('hidden');
                         if (controlsSection) controlsSection.classList.add('hidden');
                         if (promptPreview) promptPreview.classList.add('hidden');
+                        
+                        // Restaurar mensaje original del placeholder
+                        if (placeholderMessage) placeholderMessage.classList.remove('hidden');
+                        if (readyMessage) readyMessage.classList.add('hidden');
                     }
                 });
             }
@@ -1799,13 +1827,18 @@
                 const useImageAICheckbox = document.getElementById('useImageAI');
                 if (useImageAICheckbox) {
                     const initialImageAIState = useImageAICheckbox.checked;
+                    appState.useImageAI = initialImageAIState;
+                    
                     if (initialImageAIState) {
-                        appState.useImageAI = true;
                         const imageAIInfo = document.getElementById('imageAIInfo');
                         const imageControlsSection = document.getElementById('imageControlsSection');
+                        const placeholderMessage = document.getElementById('placeholderMessage');
+                        const readyMessage = document.getElementById('readyMessage');
                         
                         if (imageAIInfo) imageAIInfo.classList.remove('hidden');
                         if (imageControlsSection) imageControlsSection.classList.remove('hidden');
+                        if (placeholderMessage) placeholderMessage.classList.add('hidden');
+                        if (readyMessage) readyMessage.classList.remove('hidden');
                     }
                 }
                 
