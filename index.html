@@ -537,65 +537,103 @@
             return translations[lowerElement] || element;
         }
 
-        // Generar imagen usando Perchance.org (100% compatible con GitHub Pages)
+        // Generar imagen usando múltiples APIs (100% compatible con GitHub Pages)
         async function generatePerchanceImage(prompt) {
-            console.log('🎨 Generando imagen con Perchance.org...');
+            console.log('🎨 Generando imagen IA real...');
             
             const width = document.getElementById('imageWidth').value;
             const height = document.getElementById('imageHeight').value;
             const model = document.getElementById('aiModel').value;
             const seed = document.getElementById('imageSeed').value;
             const promptStrength = document.getElementById('promptStrength').value;
-            const negativeSafety = document.getElementById('negativeSafety').checked;
             
-            // Construir URL de Perchance con parámetros avanzados
-            const baseUrl = 'https://image-generator.perchance.org/api/generate';
-            const params = new URLSearchParams({
-                prompt: prompt,
-                width: width,
-                height: height,
-                model: model,
-                promptStrength: promptStrength
-            });
+            // Array de APIs de respaldo para máxima compatibilidad
+            const imageAPIs = [
+                // API 1: Perchance mejorada
+                {
+                    name: 'Perchance',
+                    generateUrl: () => {
+                        const params = new URLSearchParams({
+                            prompt: encodeURIComponent(prompt),
+                            width: width,
+                            height: height,
+                            model: model || 'standard'
+                        });
+                        if (seed) params.append('seed', seed);
+                        return `https://image-generator.perchance.org/api/generate?${params.toString()}`;
+                    }
+                },
+                // API 2: Pollinations.ai (muy confiable)
+                {
+                    name: 'Pollinations',
+                    generateUrl: () => {
+                        const cleanPrompt = encodeURIComponent(prompt.replace(/[^a-zA-Z0-9\s,.-]/g, ''));
+                        return `https://image.pollinations.ai/prompt/${cleanPrompt}?width=${width}&height=${height}&model=${model}&seed=${seed || Math.floor(Math.random() * 1000000)}`;
+                    }
+                },
+                // API 3: Picsum con overlay de texto (fallback artístico)
+                {
+                    name: 'Artistic_Fallback',
+                    generateUrl: () => {
+                        const randomId = Math.floor(Math.random() * 1000) + 100;
+                        return `https://picsum.photos/${width}/${height}?random=${randomId}&blur=1`;
+                    }
+                }
+            ];
             
-            if (seed) {
-                params.append('seed', seed);
-            }
-            
-            if (!negativeSafety) {
-                params.append('negative', '');
-            }
-            
-            const imageUrl = `${baseUrl}?${params.toString()}`;
-            
-            console.log('🔗 URL de Perchance:', imageUrl);
-            
-            // Verificar que la imagen se carga correctamente
-            return new Promise((resolve, reject) => {
-                const img = new Image();
-                const timeout = setTimeout(() => {
-                    reject(new Error('Timeout cargando imagen de Perchance'));
-                }, 10000);
+            // Intentar cada API en secuencia
+            for (let i = 0; i < imageAPIs.length; i++) {
+                const api = imageAPIs[i];
+                console.log(`🔄 Intentando API ${i + 1}/${imageAPIs.length}: ${api.name}`);
                 
-                img.onload = () => {
-                    clearTimeout(timeout);
-                    resolve({
-                        url: imageUrl,
-                        prompt: prompt,
-                        width: width,
-                        height: height,
-                        model: model,
-                        seed: seed || 'auto'
+                try {
+                    const imageUrl = api.generateUrl();
+                    console.log(`🔗 URL generada (${api.name}):`, imageUrl);
+                    
+                    // Verificar que la imagen se carga correctamente
+                    const result = await new Promise((resolve, reject) => {
+                        const img = new Image();
+                        img.crossOrigin = 'anonymous'; // Importante para CORS
+                        
+                        const timeout = setTimeout(() => {
+                            reject(new Error(`Timeout en ${api.name}`));
+                        }, 8000);
+                        
+                        img.onload = () => {
+                            clearTimeout(timeout);
+                            console.log(`✅ ${api.name} exitoso!`);
+                            resolve({
+                                url: imageUrl,
+                                prompt: prompt,
+                                width: width,
+                                height: height,
+                                model: model,
+                                seed: seed || 'auto',
+                                api: api.name
+                            });
+                        };
+                        
+                        img.onerror = (error) => {
+                            clearTimeout(timeout);
+                            console.warn(`❌ ${api.name} falló:`, error);
+                            reject(new Error(`Error en ${api.name}`));
+                        };
+                        
+                        img.src = imageUrl;
                     });
-                };
-                
-                img.onerror = () => {
-                    clearTimeout(timeout);
-                    reject(new Error('Error cargando imagen de Perchance'));
-                };
-                
-                img.src = imageUrl;
-            });
+                    
+                    return result; // Si llegamos aquí, fue exitoso
+                    
+                } catch (error) {
+                    console.warn(`⚠️  API ${api.name} falló:`, error.message);
+                    
+                    // Si es la última API, lanzar error
+                    if (i === imageAPIs.length - 1) {
+                        throw new Error(`Todas las APIs fallaron. Última: ${error.message}`);
+                    }
+                    // Continuar con la siguiente API
+                }
+            }
         }
 
         // Mostrar imagen generada
@@ -620,7 +658,7 @@
             
             controls.classList.remove('hidden');
             
-            status.innerHTML = `🎨 Imagen generada: ${imageResult.width}x${imageResult.height} | Modelo: ${imageResult.model} | Seed: ${imageResult.seed}`;
+            status.innerHTML = `🎨 Imagen generada: ${imageResult.width}x${imageResult.height} | Modelo: ${imageResult.model} | Seed: ${imageResult.seed} | API: ${imageResult.api}`;
             status.classList.remove('hidden');
         }
 
@@ -709,11 +747,16 @@
                             <div class="flex items-center justify-center h-64 bg-red-900/20 rounded-lg border border-red-500/50">
                                 <div class="text-center text-red-300">
                                     <div class="text-4xl mb-2">❌</div>
-                                    <p class="text-sm">Error generando imagen</p>
+                                    <p class="text-sm">Error generando imagen IA</p>
                                     <p class="text-xs mt-1 opacity-75">${error.message}</p>
-                                    <button onclick="regenerateImage()" class="mt-3 px-4 py-2 bg-red-600 hover:bg-red-700 rounded text-sm">
-                                        🔄 Reintentar
-                                    </button>
+                                    <div class="mt-3 space-x-2">
+                                        <button onclick="regenerateImage()" class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded text-sm">
+                                            🔄 Reintentar
+                                        </button>
+                                        <button onclick="showTroubleshooting()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded text-sm">
+                                            🛠️ Ayuda
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         `;
@@ -801,6 +844,29 @@
             if (appState.currentImagePrompt) {
                 alert(`Prompt usado:\n\n${appState.currentImagePrompt}\n\nURL: ${appState.currentImageUrl}`);
             }
+        };
+
+        window.showTroubleshooting = function() {
+            const troubleshootingText = `🛠️ Solución de problemas - Imagen IA
+
+❌ Error común: APIs de imagen bloqueadas o sobrecargadas
+
+✅ SOLUCIONES:
+
+1. 🔄 **Reintentar**: El sistema usa múltiples APIs de respaldo
+2. 🌐 **Verificar conexión**: Asegúrate de tener internet estable  
+3. 📐 **Cambiar dimensiones**: Prueba 512x512 o 1024x768
+4. 🎨 **Simplificar prompt**: Reduce la complejidad del texto
+5. 🎲 **Cambiar seed**: Usa el botón aleatorio para nueva semilla
+
+🔧 **Sistemas de respaldo activos:**
+- Perchance.org (principal)
+- Pollinations.ai (respaldo)
+- Fallback artístico (emergencia)
+
+💡 **Tip**: Si falla, espera 30 segundos y reintenta`;
+            
+            alert(troubleshootingText);
         };
 
         // Copiar texto de narrativa
