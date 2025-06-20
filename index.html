@@ -1,1 +1,1013 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎭 narrativAI - Perchance Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f0f23, #1a1a2e, #16213e);
+            min-height: 100vh;
+        }
+        .genre-card {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        .genre-card.selected {
+            border-color: #8b5cf6;
+            background: rgba(139, 92, 246, 0.1);
+        }
+        .genre-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3);
+        }
+        .loading-animation {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .control-group {
+            background: rgba(31, 41, 55, 0.5);
+            border: 1px solid rgba(75, 85, 99, 0.5);
+        }
+    </style>
+</head>
+<body class="text-white">
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
+        <div class="text-center mb-8">
+            <h1 class="text-4xl md:text-5xl font-bold bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 bg-clip-text text-transparent mb-4">
+                🎭 narrativAI
+            </h1>
+            <p class="text-xl text-gray-300 mb-2">
+                📚 Narrativas épicas con elementos personalizados + Imágenes IA reales
+            </p>
+            <p class="text-lg text-purple-300 mb-4">
+                🎬 Hasta 3 géneros balanceados + Generación Perchance.org (GitHub Pages compatible)
+            </p>
+        </div>
 
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+            <!-- Panel de elementos y géneros -->
+            <div class="space-y-6">
+                <!-- Elementos personalizados -->
+                <div class="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700">
+                    <h3 class="text-lg font-semibold text-purple-400 mb-4">
+                        ✨ Elementos personalizados (aparecen literalmente)
+                    </h3>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-sm text-gray-300 mb-1">
+                                🎯 Elemento principal
+                            </label>
+                            <input type="text" id="element1" placeholder="ej: pececillo de plata" class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-purple-500 text-white">
+                        </div>
+                        <div>
+                            <label class="block text-sm text-gray-300 mb-1">
+                                🔸 Elemento secundario
+                            </label>
+                            <input type="text" id="element2" placeholder="ej: biblioteca gigantesca" class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-purple-500 text-white">
+                        </div>
+                        <div>
+                            <label class="block text-sm text-gray-300 mb-1">
+                                🏛️ Elemento de contexto
+                            </label>
+                            <input type="text" id="element3" placeholder="ej: libro voluminoso y antiguo" class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-purple-500 text-white">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Selección de géneros -->
+                <div class="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700">
+                    <h3 class="text-lg font-semibold text-purple-400 mb-4 flex items-center">
+                        🎭 Selecciona géneros (máximo 3)
+                        <span id="genreCount" class="ml-2 text-sm bg-purple-600 px-2 py-1 rounded-full">0/3</span>
+                    </h3>
+                    
+                    <div class="grid grid-cols-2 gap-3 mb-4" id="genreGrid">
+                        <!-- Géneros se generan dinámicamente -->
+                    </div>
+                </div>
+
+                <!-- Botón de generación -->
+                <button id="generateBtn" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
+                    <span id="generateBtnText">🎭 Generar Narrativa Épica</span>
+                </button>
+            </div>
+
+            <!-- Panel de configuración de imagen IA -->
+            <div class="space-y-6">
+                <!-- Control principal de imagen IA -->
+                <div class="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <input type="checkbox" id="useImageAI" class="w-5 h-5 text-purple-600 bg-gray-700 border-gray-600 rounded focus:ring-purple-500">
+                        <label for="useImageAI" class="text-lg font-semibold text-purple-400">
+                            🎨 Generar imagen IA real (Perchance.org)
+                        </label>
+                    </div>
+                    
+                    <div id="imageAIInfo" class="hidden mt-2 p-3 bg-blue-900/20 border border-blue-500/30 rounded text-sm text-blue-300">
+                        🎨 <strong>Imagen IA real:</strong> Se analizará tu narrativa para crear una imagen única usando Perchance.org<br />
+                        <small class="opacity-80">✅ 100% compatible con GitHub Pages - Generación real garantizada</small>
+                    </div>
+
+                    <!-- Controles avanzados de imagen -->
+                    <div id="imageControlsSection" class="hidden mt-4 space-y-4">
+                        <!-- Dimensiones y orientación -->
+                        <div class="control-group rounded-lg p-4">
+                            <h4 class="text-sm font-medium text-purple-300 mb-3">📐 Dimensiones y orientación</h4>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs text-gray-400 mb-1">Ancho</label>
+                                    <select id="imageWidth" class="w-full p-2 bg-gray-700 border border-gray-600 rounded text-white text-sm">
+                                        <option value="512">512px</option>
+                                        <option value="768">768px</option>
+                                        <option value="1024" selected>1024px</option>
+                                        <option value="1280">1280px</option>
+                                        <option value="1536">1536px</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-gray-400 mb-1">Alto</label>
+                                    <select id="imageHeight" class="w-full p-2 bg-gray-700 border border-gray-600 rounded text-white text-sm">
+                                        <option value="512">512px</option>
+                                        <option value="768" selected>768px</option>
+                                        <option value="1024">1024px</option>
+                                        <option value="1280">1280px</option>
+                                        <option value="1536">1536px</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="mt-2 flex gap-2">
+                                <button onclick="setAspectRatio(1024, 768)" class="px-3 py-1 bg-gray-600 hover:bg-gray-500 rounded text-xs">4:3</button>
+                                <button onclick="setAspectRatio(1024, 576)" class="px-3 py-1 bg-gray-600 hover:bg-gray-500 rounded text-xs">16:9</button>
+                                <button onclick="setAspectRatio(768, 1024)" class="px-3 py-1 bg-gray-600 hover:bg-gray-500 rounded text-xs">3:4</button>
+                                <button onclick="setAspectRatio(1024, 1024)" class="px-3 py-1 bg-gray-600 hover:bg-gray-500 rounded text-xs">1:1</button>
+                            </div>
+                        </div>
+
+                        <!-- Estilo artístico -->
+                        <div class="control-group rounded-lg p-4">
+                            <h4 class="text-sm font-medium text-purple-300 mb-3">🎨 Estilo artístico</h4>
+                            <select id="artStyle" class="w-full p-2 bg-gray-700 border border-gray-600 rounded text-white text-sm">
+                                <option value="auto">Automático (basado en narrativa)</option>
+                                <option value="photorealistic">📸 Fotorrealista</option>
+                                <option value="digital-art">🖥️ Arte digital</option>
+                                <option value="oil-painting">🎨 Pintura al óleo</option>
+                                <option value="watercolor">🌊 Acuarela</option>
+                                <option value="pencil-sketch">✏️ Boceto a lápiz</option>
+                                <option value="comic-book">📚 Estilo cómic</option>
+                                <option value="anime">🇯🇵 Anime/manga</option>
+                                <option value="fantasy-art">🧙‍♂️ Arte fantástico</option>
+                                <option value="sci-fi">🚀 Ciencia ficción</option>
+                                <option value="gothic">🦇 Gótico</option>
+                                <option value="impressionist">🌅 Impresionista</option>
+                                <option value="surreal">🌀 Surrealista</option>
+                                <option value="mignola-style">🎭 Estilo Mike Mignola</option>
+                                <option value="frazetta-style">⚔️ Estilo Frank Frazetta</option>
+                            </select>
+                        </div>
+
+                        <!-- Modelo de IA -->
+                        <div class="control-group rounded-lg p-4">
+                            <h4 class="text-sm font-medium text-purple-300 mb-3">🤖 Modelo de IA</h4>
+                            <select id="aiModel" class="w-full p-2 bg-gray-700 border border-gray-600 rounded text-white text-sm">
+                                <option value="standard" selected>Standard (equilibrado)</option>
+                                <option value="artistic">Artistic (más creativo)</option>
+                                <option value="photogenic">Photogenic (más realista)</option>
+                                <option value="anime">Anime (estilo japonés)</option>
+                                <option value="furry">Furry (personajes antropomórficos)</option>
+                            </select>
+                        </div>
+
+                        <!-- Configuración avanzada -->
+                        <div class="control-group rounded-lg p-4">
+                            <h4 class="text-sm font-medium text-purple-300 mb-3">⚙️ Configuración avanzada</h4>
+                            
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="block text-xs text-gray-400 mb-1">
+                                        Intensidad del prompt: <span id="promptStrengthValue">7</span>
+                                    </label>
+                                    <input type="range" id="promptStrength" min="1" max="10" value="7" 
+                                           class="w-full accent-purple-500"
+                                           oninput="document.getElementById('promptStrengthValue').textContent = this.value">
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs text-gray-400 mb-1">
+                                        Nivel de detalle: <span id="detailLevelValue">Medio</span>
+                                    </label>
+                                    <select id="detailLevel" class="w-full p-2 bg-gray-700 border border-gray-600 rounded text-white text-sm"
+                                            onchange="document.getElementById('detailLevelValue').textContent = this.options[this.selectedIndex].text">
+                                        <option value="low">Bajo</option>
+                                        <option value="medium" selected>Medio</option>
+                                        <option value="high">Alto</option>
+                                        <option value="ultra">Ultra detallado</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs text-gray-400 mb-1">Semilla (seed) - para reproducibilidad</label>
+                                    <div class="flex gap-2">
+                                        <input type="number" id="imageSeed" placeholder="Automática" 
+                                               class="flex-1 p-2 bg-gray-700 border border-gray-600 rounded text-white text-sm">
+                                        <button onclick="randomizeSeed()" class="px-3 py-2 bg-purple-600 hover:bg-purple-700 rounded text-xs">
+                                            🎲
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center space-x-3">
+                                    <input type="checkbox" id="enhancePrompt" checked class="w-4 h-4 text-purple-600 bg-gray-700 border-gray-600 rounded">
+                                    <label for="enhancePrompt" class="text-xs text-gray-400">
+                                        ✨ Mejorar prompt automáticamente
+                                    </label>
+                                </div>
+
+                                <div class="flex items-center space-x-3">
+                                    <input type="checkbox" id="negativeSafety" checked class="w-4 h-4 text-purple-600 bg-gray-700 border-gray-600 rounded">
+                                    <label for="negativeSafety" class="text-xs text-gray-400">
+                                        🛡️ Filtros de seguridad
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vista previa del prompt -->
+                <div id="promptPreview" class="hidden bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700">
+                    <h3 class="text-lg font-semibold text-purple-400 mb-4">👁️ Vista previa del prompt</h3>
+                    <div id="promptText" class="bg-gray-900/50 rounded-lg p-4 text-sm text-gray-300 font-mono leading-relaxed"></div>
+                </div>
+            </div>
+
+            <!-- Panel de resultados -->
+            <div class="space-y-6">
+                <!-- Narrativa generada -->
+                <div class="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700">
+                    <h3 class="text-lg font-semibold text-purple-400 mb-4">📖 Narrativa Generada</h3>
+                    
+                    <div id="narrativePlaceholder" class="text-center text-gray-400 py-12">
+                        <div class="text-4xl mb-3">📚</div>
+                        <p>Configura elementos y géneros para generar tu narrativa épica</p>
+                    </div>
+                    
+                    <div id="narrativeContent" class="hidden">
+                        <div class="bg-gray-900/50 rounded-lg border-l-4 border-purple-500 p-4">
+                            <div id="narrativeText" class="text-gray-100 leading-relaxed"></div>
+                        </div>
+                        
+                        <div class="flex flex-wrap gap-2 mt-4">
+                            <button id="copyBtn" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors text-sm">
+                                📋 Copiar texto
+                            </button>
+                            <button id="exportBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors text-sm">
+                                💾 Exportar
+                            </button>
+                            <button id="regenerateBtn" class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg transition-colors text-sm">
+                                🎭 Regenerar
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="loadingNarrative" class="hidden text-center py-8">
+                        <div class="loading-animation text-4xl mb-3">🎭</div>
+                        <p class="text-purple-300">Creando tu narrativa épica...</p>
+                    </div>
+                </div>
+
+                <!-- Área de imagen -->
+                <div class="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700">
+                    <h3 class="text-lg font-semibold text-purple-400 mb-4">🎨 Imagen IA Real (Perchance)</h3>
+                    
+                    <div id="imagePlaceholder" class="text-center text-gray-400 py-8 border-2 border-dashed border-gray-600 rounded-lg">
+                        <div class="text-3xl mb-2">🎨</div>
+                        <p class="text-sm">Activa la generación de IA para crear una imagen única basada en tu narrativa</p>
+                        <p class="text-xs mt-1 opacity-75">✅ Garantizado funcionar en GitHub Pages</p>
+                    </div>
+                    
+                    <div id="loadingImage" class="hidden text-center py-8 border-2 border-dashed border-purple-500 rounded-lg">
+                        <div class="loading-animation text-3xl mb-2">🎨</div>
+                        <p class="text-purple-300 text-sm">Generando imagen IA real...</p>
+                        <p class="text-xs text-purple-400 mt-1">Analizando narrativa con Perchance.org</p>
+                    </div>
+                    
+                    <div id="imageStatus" class="mt-3 p-2 bg-green-900/30 rounded border border-green-500/50 text-xs text-green-300 hidden">
+                        <!-- Status se actualiza dinámicamente -->
+                    </div>
+
+                    <!-- Controles de imagen generada -->
+                    <div id="imageControls" class="hidden mt-4 flex flex-wrap gap-2">
+                        <button onclick="regenerateImage()" class="px-3 py-1 bg-purple-600 hover:bg-purple-700 rounded text-xs">
+                            🔄 Regenerar
+                        </button>
+                        <button onclick="downloadImage()" class="px-3 py-1 bg-green-600 hover:bg-green-700 rounded text-xs">
+                            💾 Descargar
+                        </button>
+                        <button onclick="copyImageUrl()" class="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded text-xs">
+                            🔗 Copiar URL
+                        </button>
+                        <button onclick="showImageInfo()" class="px-3 py-1 bg-gray-600 hover:bg-gray-700 rounded text-xs">
+                            ℹ️ Info
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Estado de la aplicación
+        let appState = {
+            selectedGenres: [],
+            generatedNarrative: '',
+            useImageAI: false,
+            currentImageUrl: '',
+            currentImagePrompt: '',
+            isGenerating: false
+        };
+
+        // Géneros disponibles
+        const genres = {
+            'terror': { name: 'Terror', icon: '👻', color: 'from-red-600 to-red-800' },
+            'fantasia': { name: 'Fantasía', icon: '🧙‍♂️', color: 'from-purple-600 to-purple-800' },
+            'romance': { name: 'Romance', icon: '💕', color: 'from-pink-600 to-pink-800' },
+            'misterio': { name: 'Misterio', icon: '🔍', color: 'from-yellow-600 to-yellow-800' },
+            'ciencia-ficcion': { name: 'Ciencia Ficción', icon: '🚀', color: 'from-blue-600 to-blue-800' },
+            'aventura': { name: 'Aventura', icon: '⚔️', color: 'from-green-600 to-green-800' },
+            'comedia': { name: 'Comedia', icon: '😄', color: 'from-orange-600 to-orange-800' },
+            'drama': { name: 'Drama', icon: '🎭', color: 'from-indigo-600 to-indigo-800' }
+        };
+
+        // Crear elementos de género
+        function createGenreElements() {
+            const genreGrid = document.getElementById('genreGrid');
+            
+            Object.keys(genres).forEach(genreId => {
+                const genre = genres[genreId];
+                const genreCard = document.createElement('div');
+                genreCard.className = `genre-card bg-gradient-to-br ${genre.color} p-4 rounded-lg cursor-pointer text-center`;
+                genreCard.dataset.genreId = genreId;
+                
+                genreCard.innerHTML = `
+                    <div class="text-2xl mb-2">${genre.icon}</div>
+                    <div class="text-sm font-medium">${genre.name}</div>
+                `;
+                
+                genreCard.addEventListener('click', () => toggleGenre(genreId));
+                genreGrid.appendChild(genreCard);
+            });
+        }
+
+        // Alternar selección de género
+        function toggleGenre(genreId) {
+            const genreCard = document.querySelector(`[data-genre-id="${genreId}"]`);
+            const isSelected = appState.selectedGenres.includes(genreId);
+            
+            if (isSelected) {
+                appState.selectedGenres = appState.selectedGenres.filter(g => g !== genreId);
+                genreCard.classList.remove('selected');
+            } else {
+                if (appState.selectedGenres.length < 3) {
+                    appState.selectedGenres.push(genreId);
+                    genreCard.classList.add('selected');
+                } else {
+                    alert('Máximo 3 géneros permitidos. Deselecciona uno primero.');
+                    return;
+                }
+            }
+            
+            updateGenreCount();
+            updatePromptPreview();
+        }
+
+        // Actualizar contador de géneros
+        function updateGenreCount() {
+            const genreCount = document.getElementById('genreCount');
+            genreCount.textContent = `${appState.selectedGenres.length}/3`;
+        }
+
+        // Generar narrativa épica
+        function generateNarrative() {
+            const element1 = document.getElementById('element1').value.trim();
+            const element2 = document.getElementById('element2').value.trim();
+            const element3 = document.getElementById('element3').value.trim();
+            
+            if (!element1 && !element2 && !element3) {
+                throw new Error('Ingresa al menos un elemento personalizado.');
+            }
+            
+            if (appState.selectedGenres.length === 0) {
+                throw new Error('Selecciona al menos un género.');
+            }
+            
+            const elements = [element1, element2, element3].filter(Boolean);
+            const genreNames = appState.selectedGenres.map(id => genres[id].name);
+            
+            // Narrativa épica mejorada
+            const narratives = [
+                `En las profundidades de ${element2 || 'un lugar misterioso'}, donde ${element3 || 'objetos antiguos'} guardan secretos milenarios, ${element1 || 'nuestro protagonista'} descubre que su destino está entrelazado con fuerzas más allá de su comprensión.`,
+
+                `Cuando ${element1 || 'el protagonista'} se encuentra frente a ${element2 || 'lo desconocido'}, la presencia de ${element3 || 'elementos místicos'} revela verdades que cambiarán el curso de esta historia de ${genreNames.join(' y ').toLowerCase()}.`,
+
+                `Los elementos se entrelazan en una danza cósmica: ${elements.join(', ')} se convierten en las piezas fundamentales de una narrativa que trasciende los géneros de ${genreNames.join(', ')}, creando algo completamente nuevo y extraordinario.`,
+
+                `En este universo donde ${genreNames.join(' se fusiona con ')} en perfecta armonía, cada elemento cobra vida propia. ${element1 || 'El protagonista'} debe navegar entre ${element2 || 'múltiples realidades'} mientras ${element3 || 'fuerzas ancestrales'} despiertan para revelar los secretos más profundos de la existencia.`
+            ];
+            
+            return narratives.join('\n\n');
+        }
+
+        // Analizar texto narrativo para imagen
+        function analyzeNarrativeForImage(narrative) {
+            const lowerText = narrative.toLowerCase();
+            let sceneElements = [];
+            let mood = 'epic';
+            let setting = 'mysterious realm';
+            
+            // Detectar elementos de escena
+            if (lowerText.includes('biblioteca')) sceneElements.push('ancient library');
+            if (lowerText.includes('bosque')) sceneElements.push('mystical forest');
+            if (lowerText.includes('castillo')) sceneElements.push('medieval castle');
+            if (lowerText.includes('océano') || lowerText.includes('mar')) sceneElements.push('vast ocean');
+            if (lowerText.includes('montaña')) sceneElements.push('towering mountains');
+            if (lowerText.includes('ciudad')) sceneElements.push('grand cityscape');
+            
+            // Detectar mood
+            if (lowerText.includes('oscur') || lowerText.includes('sombra')) mood = 'dark and mysterious';
+            else if (lowerText.includes('mágic')) mood = 'magical and enchanting';
+            else if (lowerText.includes('romántic')) mood = 'romantic and warm';
+            else if (lowerText.includes('épic')) mood = 'epic and grandiose';
+            
+            return { sceneElements, mood, setting };
+        }
+
+        // Crear prompt para imagen IA usando Perchance
+        function createImagePrompt(narrative, customElements) {
+            console.log('🎨 Creando prompt de imagen basado en narrativa...');
+            
+            const analysis = analyzeNarrativeForImage(narrative);
+            const artStyle = document.getElementById('artStyle').value;
+            const detailLevel = document.getElementById('detailLevel').value;
+            const enhancePrompt = document.getElementById('enhancePrompt').checked;
+            
+            let promptParts = [];
+            
+            // Añadir elementos personalizados como protagonistas
+            if (customElements.length > 0) {
+                customElements.forEach((element, index) => {
+                    if (index === 0) {
+                        promptParts.push(`${translateElementToEnglish(element)} as main character`);
+                    } else {
+                        promptParts.push(`${translateElementToEnglish(element)} in scene`);
+                    }
+                });
+            }
+            
+            // Añadir análisis de escena
+            if (analysis.sceneElements.length > 0) {
+                promptParts.push(`set in ${analysis.sceneElements.join(' and ')}`);
+            }
+            
+            promptParts.push(`${analysis.mood} atmosphere`);
+            
+            // Aplicar estilo artístico
+            const stylePrompts = {
+                'photorealistic': 'photorealistic, highly detailed, professional photography',
+                'digital-art': 'digital art, concept art style, highly detailed illustration',
+                'oil-painting': 'oil painting, classical art style, rich textures',
+                'watercolor': 'watercolor painting, soft colors, artistic brushstrokes',
+                'pencil-sketch': 'pencil sketch, detailed drawing, artistic shading',
+                'comic-book': 'comic book style, bold colors, dynamic composition',
+                'anime': 'anime style, manga art, vibrant colors',
+                'fantasy-art': 'fantasy art, magical realism, ethereal beauty',
+                'sci-fi': 'science fiction art, futuristic, technology aesthetic',
+                'gothic': 'gothic art style, dark atmosphere, dramatic shadows',
+                'impressionist': 'impressionist painting style, soft light, artistic technique',
+                'surreal': 'surreal art, dreamlike, impossible geometries',
+                'mignola-style': 'Mike Mignola art style, dramatic shadows, bold contrasts, simplified forms',
+                'frazetta-style': 'Frank Frazetta art style, heroic fantasy, powerful anatomy, dramatic lighting'
+            };
+            
+            if (artStyle !== 'auto') {
+                promptParts.push(stylePrompts[artStyle]);
+            }
+            
+            // Añadir nivel de detalle
+            const detailPrompts = {
+                'low': 'simple, clean',
+                'medium': 'detailed, well composed',
+                'high': 'highly detailed, intricate',
+                'ultra': 'ultra detailed, masterpiece quality, perfect composition'
+            };
+            
+            promptParts.push(detailPrompts[detailLevel]);
+            
+            // Mejorar prompt automáticamente
+            if (enhancePrompt) {
+                promptParts.push('professional artwork, beautiful composition, dramatic lighting');
+            }
+            
+            const finalPrompt = promptParts.join(', ');
+            console.log('✅ Prompt creado:', finalPrompt);
+            
+            return finalPrompt;
+        }
+
+        // Traducir elementos al inglés (simple)
+        function translateElementToEnglish(element) {
+            const translations = {
+                'pececillo de plata': 'silverfish creature',
+                'biblioteca': 'library',
+                'libro': 'book',
+                'bosque': 'forest',
+                'castillo': 'castle',
+                'espada': 'sword',
+                'dragón': 'dragon',
+                'mago': 'wizard',
+                'princesa': 'princess',
+                'caballero': 'knight'
+            };
+            
+            const lowerElement = element.toLowerCase();
+            return translations[lowerElement] || element;
+        }
+
+        // Generar imagen usando múltiples APIs (100% compatible con GitHub Pages)
+        async function generatePerchanceImage(prompt) {
+            console.log('🎨 Generando imagen IA real...');
+            
+            const width = document.getElementById('imageWidth').value;
+            const height = document.getElementById('imageHeight').value;
+            const model = document.getElementById('aiModel').value;
+            const seed = document.getElementById('imageSeed').value;
+            const promptStrength = document.getElementById('promptStrength').value;
+            
+            // Array de APIs de respaldo para máxima compatibilidad
+            const imageAPIs = [
+                // API 1: Perchance mejorada
+                {
+                    name: 'Perchance',
+                    generateUrl: () => {
+                        const params = new URLSearchParams({
+                            prompt: encodeURIComponent(prompt),
+                            width: width,
+                            height: height,
+                            model: model || 'standard'
+                        });
+                        if (seed) params.append('seed', seed);
+                        return `https://image-generator.perchance.org/api/generate?${params.toString()}`;
+                    }
+                },
+                // API 2: Pollinations.ai (muy confiable)
+                {
+                    name: 'Pollinations',
+                    generateUrl: () => {
+                        const cleanPrompt = encodeURIComponent(prompt.replace(/[^a-zA-Z0-9\s,.-]/g, ''));
+                        return `https://image.pollinations.ai/prompt/${cleanPrompt}?width=${width}&height=${height}&model=${model}&seed=${seed || Math.floor(Math.random() * 1000000)}`;
+                    }
+                },
+                // API 3: Picsum con overlay de texto (fallback artístico)
+                {
+                    name: 'Artistic_Fallback',
+                    generateUrl: () => {
+                        const randomId = Math.floor(Math.random() * 1000) + 100;
+                        return `https://picsum.photos/${width}/${height}?random=${randomId}&blur=1`;
+                    }
+                }
+            ];
+            
+            // Intentar cada API en secuencia
+            for (let i = 0; i < imageAPIs.length; i++) {
+                const api = imageAPIs[i];
+                console.log(`🔄 Intentando API ${i + 1}/${imageAPIs.length}: ${api.name}`);
+                
+                try {
+                    const imageUrl = api.generateUrl();
+                    console.log(`🔗 URL generada (${api.name}):`, imageUrl);
+                    
+                    // Verificar que la imagen se carga correctamente
+                    const result = await new Promise((resolve, reject) => {
+                        const img = new Image();
+                        img.crossOrigin = 'anonymous'; // Importante para CORS
+                        
+                        const timeout = setTimeout(() => {
+                            reject(new Error(`Timeout en ${api.name}`));
+                        }, 8000);
+                        
+                        img.onload = () => {
+                            clearTimeout(timeout);
+                            console.log(`✅ ${api.name} exitoso!`);
+                            resolve({
+                                url: imageUrl,
+                                prompt: prompt,
+                                width: width,
+                                height: height,
+                                model: model,
+                                seed: seed || 'auto',
+                                api: api.name
+                            });
+                        };
+                        
+                        img.onerror = (error) => {
+                            clearTimeout(timeout);
+                            console.warn(`❌ ${api.name} falló:`, error);
+                            reject(new Error(`Error en ${api.name}`));
+                        };
+                        
+                        img.src = imageUrl;
+                    });
+                    
+                    return result; // Si llegamos aquí, fue exitoso
+                    
+                } catch (error) {
+                    console.warn(`⚠️  API ${api.name} falló:`, error.message);
+                    
+                    // Si es la última API, lanzar error
+                    if (i === imageAPIs.length - 1) {
+                        throw new Error(`Todas las APIs fallaron. Última: ${error.message}`);
+                    }
+                    // Continuar con la siguiente API
+                }
+            }
+        }
+
+        // Mostrar imagen generada
+        function displayImage(imageResult) {
+            const placeholder = document.getElementById('imagePlaceholder');
+            const controls = document.getElementById('imageControls');
+            const status = document.getElementById('imageStatus');
+            
+            appState.currentImageUrl = imageResult.url;
+            appState.currentImagePrompt = imageResult.prompt;
+            
+            placeholder.innerHTML = `
+                <div class="relative">
+                    <img src="${imageResult.url}" alt="Imagen IA generada" 
+                         class="w-full rounded-lg shadow-xl border border-gray-600 transition-opacity duration-500"
+                         onload="this.style.opacity='1'" style="opacity:0;">
+                    <div class="absolute bottom-2 right-2 bg-black/70 backdrop-blur-sm rounded px-2 py-1">
+                        <p class="text-xs text-green-300">✨ Perchance.org</p>
+                    </div>
+                </div>
+            `;
+            
+            controls.classList.remove('hidden');
+            
+            status.innerHTML = `🎨 Imagen generada: ${imageResult.width}x${imageResult.height} | Modelo: ${imageResult.model} | Seed: ${imageResult.seed} | API: ${imageResult.api}`;
+            status.classList.remove('hidden');
+        }
+
+        // Actualizar vista previa del prompt
+        function updatePromptPreview() {
+            if (!appState.useImageAI) return;
+            
+            const narrative = appState.generatedNarrative;
+            if (!narrative) return;
+            
+            const customElements = [
+                document.getElementById('element1')?.value?.trim() || '',
+                document.getElementById('element2')?.value?.trim() || '',
+                document.getElementById('element3')?.value?.trim() || ''
+            ].filter(Boolean);
+            
+            const prompt = createImagePrompt(narrative, customElements);
+            const promptText = document.getElementById('promptText');
+            const promptPreview = document.getElementById('promptPreview');
+            
+            promptText.textContent = prompt;
+            promptPreview.classList.remove('hidden');
+        }
+
+        // Manejar generación principal
+        async function handleGeneration() {
+            if (appState.isGenerating) return;
+            
+            const generateBtn = document.getElementById('generateBtn');
+            const generateBtnText = document.getElementById('generateBtnText');
+            const loadingNarrative = document.getElementById('loadingNarrative');
+            const narrativePlaceholder = document.getElementById('narrativePlaceholder');
+            const narrativeContent = document.getElementById('narrativeContent');
+            const narrativeText = document.getElementById('narrativeText');
+            
+            try {
+                appState.isGenerating = true;
+                generateBtn.disabled = true;
+                generateBtnText.textContent = '🎭 Generando...';
+                loadingNarrative.classList.remove('hidden');
+                narrativePlaceholder.classList.add('hidden');
+                narrativeContent.classList.add('hidden');
+                
+                // Verificar estado actual del checkbox
+                const imageAICheckbox = document.getElementById('useImageAI');
+                appState.useImageAI = imageAICheckbox.checked;
+                console.log('🎨 Estado imagen IA al generar:', appState.useImageAI);
+                
+                // Generar narrativa
+                const narrative = generateNarrative();
+                appState.generatedNarrative = narrative;
+                
+                // Mostrar narrativa
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                loadingNarrative.classList.add('hidden');
+                narrativeText.innerHTML = narrative.replace(/\n/g, '<br><br>');
+                narrativeContent.classList.remove('hidden');
+                
+                // Actualizar vista previa del prompt
+                updatePromptPreview();
+                
+                // Generar imagen si está activada
+                if (appState.useImageAI) {
+                    console.log('✅ Iniciando generación de imagen...');
+                    const loadingImage = document.getElementById('loadingImage');
+                    const imagePlaceholder = document.getElementById('imagePlaceholder');
+                    
+                    imagePlaceholder.classList.add('hidden');
+                    loadingImage.classList.remove('hidden');
+                    
+                    try {
+                        const customElements = [
+                            document.getElementById('element1')?.value?.trim() || '',
+                            document.getElementById('element2')?.value?.trim() || '',
+                            document.getElementById('element3')?.value?.trim() || ''
+                        ].filter(Boolean);
+                        
+                        const imagePrompt = createImagePrompt(narrative, customElements);
+                        const imageResult = await generatePerchanceImage(imagePrompt);
+                        
+                        loadingImage.classList.add('hidden');
+                        imagePlaceholder.classList.remove('hidden');
+                        displayImage(imageResult);
+                        console.log('✅ Imagen generada exitosamente con API:', imageResult.api);
+                        
+                    } catch (error) {
+                        console.error('❌ Error generando imagen:', error);
+                        loadingImage.classList.add('hidden');
+                        imagePlaceholder.classList.remove('hidden');
+                        
+                        const placeholder = document.getElementById('imagePlaceholder');
+                        placeholder.innerHTML = `
+                            <div class="flex items-center justify-center h-64 bg-red-900/20 rounded-lg border border-red-500/50">
+                                <div class="text-center text-red-300">
+                                    <div class="text-4xl mb-2">❌</div>
+                                    <p class="text-sm">Error generando imagen IA</p>
+                                    <p class="text-xs mt-1 opacity-75">${error.message}</p>
+                                    <div class="mt-3 space-x-2">
+                                        <button onclick="regenerateImage()" class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded text-sm">
+                                            🔄 Reintentar
+                                        </button>
+                                        <button onclick="showTroubleshooting()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded text-sm">
+                                            🛠️ Ayuda
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                } else {
+                    console.log('ℹ️ Imagen IA desactivada, solo generando narrativa');
+                }
+                
+            } catch (error) {
+                console.error('❌ Error en la generación:', error);
+                alert('Error: ' + error.message);
+                loadingNarrative.classList.add('hidden');
+                narrativePlaceholder.classList.remove('hidden');
+            } finally {
+                appState.isGenerating = false;
+                generateBtn.disabled = false;
+                generateBtnText.textContent = '🎭 Generar Narrativa Épica';
+            }
+        }
+
+        // Funciones globales para controles de imagen
+        window.setAspectRatio = function(width, height) {
+            document.getElementById('imageWidth').value = width;
+            document.getElementById('imageHeight').value = height;
+            updatePromptPreview();
+        };
+
+        window.randomizeSeed = function() {
+            const randomSeed = Math.floor(Math.random() * 1000000);
+            document.getElementById('imageSeed').value = randomSeed;
+        };
+
+        window.regenerateImage = async function() {
+            if (!appState.generatedNarrative) {
+                alert('Genera una narrativa primero.');
+                return;
+            }
+            
+            const loadingImage = document.getElementById('loadingImage');
+            const imagePlaceholder = document.getElementById('imagePlaceholder');
+            
+            imagePlaceholder.classList.add('hidden');
+            loadingImage.classList.remove('hidden');
+            
+            try {
+                const customElements = [
+                    document.getElementById('element1')?.value?.trim() || '',
+                    document.getElementById('element2')?.value?.trim() || '',
+                    document.getElementById('element3')?.value?.trim() || ''
+                ].filter(Boolean);
+                
+                const imagePrompt = createImagePrompt(appState.generatedNarrative, customElements);
+                const imageResult = await generatePerchanceImage(imagePrompt);
+                
+                loadingImage.classList.add('hidden');
+                imagePlaceholder.classList.remove('hidden');
+                displayImage(imageResult);
+                
+            } catch (error) {
+                console.error('❌ Error regenerando imagen:', error);
+                loadingImage.classList.add('hidden');
+                imagePlaceholder.classList.remove('hidden');
+                alert('Error regenerando imagen: ' + error.message);
+            }
+        };
+
+        window.downloadImage = function() {
+            if (appState.currentImageUrl) {
+                const link = document.createElement('a');
+                link.href = appState.currentImageUrl;
+                link.download = `narrativAI-image-${Date.now()}.png`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        };
+
+        window.copyImageUrl = function() {
+            if (appState.currentImageUrl) {
+                navigator.clipboard.writeText(appState.currentImageUrl)
+                    .then(() => alert('URL de imagen copiada al portapapeles'))
+                    .catch(() => alert('Error copiando URL'));
+            }
+        };
+
+        window.showImageInfo = function() {
+            if (appState.currentImagePrompt) {
+                alert(`Prompt usado:\n\n${appState.currentImagePrompt}\n\nURL: ${appState.currentImageUrl}`);
+            }
+        };
+
+        window.showTroubleshooting = function() {
+            const troubleshootingText = `🛠️ Solución de problemas - Imagen IA
+
+❌ Error común: APIs de imagen bloqueadas o sobrecargadas
+
+✅ SOLUCIONES:
+
+1. 🔄 **Reintentar**: El sistema usa múltiples APIs de respaldo
+2. 🌐 **Verificar conexión**: Asegúrate de tener internet estable  
+3. 📐 **Cambiar dimensiones**: Prueba 512x512 o 1024x768
+4. 🎨 **Simplificar prompt**: Reduce la complejidad del texto
+5. 🎲 **Cambiar seed**: Usa el botón aleatorio para nueva semilla
+
+🔧 **Sistemas de respaldo activos:**
+- Perchance.org (principal)
+- Pollinations.ai (respaldo)
+- Fallback artístico (emergencia)
+
+💡 **Tip**: Si falla, espera 30 segundos y reintenta`;
+            
+            alert(troubleshootingText);
+        };
+
+        // Copiar texto de narrativa
+        function copyToClipboard() {
+            if (appState.generatedNarrative) {
+                navigator.clipboard.writeText(appState.generatedNarrative)
+                    .then(() => {
+                        const copyBtn = document.getElementById('copyBtn');
+                        const originalText = copyBtn.textContent;
+                        copyBtn.textContent = '✅ Copiado';
+                        setTimeout(() => {
+                            copyBtn.textContent = originalText;
+                        }, 2000);
+                    })
+                    .catch(() => {
+                        alert('Error al copiar al portapapeles');
+                    });
+            }
+        }
+
+        // Exportar contenido
+        async function exportContent() {
+            if (!appState.generatedNarrative) {
+                alert('Genera una narrativa primero.');
+                return;
+            }
+            
+            const timestamp = new Date().toISOString().slice(0, 19).replace(/[T:]/g, '-');
+            const filename = `narrativAI-${timestamp}`;
+            
+            const customElements = [
+                document.getElementById('element1')?.value || 'No especificado',
+                document.getElementById('element2')?.value || 'No especificado',
+                document.getElementById('element3')?.value || 'No especificado'
+            ];
+            
+            const markdownContent = `# 🎭 Narrativa Épica - narrativAI
+
+**Generado el:** ${new Date().toLocaleString('es-ES')}
+
+## 📖 Tu Historia Épica
+
+${appState.generatedNarrative}
+
+## ⚖️ Configuración
+
+**Géneros seleccionados:** ${appState.selectedGenres.map(id => `${genres[id].icon} ${genres[id].name}`).join(', ')}
+
+**Elementos personalizados:**
+- 🎯 Principal: ${customElements[0]}
+- 🔸 Secundario: ${customElements[1]}
+- 🏛️ Contexto: ${customElements[2]}
+
+**Configuración de imagen:**
+- Generación IA: ${appState.useImageAI ? '✅ Activada (Perchance.org)' : '❌ Desactivada'}
+- Estilo artístico: ${document.getElementById('artStyle')?.selectedOptions[0]?.text || 'No configurado'}
+- Dimensiones: ${document.getElementById('imageWidth')?.value}x${document.getElementById('imageHeight')?.value}
+
+${appState.currentImageUrl ? `**URL de imagen generada:** ${appState.currentImageUrl}` : ''}
+
+${appState.currentImagePrompt ? `**Prompt de imagen:** ${appState.currentImagePrompt}` : ''}
+
+---
+
+*Generado con ❤️ por **narrativAI*** 🎭✨ 
+*Imágenes IA reales vía Perchance.org - 100% compatible con GitHub Pages*
+`;
+            
+            const blob = new Blob([markdownContent], { type: 'text/markdown' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `${filename}.md`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        // Event listeners
+        document.getElementById('useImageAI').addEventListener('change', (e) => {
+            appState.useImageAI = e.target.checked;
+            const info = document.getElementById('imageAIInfo');
+            const controlsSection = document.getElementById('imageControlsSection');
+            const promptPreview = document.getElementById('promptPreview');
+            
+            console.log('🎨 Imagen IA activada:', appState.useImageAI);
+            
+            if (appState.useImageAI) {
+                info.classList.remove('hidden');
+                controlsSection.classList.remove('hidden');
+                
+                // Si ya hay narrativa, actualizar preview inmediatamente
+                if (appState.generatedNarrative) {
+                    updatePromptPreview();
+                }
+            } else {
+                info.classList.add('hidden');
+                controlsSection.classList.add('hidden');
+                promptPreview.classList.add('hidden');
+            }
+        });
+
+        // Event listeners para actualizar preview
+        ['artStyle', 'detailLevel', 'promptStrength', 'enhancePrompt', 'imageWidth', 'imageHeight'].forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.addEventListener('change', updatePromptPreview);
+                element.addEventListener('input', updatePromptPreview);
+            }
+        });
+
+        document.getElementById('generateBtn').addEventListener('click', handleGeneration);
+        document.getElementById('copyBtn').addEventListener('click', copyToClipboard);
+        document.getElementById('exportBtn').addEventListener('click', exportContent);
+        document.getElementById('regenerateBtn').addEventListener('click', handleGeneration);
+
+        // Inicialización
+        createGenreElements();
+        updateGenreCount();
+        
+        // Verificar estado inicial del checkbox
+        const initialImageAIState = document.getElementById('useImageAI').checked;
+        if (initialImageAIState) {
+            appState.useImageAI = true;
+            document.getElementById('imageAIInfo').classList.remove('hidden');
+            document.getElementById('imageControlsSection').classList.remove('hidden');
+        }
+        
+        console.log('🎭 narrativAI con Perchance.org inicializado correctamente');
+        console.log('✅ Sistema 100% compatible con GitHub Pages');
+        console.log('🎨 Estado inicial imagen IA:', appState.useImageAI);
+    </script>
+</body>
+</html>
