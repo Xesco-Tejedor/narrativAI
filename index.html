@@ -97,7 +97,7 @@
                             <!-- Sliders se generan dinámicamente -->
                         </div>
                         <div class="text-xs text-gray-400 mt-2">
-                            💡 Ajusta qué tanto influye cada género en tu narrativa (10% = mínimo, 100% = máximo)
+                            ⚖️ Los géneros siempre suman 100% - Al ajustar uno, los otros se rebalancean automáticamente
                         </div>
                     </div>
                 </div>
@@ -413,9 +413,27 @@
             controlsSection.classList.remove('hidden');
             slidersContainer.innerHTML = '';
             
+            // Inicializar intensidades para que sumen 100
+            initializeIntensitiesTo100();
+            
+            // Crear indicador de total
+            const totalIndicatorHtml = `
+                <div class="mb-3 p-2 bg-gray-900/50 rounded-lg border border-gray-600">
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="text-gray-400">Total:</span>
+                        <span id="totalIntensity" class="text-purple-300 font-semibold">100%</span>
+                    </div>
+                    <div class="w-full bg-gray-700 rounded-full h-1 mt-1">
+                        <div id="totalBar" class="bg-purple-500 h-1 rounded-full transition-all duration-300" style="width: 100%"></div>
+                    </div>
+                </div>
+            `;
+            
+            slidersContainer.innerHTML = totalIndicatorHtml;
+            
             appState.selectedGenres.forEach(genreId => {
                 const genre = genres[genreId];
-                const intensity = appState.genreIntensities[genreId] || 70;
+                const intensity = appState.genreIntensities[genreId] || Math.floor(100 / appState.selectedGenres.length);
                 
                 const sliderHtml = `
                     <div class="flex items-center space-x-3">
@@ -426,8 +444,8 @@
                         <div class="flex items-center space-x-2 min-w-0 flex-1">
                             <input type="range" 
                                    id="intensity-${genreId}" 
-                                   min="10" 
-                                   max="100" 
+                                   min="1" 
+                                   max="98" 
                                    value="${intensity}"
                                    class="flex-1 accent-purple-500"
                                    oninput="updateGenreIntensity('${genreId}', this.value)">
@@ -440,15 +458,107 @@
                 
                 slidersContainer.innerHTML += sliderHtml;
             });
+            
+            updateTotalIndicator();
+        }
+        
+        // Inicializar intensidades para que sumen exactamente 100
+        function initializeIntensitiesTo100() {
+            const numGenres = appState.selectedGenres.length;
+            if (numGenres === 0) return;
+            
+            // Distribuir equitativamente
+            const baseValue = Math.floor(100 / numGenres);
+            const remainder = 100 - (baseValue * numGenres);
+            
+            appState.selectedGenres.forEach((genreId, index) => {
+                appState.genreIntensities[genreId] = baseValue + (index < remainder ? 1 : 0);
+            });
+        }
+        
+        // Actualizar indicador de total
+        function updateTotalIndicator() {
+            const total = appState.selectedGenres.reduce((sum, id) => sum + (appState.genreIntensities[id] || 0), 0);
+            const totalSpan = document.getElementById('totalIntensity');
+            const totalBar = document.getElementById('totalBar');
+            
+            if (totalSpan) {
+                totalSpan.textContent = `${total}%`;
+                totalSpan.className = total === 100 ? 'text-green-300 font-semibold' : 'text-yellow-300 font-semibold';
+            }
+            
+            if (totalBar) {
+                totalBar.style.width = `${Math.min(total, 100)}%`;
+                totalBar.className = total === 100 ? 
+                    'bg-green-500 h-1 rounded-full transition-all duration-300' : 
+                    'bg-yellow-500 h-1 rounded-full transition-all duration-300';
+            }
         }
 
-        // Actualizar intensidad de género específico
+        // Actualizar intensidad de género específico manteniendo suma = 100
         window.updateGenreIntensity = function(genreId, value) {
-            appState.genreIntensities[genreId] = parseInt(value);
+            const newValue = parseInt(value);
+            const oldValue = appState.genreIntensities[genreId] || 0;
+            const difference = newValue - oldValue;
+            
+            // Actualizar el valor del género modificado
+            appState.genreIntensities[genreId] = newValue;
+            
+            // Reajustar los otros géneros proporcionalmente
+            const otherGenres = appState.selectedGenres.filter(id => id !== genreId);
+            
+            if (otherGenres.length > 0) {
+                // Calcular el total actual de otros géneros
+                let otherTotal = otherGenres.reduce((sum, id) => sum + (appState.genreIntensities[id] || 0), 0);
+                
+                // El resto debe ser 100 - valor actual
+                const targetOtherTotal = 100 - newValue;
+                
+                if (targetOtherTotal > 0 && otherTotal > 0) {
+                    // Reajustar proporcionalmente
+                    const ratio = targetOtherTotal / otherTotal;
+                    
+                    otherGenres.forEach(id => {
+                        const currentValue = appState.genreIntensities[id] || 0;
+                        const adjustedValue = Math.max(1, Math.round(currentValue * ratio));
+                        appState.genreIntensities[id] = adjustedValue;
+                        
+                        // Actualizar el slider y el texto
+                        const slider = document.getElementById(`intensity-${id}`);
+                        const valueSpan = document.getElementById(`intensity-value-${id}`);
+                        if (slider) slider.value = adjustedValue;
+                        if (valueSpan) valueSpan.textContent = `${adjustedValue}%`;
+                    });
+                } else if (targetOtherTotal > 0) {
+                    // Distribuir equitativamente si no hay valores previos
+                    const equalValue = Math.floor(targetOtherTotal / otherGenres.length);
+                    let remainder = targetOtherTotal - (equalValue * otherGenres.length);
+                    
+                    otherGenres.forEach((id, index) => {
+                        const adjustedValue = equalValue + (index < remainder ? 1 : 0);
+                        appState.genreIntensities[id] = adjustedValue;
+                        
+                        const slider = document.getElementById(`intensity-${id}`);
+                        const valueSpan = document.getElementById(`intensity-value-${id}`);
+                        if (slider) slider.value = adjustedValue;
+                        if (valueSpan) valueSpan.textContent = `${adjustedValue}%`;
+                    });
+                }
+            }
+            
+            // Actualizar el valor del género actual
             const valueSpan = document.getElementById(`intensity-value-${genreId}`);
             if (valueSpan) {
-                valueSpan.textContent = `${value}%`;
+                valueSpan.textContent = `${newValue}%`;
             }
+            
+            // Actualizar indicador de total
+            updateTotalIndicator();
+            
+            // Mostrar total actual para debug
+            const total = appState.selectedGenres.reduce((sum, id) => sum + (appState.genreIntensities[id] || 0), 0);
+            console.log(`📊 Total intensidades: ${total}%`, appState.genreIntensities);
+            
             updatePromptPreview();
         };
 
