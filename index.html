@@ -1,1 +1,1907 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎭 narrativAI - Perchance Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f0f23, #1a1a2e, #16213e);
+            min-height: 100vh;
+        }
+        .genre-card {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        .genre-card.selected {
+            border-color: #8b5cf6;
+            background: rgba(139, 92, 246, 0.1);
+        }
+        .genre-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3);
+        }
+        .loading-animation {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .control-group {
+            background: rgba(31, 41, 55, 0.5);
+            border: 1px solid rgba(75, 85, 99, 0.5);
+        }
+    </style>
+</head>
+<body class="text-white">
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
+        <div class="text-center mb-8">
+            <h1 class="text-4xl md:text-5xl font-bold bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 bg-clip-text text-transparent mb-4">
+                🎭 narrativAI
+            </h1>
+            <p class="text-xl text-gray-300 mb-2">
+                📚 Narrativas épicas con elementos personalizados + Imágenes IA reales
+            </p>
+            <p class="text-lg text-purple-300 mb-4">
+                🎬 Hasta 3 géneros balanceados + Generación Perchance.org (GitHub Pages compatible)
+            </p>
+        </div>
 
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+            <!-- Panel de elementos y géneros -->
+            <div class="space-y-6">
+                <!-- Elementos personalizados -->
+                <div class="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700">
+                    <h3 class="text-lg font-semibold text-purple-400 mb-4">
+                        ✨ Elementos personalizados (aparecen literalmente)
+                    </h3>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-sm text-gray-300 mb-1">
+                                🎯 Elemento principal
+                            </label>
+                            <input type="text" id="element1" placeholder="ej: pececillo de plata" class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-purple-500 text-white">
+                        </div>
+                        <div>
+                            <label class="block text-sm text-gray-300 mb-1">
+                                🔸 Elemento secundario
+                            </label>
+                            <input type="text" id="element2" placeholder="ej: biblioteca gigantesca" class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-purple-500 text-white">
+                        </div>
+                        <div>
+                            <label class="block text-sm text-gray-300 mb-1">
+                                🏛️ Elemento de contexto
+                            </label>
+                            <input type="text" id="element3" placeholder="ej: libro voluminoso y antiguo" class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-purple-500 text-white">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Selección de géneros -->
+                <div class="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700">
+                    <h3 class="text-lg font-semibold text-purple-400 mb-4 flex items-center">
+                        🎭 Selecciona géneros (máximo 3)
+                        <span id="genreCount" class="ml-2 text-sm bg-purple-600 px-2 py-1 rounded-full">0/3</span>
+                    </h3>
+                    
+                    <div class="grid grid-cols-2 gap-3 mb-4" id="genreGrid">
+                        <!-- Géneros se generan dinámicamente -->
+                    </div>
+
+                    <!-- Controles de intensidad de géneros -->
+                    <div id="genreIntensityControls" class="hidden mt-4 space-y-3">
+                        <h4 class="text-sm font-medium text-purple-300 mb-3">⚖️ Intensidad de géneros seleccionados</h4>
+                        <div id="genreSliders" class="space-y-3">
+                            <!-- Sliders se generan dinámicamente -->
+                        </div>
+                        <div class="text-xs text-gray-400 mt-2">
+                            ⚖️ Los géneros siempre suman 100% - Al ajustar uno, los otros se rebalancean automáticamente
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botón de generación -->
+                <button id="generateBtn" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
+                    <span id="generateBtnText">🎭 Generar Narrativa Épica</span>
+                </button>
+            </div>
+
+            <!-- Panel de configuración de imagen IA -->
+            <div class="space-y-6">
+                <!-- Control principal de imagen IA -->
+                <div class="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <input type="checkbox" id="useImageAI" class="w-5 h-5 text-purple-600 bg-gray-700 border-gray-600 rounded focus:ring-purple-500">
+                        <label for="useImageAI" class="text-lg font-semibold text-purple-400">
+                            🎨 Generar imagen IA real (Perchance.org)
+                        </label>
+                    </div>
+                    
+                    <div id="imageAIInfo" class="hidden mt-2 p-3 bg-blue-900/20 border border-blue-500/30 rounded text-sm text-blue-300">
+                        🎨 <strong>Imagen IA real:</strong> Se analizará tu narrativa para crear una imagen única usando Perchance.org<br />
+                        <small class="opacity-80">✅ 100% compatible con GitHub Pages - Generación real garantizada</small>
+                    </div>
+
+                    <!-- Controles avanzados de imagen -->
+                    <div id="imageControlsSection" class="hidden mt-4 space-y-4">
+                        <!-- Dimensiones y orientación -->
+                        <div class="control-group rounded-lg p-4">
+                            <h4 class="text-sm font-medium text-purple-300 mb-3">📐 Dimensiones y orientación</h4>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs text-gray-400 mb-1">Ancho</label>
+                                    <select id="imageWidth" class="w-full p-2 bg-gray-700 border border-gray-600 rounded text-white text-sm">
+                                        <option value="512">512px</option>
+                                        <option value="768">768px</option>
+                                        <option value="1024" selected>1024px</option>
+                                        <option value="1280">1280px</option>
+                                        <option value="1536">1536px</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-gray-400 mb-1">Alto</label>
+                                    <select id="imageHeight" class="w-full p-2 bg-gray-700 border border-gray-600 rounded text-white text-sm">
+                                        <option value="512">512px</option>
+                                        <option value="768" selected>768px</option>
+                                        <option value="1024">1024px</option>
+                                        <option value="1280">1280px</option>
+                                        <option value="1536">1536px</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="mt-2 flex gap-2">
+                                <button onclick="setAspectRatio(1024, 768)" class="px-3 py-1 bg-gray-600 hover:bg-gray-500 rounded text-xs">4:3</button>
+                                <button onclick="setAspectRatio(1024, 576)" class="px-3 py-1 bg-gray-600 hover:bg-gray-500 rounded text-xs">16:9</button>
+                                <button onclick="setAspectRatio(768, 1024)" class="px-3 py-1 bg-gray-600 hover:bg-gray-500 rounded text-xs">3:4</button>
+                                <button onclick="setAspectRatio(1024, 1024)" class="px-3 py-1 bg-gray-600 hover:bg-gray-500 rounded text-xs">1:1</button>
+                            </div>
+                        </div>
+
+                        <!-- Estilo artístico -->
+                        <div class="control-group rounded-lg p-4">
+                            <h4 class="text-sm font-medium text-purple-300 mb-3">🎨 Estilo artístico</h4>
+                            <select id="artStyle" class="w-full p-2 bg-gray-700 border border-gray-600 rounded text-white text-sm">
+                                <option value="auto">Automático (basado en narrativa)</option>
+                                <option value="photorealistic">📸 Fotorrealista</option>
+                                <option value="digital-art">🖥️ Arte digital</option>
+                                <option value="oil-painting">🎨 Pintura al óleo</option>
+                                <option value="watercolor">🌊 Acuarela</option>
+                                <option value="pencil-sketch">✏️ Boceto a lápiz</option>
+                                <option value="ink-drawing">🖋️ Dibujo a tinta</option>
+                                <option value="comic-book">📚 Estilo cómic</option>
+                                <option value="anime">🇯🇵 Anime/manga</option>
+                                <option value="fantasy-art">🧙‍♂️ Arte fantástico</option>
+                                <option value="sci-fi">🚀 Ciencia ficción</option>
+                                <option value="gothic">🦇 Gótico</option>
+                                <option value="horror">😱 Terror/Horror</option>
+                                <option value="noir">🌑 Film noir</option>
+                                <option value="impressionist">🌅 Impresionista</option>
+                                <option value="surreal">🌀 Surrealista</option>
+                                <option value="expressionist">🎭 Expresionista</option>
+                                <option value="art-nouveau">🌺 Art Nouveau</option>
+                                <option value="baroque">👑 Barroco</option>
+                                <option value="renaissance">🏛️ Renacentista</option>
+                                <option value="mignola-style">🎭 Estilo Mike Mignola</option>
+                                <option value="frazetta-style">⚔️ Estilo Frank Frazetta</option>
+                                <option value="wrightson-style">💀 Estilo Bernie Wrightson</option>
+                                <option value="moebius-style">🌌 Estilo Moebius</option>
+                                <option value="brom-style">🌙 Estilo Gerald Brom</option>
+                                <option value="bisley-style">🔥 Estilo Simon Bisley</option>
+                                <option value="burton-style">🎪 Estilo Tim Burton</option>
+                                <option value="giger-style">👾 Estilo H.R. Giger</option>
+                                <option value="beksiński-style">🌋 Estilo Beksiński</option>
+                                <option value="vallejo-style">🗡️ Estilo Boris Vallejo</option>
+                                <option value="bell-style">🧙‍♀️ Estilo Julie Bell</option>
+                                <option value="rackham-style">🧚 Estilo Arthur Rackham</option>
+                            </select>
+                        </div>
+
+                        <!-- Composición de imagen -->
+                        <div class="control-group rounded-lg p-4">
+                            <h4 class="text-sm font-medium text-purple-300 mb-3">📐 Composición de imagen</h4>
+                            <select id="imageComposition" class="w-full p-2 bg-gray-700 border border-gray-600 rounded text-white text-sm">
+                                <option value="auto">Automática (basada en narrativa)</option>
+                                <option value="centered">🎯 Centrada - Elemento principal en el centro</option>
+                                <option value="rule-of-thirds">📏 Regla de tercios - Composición equilibrada</option>
+                                <option value="close-up">🔍 Primer plano - Enfoque cercano al sujeto</option>
+                                <option value="medium-shot">👤 Plano medio - Vista balanceada</option>
+                                <option value="wide-shot">🌅 Plano general - Vista amplia del escenario</option>
+                                <option value="bird-eye">🦅 Vista de pájaro - Desde arriba</option>
+                                <option value="worm-eye">🐛 Vista de gusano - Desde abajo</option>
+                                <option value="diagonal">📐 Diagonal - Líneas dinámicas</option>
+                                <option value="symmetrical">⚖️ Simétrica - Balance perfecto</option>
+                                <option value="asymmetrical">🎭 Asimétrica - Balance dinámico</option>
+                                <option value="golden-ratio">🌟 Proporción áurea - Composición clásica</option>
+                            </select>
+                        </div>
+
+                        <!-- Estructura de escena -->
+                        <div class="control-group rounded-lg p-4">
+                            <h4 class="text-sm font-medium text-purple-300 mb-3">🏗️ Estructura de escena</h4>
+                            <select id="sceneStructure" class="w-full p-2 bg-gray-700 border border-gray-600 rounded text-white text-sm">
+                                <option value="auto">Automática (basada en elementos)</option>
+                                <option value="single-focus">🎯 Foco único - Un elemento principal</option>
+                                <option value="multiple-elements">🎪 Múltiples elementos - Varios puntos de interés</option>
+                                <option value="foreground-background">🎭 Primer plano y fondo - Profundidad</option>
+                                <option value="layered">📚 Por capas - Múltiples niveles de profundidad</option>
+                                <option value="environmental">🌍 Ambiental - El entorno como protagonista</option>
+                                <option value="character-focused">👤 Enfoque en personaje - Protagonista destacado</option>
+                                <option value="action-scene">⚡ Escena de acción - Movimiento y dinamismo</option>
+                                <option value="contemplative">🧘 Contemplativa - Atmósfera reflexiva</option>
+                                <option value="dramatic">🎭 Dramática - Alta tensión emocional</option>
+                                <option value="minimalist">⚪ Minimalista - Elementos esenciales</option>
+                                <option value="complex">🔀 Compleja - Rica en detalles</option>
+                            </select>
+                        </div>
+
+                        <!-- Iluminación y atmósfera -->
+                        <div class="control-group rounded-lg p-4">
+                            <h4 class="text-sm font-medium text-purple-300 mb-3">💡 Iluminación y atmósfera</h4>
+                            <select id="lighting" class="w-full p-2 bg-gray-700 border border-gray-600 rounded text-white text-sm">
+                                <option value="auto">Automática (basada en género)</option>
+                                <option value="natural-daylight">☀️ Luz natural diurna - Iluminación clara</option>
+                                <option value="golden-hour">🌅 Hora dorada - Luz cálida y suave</option>
+                                <option value="blue-hour">🌆 Hora azul - Atmósfera crepuscular</option>
+                                <option value="dramatic-shadows">🌓 Sombras dramáticas - Alto contraste</option>
+                                <option value="soft-lighting">💡 Iluminación suave - Ambiente tranquilo</option>
+                                <option value="backlighting">🔆 Contraluz - Siluetas y halos</option>
+                                <option value="candle-fire">🕯️ Velas/fuego - Iluminación cálida y danzante</option>
+                                <option value="moonlight">🌙 Luz de luna - Atmósfera nocturna</option>
+                                <option value="magical-glow">✨ Resplandor mágico - Iluminación fantástica</option>
+                                <option value="neon-cyberpunk">🌈 Neón cyberpunk - Colores vibrantes</option>
+                                <option value="mysterious-fog">🌫️ Niebla misteriosa - Atmósfera enigmática</option>
+                            </select>
+                        </div>
+
+                        <!-- Modelo de IA -->
+                        <div class="control-group rounded-lg p-4">
+                            <h4 class="text-sm font-medium text-purple-300 mb-3">🤖 Modelo de IA</h4>
+                            <select id="aiModel" class="w-full p-2 bg-gray-700 border border-gray-600 rounded text-white text-sm">
+                                <option value="standard" selected>Standard (equilibrado)</option>
+                                <option value="artistic">Artistic (más creativo)</option>
+                                <option value="photogenic">Photogenic (más realista)</option>
+                                <option value="anime">Anime (estilo japonés)</option>
+                                <option value="furry">Furry (personajes antropomórficos)</option>
+                            </select>
+                        </div>
+
+                        <!-- Configuración avanzada -->
+                        <div class="control-group rounded-lg p-4">
+                            <h4 class="text-sm font-medium text-purple-300 mb-3">⚙️ Configuración avanzada</h4>
+                            
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="block text-xs text-gray-400 mb-1">
+                                        Intensidad del prompt: <span id="promptStrengthValue">7</span>
+                                    </label>
+                                    <input type="range" id="promptStrength" min="1" max="10" value="7" 
+                                           class="w-full accent-purple-500"
+                                           oninput="document.getElementById('promptStrengthValue').textContent = this.value">
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs text-gray-400 mb-1">
+                                        Nivel de detalle: <span id="detailLevelValue">Medio</span>
+                                    </label>
+                                    <select id="detailLevel" class="w-full p-2 bg-gray-700 border border-gray-600 rounded text-white text-sm"
+                                            onchange="document.getElementById('detailLevelValue').textContent = this.options[this.selectedIndex].text">
+                                        <option value="low">Bajo</option>
+                                        <option value="medium" selected>Medio</option>
+                                        <option value="high">Alto</option>
+                                        <option value="ultra">Ultra detallado</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs text-gray-400 mb-1">Semilla (seed) - para reproducibilidad</label>
+                                    <div class="flex gap-2">
+                                        <input type="number" id="imageSeed" placeholder="Automática" 
+                                               class="flex-1 p-2 bg-gray-700 border border-gray-600 rounded text-white text-sm">
+                                        <button onclick="randomizeSeed()" class="px-3 py-2 bg-purple-600 hover:bg-purple-700 rounded text-xs">
+                                            🎲
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center space-x-3">
+                                    <input type="checkbox" id="enhancePrompt" checked class="w-4 h-4 text-purple-600 bg-gray-700 border-gray-600 rounded">
+                                    <label for="enhancePrompt" class="text-xs text-gray-400">
+                                        ✨ Mejorar prompt automáticamente
+                                    </label>
+                                </div>
+
+                                <div class="flex items-center space-x-3">
+                                    <input type="checkbox" id="negativeSafety" checked class="w-4 h-4 text-purple-600 bg-gray-700 border-gray-600 rounded">
+                                    <label for="negativeSafety" class="text-xs text-gray-400">
+                                        🛡️ Filtros de seguridad
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vista previa del prompt -->
+                <div id="promptPreview" class="hidden bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-purple-400">👁️ Vista previa del prompt</h3>
+                        <div class="flex gap-2">
+                            <button id="editPromptBtn" onclick="togglePromptEdit()" class="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded text-xs">
+                                ✏️ Editar
+                            </button>
+                            <button id="savePromptBtn" onclick="savePromptEdit()" class="hidden px-3 py-1 bg-green-600 hover:bg-green-700 rounded text-xs">
+                                ✅ Guardar
+                            </button>
+                            <button id="cancelPromptBtn" onclick="cancelPromptEdit()" class="hidden px-3 py-1 bg-gray-600 hover:bg-gray-700 rounded text-xs">
+                                ❌ Cancelar
+                            </button>
+                            <button id="resetPromptBtn" onclick="resetPromptToAuto()" class="px-3 py-1 bg-orange-600 hover:bg-orange-700 rounded text-xs">
+                                🔄 Auto
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mb-2 px-3 py-1 bg-blue-900/30 border border-blue-500/50 rounded text-xs text-blue-300">
+                        🌐 Auto-traducido al inglés para mejor calidad de imagen
+                    </div>
+                    <div id="promptDisplay" class="bg-gray-900/50 rounded-lg p-4 text-sm text-gray-300 font-mono leading-relaxed cursor-pointer hover:border hover:border-purple-500/50" onclick="togglePromptEdit()"></div>
+                    <textarea id="promptEditor" class="hidden w-full h-32 p-4 bg-gray-900/50 border border-gray-600 rounded-lg text-sm text-gray-300 font-mono leading-relaxed resize-vertical focus:outline-none focus:border-purple-500" placeholder="Edita tu prompt aquí..."></textarea>
+                    <div id="promptStatus" class="mt-2 text-xs text-gray-400">
+                        <span id="promptMode">🤖 Modo automático</span> • Clic para editar manualmente
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel de resultados -->
+            <div class="space-y-6">
+                <!-- Narrativa generada -->
+                <div class="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700">
+                    <h3 class="text-lg font-semibold text-purple-400 mb-4">📖 Narrativa Generada</h3>
+                    
+                    <div id="narrativePlaceholder" class="text-center text-gray-400 py-12">
+                        <div class="text-4xl mb-3">📚</div>
+                        <p>Configura elementos y géneros para generar tu narrativa épica</p>
+                    </div>
+                    
+                    <div id="narrativeContent" class="hidden">
+                        <div class="bg-gray-900/50 rounded-lg border-l-4 border-purple-500 p-4">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-sm text-purple-300">📝 Narrativa (editable)</span>
+                                <div class="flex gap-2">
+                                    <button id="editNarrativeBtn" onclick="toggleNarrativeEdit()" class="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded text-xs">
+                                        ✏️ Editar
+                                    </button>
+                                    <button id="saveNarrativeBtn" onclick="saveNarrativeEdit()" class="hidden px-3 py-1 bg-green-600 hover:bg-green-700 rounded text-xs">
+                                        ✅ Guardar
+                                    </button>
+                                    <button id="cancelNarrativeBtn" onclick="cancelNarrativeEdit()" class="hidden px-3 py-1 bg-gray-600 hover:bg-gray-700 rounded text-xs">
+                                        ❌ Cancelar
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="narrativeDisplay" class="text-gray-100 leading-relaxed"></div>
+                            <textarea id="narrativeEditor" class="hidden w-full h-40 p-3 bg-gray-800 border border-gray-600 rounded text-gray-100 leading-relaxed resize-vertical focus:outline-none focus:border-purple-500" placeholder="Edita tu narrativa aquí..."></textarea>
+                        </div>
+                    </div>
+                    
+                    <div id="loadingNarrative" class="hidden text-center py-8">
+                        <div class="loading-animation text-4xl mb-3">🎭</div>
+                        <p class="text-purple-300">Creando tu narrativa épica...</p>
+                    </div>
+                </div>
+
+                <!-- Área de imágenes -->
+                <div class="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-purple-400">🎨 Galería de Imágenes IA</h3>
+                        <button onclick="clearImageHistory()" id="clearHistoryBtn" class="hidden px-3 py-1 bg-red-600 hover:bg-red-700 rounded text-xs">
+                            🗑️ Limpiar
+                        </button>
+                    </div>
+                    
+                    <div id="imagePlaceholder" class="text-center text-gray-400 py-8 border-2 border-dashed border-gray-600 rounded-lg">
+                        <div class="text-3xl mb-2">🎨</div>
+                        <div id="placeholderMessage">
+                            <p class="text-sm">Activa la generación de IA para crear imágenes basadas en tu narrativa</p>
+                            <p class="text-xs mt-1 opacity-75">✅ Las imágenes se acumularán en líneas hasta cambiar el prompt</p>
+                        </div>
+                        <div id="readyMessage" class="hidden">
+                            <p class="text-sm text-green-300">✅ Imagen IA activada - Genera una narrativa para crear la imagen</p>
+                            <p class="text-xs mt-1 opacity-75">🎭 El sistema creará automáticamente una imagen basada en tu historia</p>
+                        </div>
+                    </div>
+                    
+                    <div id="loadingImage" class="hidden text-center py-8 border-2 border-dashed border-purple-500 rounded-lg">
+                        <div class="loading-animation text-3xl mb-2">🎨</div>
+                        <p class="text-purple-300 text-sm">Generando imagen IA real...</p>
+                        <p class="text-xs text-purple-400 mt-1">Analizando narrativa con Perchance.org</p>
+                    </div>
+                    
+                    <!-- Galería de imágenes -->
+                    <div id="imageGallery" class="hidden space-y-4">
+                        <!-- Las imágenes se añadirán aquí dinámicamente -->
+                    </div>
+                    
+                    <div id="imageStatus" class="mt-3 p-2 bg-green-900/30 rounded border border-green-500/50 text-xs text-green-300 hidden">
+                        <!-- Status se actualiza dinámicamente -->
+                    </div>
+
+                    <!-- Controles principales del proyecto -->
+                    <div class="mt-4 flex flex-wrap gap-2">
+                        <button onclick="downloadCompleteProject()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors text-sm">
+                            📦 Descargar Proyecto (.zip)
+                        </button>
+                        <button onclick="handleGeneration()" class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg transition-colors text-sm">
+                            🎭 Regenerar Narrativa
+                        </button>
+                    </div>
+
+                    <!-- Controles específicos de imagen (solo cuando hay imágenes) -->
+                    <div id="imageControls" class="hidden mt-3 flex flex-wrap gap-2">
+                        <button onclick="regenerateImage()" class="px-3 py-2 bg-purple-600 hover:bg-purple-700 rounded text-sm">
+                            🔄 Generar Variación de Imagen
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Estado de la aplicación
+        let appState = {
+            selectedGenres: [],
+            genreIntensities: {},
+            generatedNarrative: '',
+            useImageAI: false,
+            currentImageUrl: '',
+            currentImagePrompt: '',
+            currentDisplayPrompt: '',
+            isGenerating: false,
+            imageHistory: [],
+            currentPromptHash: null
+        };
+
+        // Géneros disponibles
+        const genres = {
+            'terror': { name: 'Terror', icon: '👻', color: 'from-red-600 to-red-800' },
+            'fantasia': { name: 'Fantasía', icon: '🧙‍♂️', color: 'from-purple-600 to-purple-800' },
+            'romance': { name: 'Romance', icon: '💕', color: 'from-pink-600 to-pink-800' },
+            'misterio': { name: 'Misterio', icon: '🔍', color: 'from-yellow-600 to-yellow-800' },
+            'ciencia-ficcion': { name: 'Ciencia Ficción', icon: '🚀', color: 'from-blue-600 to-blue-800' },
+            'aventura': { name: 'Aventura', icon: '⚔️', color: 'from-green-600 to-green-800' },
+            'comedia': { name: 'Comedia', icon: '😄', color: 'from-orange-600 to-orange-800' },
+            'drama': { name: 'Drama', icon: '🎭', color: 'from-indigo-600 to-indigo-800' }
+        };
+
+        // Variables para edición de narrativa
+        let originalNarrativeText = '';
+        let isEditingNarrative = false;
+
+        // Variables para edición de prompt
+        let originalPromptText = '';
+        let isEditingPrompt = false;
+        let isPromptManual = false;
+        let manualPromptText = '';
+
+        // Crear elementos de género
+        function createGenreElements() {
+            const genreGrid = document.getElementById('genreGrid');
+            
+            Object.keys(genres).forEach(genreId => {
+                const genre = genres[genreId];
+                const genreCard = document.createElement('div');
+                genreCard.className = `genre-card bg-gradient-to-br ${genre.color} p-4 rounded-lg cursor-pointer text-center`;
+                genreCard.dataset.genreId = genreId;
+                
+                genreCard.innerHTML = `
+                    <div class="text-2xl mb-2">${genre.icon}</div>
+                    <div class="text-sm font-medium">${genre.name}</div>
+                `;
+                
+                genreCard.addEventListener('click', () => toggleGenre(genreId));
+                genreGrid.appendChild(genreCard);
+            });
+        }
+
+        // Alternar selección de género
+        function toggleGenre(genreId) {
+            const genreCard = document.querySelector(`[data-genre-id="${genreId}"]`);
+            const isSelected = appState.selectedGenres.includes(genreId);
+            
+            if (isSelected) {
+                appState.selectedGenres = appState.selectedGenres.filter(g => g !== genreId);
+                genreCard.classList.remove('selected');
+                delete appState.genreIntensities[genreId];
+            } else {
+                if (appState.selectedGenres.length < 3) {
+                    appState.selectedGenres.push(genreId);
+                    genreCard.classList.add('selected');
+                    appState.genreIntensities[genreId] = 70;
+                } else {
+                    alert('Máximo 3 géneros permitidos. Deselecciona uno primero.');
+                    return;
+                }
+            }
+            
+            updateGenreCount();
+            updateGenreIntensityControls();
+            updatePromptPreview();
+        }
+
+        // Actualizar controles de intensidad de géneros
+        function updateGenreIntensityControls() {
+            const controlsSection = document.getElementById('genreIntensityControls');
+            const slidersContainer = document.getElementById('genreSliders');
+            
+            if (appState.selectedGenres.length === 0) {
+                controlsSection.classList.add('hidden');
+                return;
+            }
+            
+            controlsSection.classList.remove('hidden');
+            slidersContainer.innerHTML = '';
+            
+            // Inicializar intensidades para que sumen 100
+            initializeIntensitiesTo100();
+            
+            // Crear indicador de total
+            const totalIndicatorHtml = `
+                <div class="mb-3 p-2 bg-gray-900/50 rounded-lg border border-gray-600">
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="text-gray-400">Total:</span>
+                        <span id="totalIntensity" class="text-purple-300 font-semibold">100%</span>
+                    </div>
+                    <div class="w-full bg-gray-700 rounded-full h-1 mt-1">
+                        <div id="totalBar" class="bg-purple-500 h-1 rounded-full transition-all duration-300" style="width: 100%"></div>
+                    </div>
+                </div>
+            `;
+            
+            slidersContainer.innerHTML = totalIndicatorHtml;
+            
+            appState.selectedGenres.forEach(genreId => {
+                const genre = genres[genreId];
+                const intensity = appState.genreIntensities[genreId] || Math.floor(100 / appState.selectedGenres.length);
+                
+                const sliderHtml = `
+                    <div class="flex items-center space-x-3">
+                        <div class="flex items-center space-x-2 min-w-0 flex-1">
+                            <span class="text-lg">${genre.icon}</span>
+                            <span class="text-sm text-gray-300 truncate">${genre.name}</span>
+                        </div>
+                        <div class="flex items-center space-x-2 min-w-0 flex-1">
+                            <input type="range" 
+                                   id="intensity-${genreId}" 
+                                   min="1" 
+                                   max="98" 
+                                   value="${intensity}"
+                                   class="flex-1 accent-purple-500"
+                                   oninput="updateGenreIntensity('${genreId}', this.value)">
+                            <span id="intensity-value-${genreId}" class="text-xs text-purple-300 min-w-[3rem] text-right">
+                                ${intensity}%
+                            </span>
+                        </div>
+                    </div>
+                `;
+                
+                slidersContainer.innerHTML += sliderHtml;
+            });
+            
+            updateTotalIndicator();
+        }
+        
+        // Inicializar intensidades para que sumen exactamente 100
+        function initializeIntensitiesTo100() {
+            const numGenres = appState.selectedGenres.length;
+            if (numGenres === 0) return;
+            
+            const baseValue = Math.floor(100 / numGenres);
+            const remainder = 100 - (baseValue * numGenres);
+            
+            appState.selectedGenres.forEach((genreId, index) => {
+                appState.genreIntensities[genreId] = baseValue + (index < remainder ? 1 : 0);
+            });
+        }
+        
+        // Actualizar indicador de total
+        function updateTotalIndicator() {
+            const total = appState.selectedGenres.reduce((sum, id) => sum + (appState.genreIntensities[id] || 0), 0);
+            const totalSpan = document.getElementById('totalIntensity');
+            const totalBar = document.getElementById('totalBar');
+            
+            if (totalSpan) {
+                totalSpan.textContent = `${total}%`;
+                totalSpan.className = total === 100 ? 'text-green-300 font-semibold' : 'text-yellow-300 font-semibold';
+            }
+            
+            if (totalBar) {
+                totalBar.style.width = `${Math.min(total, 100)}%`;
+                totalBar.className = total === 100 ? 
+                    'bg-green-500 h-1 rounded-full transition-all duration-300' : 
+                    'bg-yellow-500 h-1 rounded-full transition-all duration-300';
+            }
+        }
+
+        // Actualizar intensidad de género específico manteniendo suma = 100
+        window.updateGenreIntensity = function(genreId, value) {
+            const newValue = parseInt(value);
+            const oldValue = appState.genreIntensities[genreId] || 0;
+            
+            appState.genreIntensities[genreId] = newValue;
+            
+            const otherGenres = appState.selectedGenres.filter(id => id !== genreId);
+            
+            if (otherGenres.length > 0) {
+                let otherTotal = otherGenres.reduce((sum, id) => sum + (appState.genreIntensities[id] || 0), 0);
+                const targetOtherTotal = 100 - newValue;
+                
+                if (targetOtherTotal > 0 && otherTotal > 0) {
+                    const ratio = targetOtherTotal / otherTotal;
+                    
+                    otherGenres.forEach(id => {
+                        const currentValue = appState.genreIntensities[id] || 0;
+                        const adjustedValue = Math.max(1, Math.round(currentValue * ratio));
+                        appState.genreIntensities[id] = adjustedValue;
+                        
+                        const slider = document.getElementById(`intensity-${id}`);
+                        const valueSpan = document.getElementById(`intensity-value-${id}`);
+                        if (slider) slider.value = adjustedValue;
+                        if (valueSpan) valueSpan.textContent = `${adjustedValue}%`;
+                    });
+                } else if (targetOtherTotal > 0) {
+                    const equalValue = Math.floor(targetOtherTotal / otherGenres.length);
+                    let remainder = targetOtherTotal - (equalValue * otherGenres.length);
+                    
+                    otherGenres.forEach((id, index) => {
+                        const adjustedValue = equalValue + (index < remainder ? 1 : 0);
+                        appState.genreIntensities[id] = adjustedValue;
+                        
+                        const slider = document.getElementById(`intensity-${id}`);
+                        const valueSpan = document.getElementById(`intensity-value-${id}`);
+                        if (slider) slider.value = adjustedValue;
+                        if (valueSpan) valueSpan.textContent = `${adjustedValue}%`;
+                    });
+                }
+            }
+            
+            const valueSpan = document.getElementById(`intensity-value-${genreId}`);
+            if (valueSpan) {
+                valueSpan.textContent = `${newValue}%`;
+            }
+            
+            updateTotalIndicator();
+            updatePromptPreview();
+        };
+
+        // Actualizar contador de géneros
+        function updateGenreCount() {
+            const genreCount = document.getElementById('genreCount');
+            genreCount.textContent = `${appState.selectedGenres.length}/3`;
+        }
+
+        // Generar narrativa épica con intensidades
+        function generateNarrative() {
+            const element1 = document.getElementById('element1').value.trim();
+            const element2 = document.getElementById('element2').value.trim();
+            const element3 = document.getElementById('element3').value.trim();
+            
+            if (!element1 && !element2 && !element3) {
+                throw new Error('Ingresa al menos un elemento personalizado.');
+            }
+            
+            if (appState.selectedGenres.length === 0) {
+                throw new Error('Selecciona al menos un género.');
+            }
+            
+            const elements = [element1, element2, element3].filter(Boolean);
+            const genreNames = appState.selectedGenres.map(id => genres[id].name);
+            
+            const dominantGenres = appState.selectedGenres
+                .map(id => ({
+                    id,
+                    name: genreNames[appState.selectedGenres.indexOf(id)],
+                    intensity: appState.genreIntensities[id] || 70
+                }))
+                .sort((a, b) => b.intensity - a.intensity);
+
+            let narrativeStyle = '';
+            if (dominantGenres[0]?.intensity > 85) {
+                narrativeStyle = `Con una fuerte influencia de ${dominantGenres[0].name.toLowerCase()}, `;
+            } else if (dominantGenres.length > 1 && dominantGenres[0]?.intensity > 70) {
+                narrativeStyle = `Balanceando elementos de ${dominantGenres.map(g => g.name.toLowerCase()).join(' y ')}, `;
+            }
+
+            const narratives = [
+                `${narrativeStyle}en las profundidades de ${element2 || 'un lugar misterioso'}, donde ${element3 || 'objetos antiguos'} guardan secretos milenarios, ${element1 || 'nuestro protagonista'} descubre que su destino está entrelazado con fuerzas más allá de su comprensión.`,
+
+                `${narrativeStyle}cuando ${element1 || 'el protagonista'} se encuentra frente a ${element2 || 'lo desconocido'}, la presencia de ${element3 || 'elementos místicos'} revela verdades que cambiarán el curso de esta historia donde ${genreNames.join(' y ').toLowerCase()} se entrelazan.`,
+
+                `Los elementos se entrelazan en una danza cósmica: ${elements.join(', ')} se convierten en las piezas fundamentales de una narrativa que ${narrativeStyle}trasciende los géneros de ${genreNames.join(', ')}, creando algo completamente nuevo y extraordinario.`,
+
+                `En este universo donde ${genreNames.map(name => name.toLowerCase()).join(' se fusiona con ')} en perfecta armonía, ${narrativeStyle}cada elemento cobra vida propia. ${element1 || 'El protagonista'} debe navegar entre ${element2 || 'múltiples realidades'} mientras ${element3 || 'fuerzas ancestrales'} despiertan para revelar los secretos más profundos de la existencia.`
+            ];
+            
+            return narratives.join('\n\n');
+        }
+
+        // Analizar texto narrativo para imagen
+        function analyzeNarrativeForImage(narrative) {
+            const lowerText = narrative.toLowerCase();
+            let sceneElements = [];
+            let mood = 'epic';
+            
+            if (lowerText.includes('library') || lowerText.includes('biblioteca')) sceneElements.push('ancient library');
+            if (lowerText.includes('forest') || lowerText.includes('bosque')) sceneElements.push('mystical forest');
+            if (lowerText.includes('castle') || lowerText.includes('castillo')) sceneElements.push('medieval castle');
+            if (lowerText.includes('ocean') || lowerText.includes('sea') || lowerText.includes('océano') || lowerText.includes('mar')) sceneElements.push('vast ocean');
+            if (lowerText.includes('mountain') || lowerText.includes('montaña')) sceneElements.push('towering mountains');
+            if (lowerText.includes('city') || lowerText.includes('ciudad')) sceneElements.push('grand cityscape');
+            if (lowerText.includes('temple') || lowerText.includes('templo')) sceneElements.push('sacred temple');
+            if (lowerText.includes('cave') || lowerText.includes('cueva')) sceneElements.push('mysterious cave');
+            if (lowerText.includes('tower') || lowerText.includes('torre')) sceneElements.push('ancient tower');
+            if (lowerText.includes('palace') || lowerText.includes('palacio')) sceneElements.push('grand palace');
+            if (lowerText.includes('village') || lowerText.includes('aldea') || lowerText.includes('pueblo')) sceneElements.push('medieval village');
+            if (lowerText.includes('desert') || lowerText.includes('desierto')) sceneElements.push('vast desert');
+            if (lowerText.includes('island') || lowerText.includes('isla')) sceneElements.push('mystical island');
+            
+            if (lowerText.includes('dark') || lowerText.includes('shadow') || lowerText.includes('oscur') || lowerText.includes('sombra')) mood = 'dark and mysterious';
+            else if (lowerText.includes('magic') || lowerText.includes('mystical') || lowerText.includes('mágic') || lowerText.includes('místic')) mood = 'magical and enchanting';
+            else if (lowerText.includes('romantic') || lowerText.includes('love') || lowerText.includes('romántic') || lowerText.includes('amor')) mood = 'romantic and warm';
+            else if (lowerText.includes('epic') || lowerText.includes('legendary') || lowerText.includes('épic') || lowerText.includes('legendario')) mood = 'epic and grandiose';
+            else if (lowerText.includes('horror') || lowerText.includes('terror') || lowerText.includes('frightening')) mood = 'horror and terrifying';
+            else if (lowerText.includes('peaceful') || lowerText.includes('serene') || lowerText.includes('tranquil') || lowerText.includes('pacífico')) mood = 'peaceful and serene';
+            else if (lowerText.includes('adventure') || lowerText.includes('exciting') || lowerText.includes('aventura') || lowerText.includes('emocionante')) mood = 'adventurous and exciting';
+            else if (lowerText.includes('dramatic') || lowerText.includes('intense') || lowerText.includes('dramátic') || lowerText.includes('intenso')) mood = 'dramatic and intense';
+            
+            return { sceneElements, mood };
+        }
+
+        // Traducir texto al inglés de forma simple pero efectiva
+        function translateToEnglish(text) {
+            if (!text) return text;
+            
+            const translations = {
+                // Básicos
+                'y': 'and', 'o': 'or', 'en': 'in', 'el': 'the', 'la': 'the', 'los': 'the', 'las': 'the',
+                'un': 'a', 'una': 'a', 'de': 'of', 'del': 'of the', 'al': 'to the', 'con': 'with',
+                'sin': 'without', 'por': 'by', 'para': 'for', 'desde': 'from', 'hasta': 'until',
+                
+                // Narrativa
+                'historia': 'story', 'narrativa': 'narrative', 'aventura': 'adventure', 'cuento': 'tale',
+                'protagonista': 'protagonist', 'personaje': 'character', 'héroe': 'hero', 'heroína': 'heroine',
+                
+                // Lugares
+                'mundo': 'world', 'universo': 'universe', 'reino': 'kingdom', 'ciudad': 'city',
+                'pueblo': 'town', 'aldea': 'village', 'casa': 'house', 'hogar': 'home', 'lugar': 'place',
+                'castillo': 'castle', 'palacio': 'palace', 'torre': 'tower', 'fortaleza': 'fortress',
+                'bosque': 'forest', 'selva': 'jungle', 'montaña': 'mountain', 'río': 'river',
+                'lago': 'lake', 'mar': 'sea', 'océano': 'ocean', 'isla': 'island', 'desierto': 'desert',
+                'cueva': 'cave', 'caverna': 'cavern', 'templo': 'temple', 'iglesia': 'church',
+                'biblioteca': 'library', 'escuela': 'school', 'mercado': 'market', 'plaza': 'square',
+                
+                // Objetos
+                'libro': 'book', 'pergamino': 'scroll', 'mapa': 'map', 'espada': 'sword',
+                'escudo': 'shield', 'armadura': 'armor', 'anillo': 'ring', 'amuleto': 'amulet',
+                'poción': 'potion', 'hechizo': 'spell', 'magia': 'magic', 'cristal': 'crystal',
+                'oro': 'gold', 'plata': 'silver', 'cofre': 'chest', 'tesoro': 'treasure',
+                
+                // Criaturas
+                'dragón': 'dragon', 'mago': 'wizard', 'bruja': 'witch', 'hada': 'fairy',
+                'duende': 'elf', 'gigante': 'giant', 'fantasma': 'ghost', 'demonio': 'demon',
+                
+                // Descriptivos
+                'grande': 'big', 'pequeño': 'small', 'enorme': 'huge', 'fuerte': 'strong',
+                'débil': 'weak', 'poderoso': 'powerful', 'hermoso': 'beautiful', 'mágico': 'magical',
+                'místico': 'mystical', 'épico': 'epic', 'legendario': 'legendary', 'misterioso': 'mysterious',
+                'secreto': 'secret', 'oculto': 'hidden', 'oscuro': 'dark', 'brillante': 'bright',
+                'antiguo': 'ancient', 'viejo': 'old', 'nuevo': 'new', 'sagrado': 'sacred',
+                'divino': 'divine', 'maligno': 'evil', 'bondadoso': 'good', 'peligroso': 'dangerous',
+                'seguro': 'safe', 'valiente': 'brave', 'sabio': 'wise',
+                
+                // Colores
+                'rojo': 'red', 'azul': 'blue', 'verde': 'green', 'amarillo': 'yellow',
+                'negro': 'black', 'blanco': 'white', 'gris': 'gray', 'morado': 'purple',
+                
+                // Tiempo
+                'día': 'day', 'noche': 'night', 'mañana': 'morning', 'tarde': 'afternoon',
+                'sol': 'sun', 'luna': 'moon', 'estrella': 'star', 'lluvia': 'rain',
+                
+                // Frases específicas
+                'pececillo de plata': 'silverfish creature',
+                'biblioteca gigantesca': 'gigantic library',
+                'libro voluminoso': 'voluminous book',
+                'fuerzas ancestrales': 'ancestral forces',
+                'secretos milenarios': 'millennial secrets',
+                'elementos místicos': 'mystical elements',
+                'lugar misterioso': 'mysterious place',
+                'múltiples realidades': 'multiple realities',
+                'nuestro protagonista': 'our protagonist',
+                'el protagonista': 'the protagonist'
+            };
+            
+            let translatedText = text.toLowerCase();
+            
+            // Procesar frases complejas primero
+            Object.keys(translations).forEach(spanish => {
+                if (spanish.includes(' ')) {
+                    const regex = new RegExp('\\b' + spanish.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'gi');
+                    translatedText = translatedText.replace(regex, translations[spanish]);
+                }
+            });
+            
+            // Luego procesar palabras individuales
+            Object.keys(translations).forEach(spanish => {
+                if (!spanish.includes(' ')) {
+                    const regex = new RegExp('\\b' + spanish.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'gi');
+                    translatedText = translatedText.replace(regex, translations[spanish]);
+                }
+            });
+            
+            return translatedText.replace(/\s+/g, ' ').trim();
+        }
+
+        // Crear prompt para imagen IA
+        function createImagePrompt(narrative, customElements) {
+            // Traducir automáticamente toda la narrativa y elementos personalizados
+            const englishNarrative = translateToEnglish(narrative);
+            const analysis = analyzeNarrativeForImage(englishNarrative);
+            
+            const artStyleElement = document.getElementById('artStyle');
+            const detailLevelElement = document.getElementById('detailLevel');
+            const enhancePromptElement = document.getElementById('enhancePrompt');
+            const compositionElement = document.getElementById('imageComposition');
+            const structureElement = document.getElementById('sceneStructure');
+            const lightingElement = document.getElementById('lighting');
+            
+            const artStyle = artStyleElement ? artStyleElement.value : 'auto';
+            const detailLevel = detailLevelElement ? detailLevelElement.value : 'medium';
+            const enhancePrompt = enhancePromptElement ? enhancePromptElement.checked : true;
+            const composition = compositionElement ? compositionElement.value : 'auto';
+            const structure = structureElement ? structureElement.value : 'auto';
+            const lighting = lightingElement ? lightingElement.value : 'auto';
+            
+            let promptParts = [];
+            
+            // Traducir automáticamente todos los elementos personalizados
+            if (customElements.length > 0) {
+                customElements.forEach((element, index) => {
+                    const translatedElement = translateToEnglish(element);
+                    if (index === 0) {
+                        promptParts.push(`${translatedElement} as main character`);
+                    } else {
+                        promptParts.push(`${translatedElement} in scene`);
+                    }
+                });
+            }
+            
+            if (analysis.sceneElements.length > 0) {
+                promptParts.push(`set in ${analysis.sceneElements.join(' and ')}`);
+            }
+            
+            promptParts.push(`${analysis.mood} atmosphere`);
+            
+            const stylePrompts = {
+                'photorealistic': 'photorealistic, highly detailed, professional photography',
+                'digital-art': 'digital art, concept art style, highly detailed illustration',
+                'oil-painting': 'oil painting, classical art style, rich textures',
+                'watercolor': 'watercolor painting, soft colors, artistic brushstrokes',
+                'pencil-sketch': 'pencil sketch, detailed drawing, artistic shading',
+                'ink-drawing': 'ink drawing, black and white, detailed linework, crosshatching',
+                'comic-book': 'comic book style, bold colors, dynamic composition',
+                'anime': 'anime style, manga art, vibrant colors',
+                'fantasy-art': 'fantasy art, magical realism, ethereal beauty',
+                'sci-fi': 'science fiction art, futuristic, technology aesthetic',
+                'gothic': 'gothic art style, dark atmosphere, dramatic shadows',
+                'horror': 'horror art style, scary, macabre, dark and twisted',
+                'noir': 'film noir style, black and white, high contrast, dramatic lighting',
+                'impressionist': 'impressionist painting, soft brushstrokes, light and color',
+                'surreal': 'surrealist art, dreamlike, bizarre, imaginative',
+                'expressionist': 'expressionist art, emotional, distorted, intense colors',
+                'art-nouveau': 'art nouveau style, organic forms, decorative, elegant',
+                'baroque': 'baroque art style, ornate, dramatic, rich detail',
+                'renaissance': 'renaissance art style, classical, balanced composition',
+                'mignola-style': 'Mike Mignola style, bold shadows, minimal colors, geometric shapes',
+                'frazetta-style': 'Frank Frazetta style, dynamic action, muscular figures, fantasy',
+                'wrightson-style': 'Bernie Wrightson style, detailed ink work, horror atmosphere, crosshatching',
+                'moebius-style': 'Moebius style, clean lines, sci-fi, detailed backgrounds',
+                'brom-style': 'Gerald Brom style, dark fantasy, atmospheric, gothic beauty',
+                'bisley-style': 'Simon Bisley style, painted texture, dynamic action, bold colors',
+                'burton-style': 'Tim Burton style, gothic whimsy, elongated figures, dark fairy tale',
+                'giger-style': 'H.R. Giger style, biomechanical, dark, surreal horror',
+                'beksiński-style': 'Zdzisław Beksiński style, nightmarish, surreal landscapes, dark fantasy',
+                'vallejo-style': 'Boris Vallejo style, heroic fantasy, muscular figures, dramatic poses',
+                'bell-style': 'Julie Bell style, fantasy art, strong figures, vibrant colors',
+                'rackham-style': 'Arthur Rackham style, intricate pen and ink, watercolor washes, fairy tale illustration, whimsical and grotesque, sinuous lines, muted earth tones, ethereal fantasy, folklore atmosphere'
+            };
+            
+            if (artStyle !== 'auto' && stylePrompts[artStyle]) {
+                promptParts.push(stylePrompts[artStyle]);
+            }
+            
+            const detailPrompts = {
+                'low': 'simple, clean',
+                'medium': 'detailed, well composed',
+                'high': 'highly detailed, intricate',
+                'ultra': 'ultra detailed, masterpiece quality, perfect composition'
+            };
+            
+            promptParts.push(detailPrompts[detailLevel]);
+            
+            if (enhancePrompt) {
+                promptParts.push('professional artwork, beautiful composition, dramatic lighting');
+            }
+            
+            return promptParts.join(', ');
+        }
+
+        // Generar imagen usando API
+        async function generatePerchanceImage(prompt) {
+            const imageWidthElement = document.getElementById('imageWidth');
+            const imageHeightElement = document.getElementById('imageHeight');
+            const imageSeedElement = document.getElementById('imageSeed');
+            
+            const width = imageWidthElement ? imageWidthElement.value : '1024';
+            const height = imageHeightElement ? imageHeightElement.value : '768';
+            const seed = imageSeedElement ? (imageSeedElement.value || Math.floor(Math.random() * 1000000)) : Math.floor(Math.random() * 1000000);
+            
+            const imageAPIs = [
+                {
+                    name: 'Pollinations',
+                    generateUrl: () => {
+                        const cleanPrompt = prompt.replace(/[^a-zA-Z0-9\s,.-]/g, ' ').trim();
+                        return `https://image.pollinations.ai/prompt/${encodeURIComponent(cleanPrompt)}?width=${width}&height=${height}&seed=${seed}&nologo=true`;
+                    }
+                },
+                {
+                    name: 'Placeholder',
+                    generateUrl: () => `https://picsum.photos/${width}/${height}?random=${seed}`
+                }
+            ];
+            
+            for (let i = 0; i < imageAPIs.length; i++) {
+                const api = imageAPIs[i];
+                
+                try {
+                    const imageUrl = api.generateUrl();
+                    
+                    const result = await new Promise((resolve, reject) => {
+                        const img = new Image();
+                        const timeout = setTimeout(() => {
+                            reject(new Error(`Timeout en ${api.name}`));
+                        }, 15000);
+                        
+                        img.onload = () => {
+                            clearTimeout(timeout);
+                            resolve({
+                                url: imageUrl,
+                                prompt: prompt,
+                                width: width,
+                                height: height,
+                                seed: seed,
+                                api: api.name
+                            });
+                        };
+                        
+                        img.onerror = (error) => {
+                            clearTimeout(timeout);
+                            reject(new Error(`Error cargando imagen de ${api.name}`));
+                        };
+                        
+                        img.src = imageUrl;
+                    });
+                    
+                    return result;
+                    
+                } catch (error) {
+                    if (i === imageAPIs.length - 1) {
+                        throw error;
+                    }
+                }
+            }
+        }
+
+        // Generar hash simple para comparar prompts
+        function generatePromptHash(prompt) {
+            let hash = 0;
+            for (let i = 0; i < prompt.length; i++) {
+                const char = prompt.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash;
+            }
+            return hash.toString();
+        }
+
+        // Mostrar imagen generada en la galería
+        function displayImage(imageResult) {
+            const placeholder = document.getElementById('imagePlaceholder');
+            const gallery = document.getElementById('imageGallery');
+            const controls = document.getElementById('imageControls');
+            const status = document.getElementById('imageStatus');
+            const clearBtn = document.getElementById('clearHistoryBtn');
+            
+            appState.currentImageUrl = imageResult.url;
+            appState.currentImagePrompt = imageResult.prompt;
+            
+            const promptHash = generatePromptHash(imageResult.prompt);
+            const promptChanged = appState.currentPromptHash !== null && appState.currentPromptHash !== promptHash;
+            
+            if (promptChanged) {
+                appState.imageHistory = [];
+            }
+            
+            appState.currentPromptHash = promptHash;
+            
+            const imageData = {
+                ...imageResult,
+                timestamp: Date.now(),
+                id: `img_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+            };
+            
+            appState.imageHistory.push(imageData);
+            
+            placeholder.classList.add('hidden');
+            gallery.classList.remove('hidden');
+            controls.classList.remove('hidden');
+            clearBtn.classList.remove('hidden');
+            
+            renderImageGallery();
+            
+            status.innerHTML = `🎨 Imagen ${appState.imageHistory.length} generada: ${imageResult.width}x${imageResult.height} | Seed: ${imageResult.seed} | API: ${imageResult.api}`;
+            status.classList.remove('hidden');
+        }
+
+        // Renderizar galería de imágenes
+        function renderImageGallery() {
+            const gallery = document.getElementById('imageGallery');
+            
+            if (appState.imageHistory.length === 0) {
+                gallery.innerHTML = '';
+                return;
+            }
+            
+            const imagesPerRow = 3;
+            let galleryHTML = '';
+            
+            const currentPrompt = appState.imageHistory[0]?.prompt || '';
+            galleryHTML += `
+                <div class="mb-4 p-3 bg-gray-900/50 rounded-lg border border-purple-500/30">
+                    <h4 class="text-sm font-medium text-purple-300 mb-2">📝 Prompt actual (${appState.imageHistory.length} variaciones):</h4>
+                    <p class="text-xs text-gray-300 font-mono leading-relaxed">${currentPrompt}</p>
+                </div>
+            `;
+            
+            for (let i = 0; i < appState.imageHistory.length; i += imagesPerRow) {
+                const rowImages = appState.imageHistory.slice(i, i + imagesPerRow);
+                
+                galleryHTML += '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mb-3">';
+                
+                rowImages.forEach((imageData, index) => {
+                    const globalIndex = i + index;
+                    galleryHTML += `
+                        <div class="relative group">
+                            <img src="${imageData.url}" 
+                                 alt="Imagen IA ${globalIndex + 1}" 
+                                 class="w-full h-32 object-cover rounded-lg border border-gray-600 transition-all duration-300 hover:border-purple-500 cursor-pointer"
+                                 onclick="openImageModal('${imageData.id}')"
+                                 onload="this.style.opacity='1'" 
+                                 style="opacity:0;">
+                            
+                            <div class="absolute inset-0 bg-black/0 group-hover:bg-black/70 transition-all duration-300 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100">
+                                <div class="text-center text-white">
+                                    <p class="text-xs font-medium">#${globalIndex + 1}</p>
+                                    <p class="text-xs">API: ${imageData.api}</p>
+                                    <p class="text-xs">Seed: ${imageData.seed}</p>
+                                    <div class="flex gap-1 mt-2">
+                                        <button onclick="openImageModal('${imageData.id}')" class="px-2 py-1 bg-green-600 hover:bg-green-700 rounded text-xs">
+                                            👁️
+                                        </button>
+                                        <button onclick="regenerateFromImage('${imageData.id}')" class="px-2 py-1 bg-purple-600 hover:bg-purple-700 rounded text-xs">
+                                            🔄
+                                        </button>
+                                        <button onclick="removeImage('${imageData.id}')" class="px-2 py-1 bg-red-600 hover:bg-red-700 rounded text-xs">
+                                            ❌
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="absolute top-2 left-2 bg-black/70 backdrop-blur-sm rounded px-2 py-1">
+                                <p class="text-xs text-green-300">#${globalIndex + 1}</p>
+                            </div>
+                            
+                            <div class="absolute top-2 right-2 bg-black/70 backdrop-blur-sm rounded px-2 py-1">
+                                <p class="text-xs text-blue-300">${imageData.api}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                galleryHTML += '</div>';
+            }
+            
+            gallery.innerHTML = galleryHTML;
+        }
+
+        // Actualizar vista previa del prompt (todo auto-traducido al inglés)
+        function updatePromptPreview() {
+            if (!appState.useImageAI) return;
+            
+            const narrative = appState.generatedNarrative;
+            if (!narrative) return;
+            
+            const promptDisplay = document.getElementById('promptDisplay');
+            const promptPreview = document.getElementById('promptPreview');
+            const promptMode = document.getElementById('promptMode');
+            
+            let finalPrompt;
+            
+            if (isPromptManual && manualPromptText.trim() !== '') {
+                // Usar prompt manual
+                finalPrompt = manualPromptText.trim();
+                if (promptMode) {
+                    promptMode.textContent = '✏️ Modo manual';
+                }
+            } else {
+                // Generar prompt automático
+                const element1 = document.getElementById('element1');
+                const element2 = document.getElementById('element2');
+                const element3 = document.getElementById('element3');
+                
+                const customElements = [
+                    element1 ? element1.value.trim() : '',
+                    element2 ? element2.value.trim() : '',
+                    element3 ? element3.value.trim() : ''
+                ].filter(Boolean);
+                
+                finalPrompt = createImagePrompt(narrative, customElements);
+                if (promptMode) {
+                    promptMode.textContent = '🤖 Modo automático';
+                }
+            }
+            
+            if (promptDisplay) {
+                promptDisplay.textContent = finalPrompt;
+            }
+            
+            if (promptPreview) {
+                promptPreview.classList.remove('hidden');
+            }
+            
+            // Almacenar el prompt actual para uso en generación de imágenes
+            appState.currentDisplayPrompt = finalPrompt;
+        }
+
+        // Manejar generación principal
+        async function handleGeneration() {
+            if (appState.isGenerating) return;
+            
+            const generateBtn = document.getElementById('generateBtn');
+            const generateBtnText = document.getElementById('generateBtnText');
+            const loadingNarrative = document.getElementById('loadingNarrative');
+            const narrativePlaceholder = document.getElementById('narrativePlaceholder');
+            const narrativeContent = document.getElementById('narrativeContent');
+            
+            try {
+                appState.isGenerating = true;
+                generateBtn.disabled = true;
+                generateBtnText.textContent = '🎭 Generando...';
+                loadingNarrative.classList.remove('hidden');
+                narrativePlaceholder.classList.add('hidden');
+                narrativeContent.classList.add('hidden');
+                
+                const imageAICheckbox = document.getElementById('useImageAI');
+                appState.useImageAI = imageAICheckbox.checked;
+                
+                const placeholderMessage = document.getElementById('placeholderMessage');
+                const readyMessage = document.getElementById('readyMessage');
+                
+                if (appState.useImageAI) {
+                    if (placeholderMessage) placeholderMessage.classList.add('hidden');
+                    if (readyMessage) readyMessage.classList.remove('hidden');
+                } else {
+                    if (placeholderMessage) placeholderMessage.classList.remove('hidden');
+                    if (readyMessage) readyMessage.classList.add('hidden');
+                }
+                
+                const narrative = generateNarrative();
+                appState.generatedNarrative = narrative;
+                
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                loadingNarrative.classList.add('hidden');
+                
+                const narrativeDisplay = document.getElementById('narrativeDisplay');
+                if (narrativeDisplay) {
+                    narrativeDisplay.innerHTML = narrative.replace(/\n/g, '<br><br>');
+                }
+                
+                narrativeContent.classList.remove('hidden');
+                updatePromptPreview();
+                
+                if (appState.useImageAI) {
+                    const loadingImage = document.getElementById('loadingImage');
+                    const imagePlaceholder = document.getElementById('imagePlaceholder');
+                    const gallery = document.getElementById('imageGallery');
+                    
+                    const showInGallery = appState.imageHistory.length > 0;
+                    
+                    if (!showInGallery) {
+                        imagePlaceholder.classList.add('hidden');
+                    } else {
+                        gallery.classList.remove('hidden');
+                    }
+                    
+                    loadingImage.classList.remove('hidden');
+                    
+                    try {
+                        // Obtener elementos personalizados y traducir automáticamente
+                        const customElements = [
+                            document.getElementById('element1')?.value?.trim() || '',
+                            document.getElementById('element2')?.value?.trim() || '',
+                            document.getElementById('element3')?.value?.trim() || ''
+                        ].filter(Boolean);
+                        
+                        // Usar prompt editado o crear automáticamente
+                        const imagePrompt = appState.currentDisplayPrompt || createImagePrompt(narrative, customElements);
+                        const imageResult = await generatePerchanceImage(imagePrompt);
+                        
+                        loadingImage.classList.add('hidden');
+                        displayImage(imageResult);
+                        
+                    } catch (error) {
+                        console.error('Error generando imagen:', error);
+                        loadingImage.classList.add('hidden');
+                        
+                        if (!showInGallery) {
+                            imagePlaceholder.classList.remove('hidden');
+                        }
+                    }
+                }
+                
+            } catch (error) {
+                console.error('Error en la generación:', error);
+                alert('Error: ' + error.message);
+                loadingNarrative.classList.add('hidden');
+                narrativePlaceholder.classList.remove('hidden');
+            } finally {
+                appState.isGenerating = false;
+                generateBtn.disabled = false;
+                generateBtnText.textContent = '🎭 Generar Narrativa Épica';
+            }
+        }
+
+        // Funciones globales para controles
+        window.setAspectRatio = function(width, height) {
+            document.getElementById('imageWidth').value = width;
+            document.getElementById('imageHeight').value = height;
+            updatePromptPreview();
+        };
+
+        window.randomizeSeed = function() {
+            const randomSeed = Math.floor(Math.random() * 1000000);
+            document.getElementById('imageSeed').value = randomSeed;
+        };
+
+        window.regenerateImage = async function() {
+            if (!appState.generatedNarrative) {
+                alert('Genera una narrativa primero.');
+                return;
+            }
+            
+            const loadingImage = document.getElementById('loadingImage');
+            const imagePlaceholder = document.getElementById('imagePlaceholder');
+            
+            const showInGallery = appState.imageHistory.length > 0;
+            if (!showInGallery) {
+                imagePlaceholder.classList.add('hidden');
+            }
+            loadingImage.classList.remove('hidden');
+            
+            try {
+                let imagePrompt;
+                
+                if (appState.currentImagePrompt) {
+                    imagePrompt = appState.currentImagePrompt;
+                } else {
+                    // Obtener elementos y traducir automáticamente
+                    const customElements = [
+                        document.getElementById('element1')?.value?.trim() || '',
+                        document.getElementById('element2')?.value?.trim() || '',
+                        document.getElementById('element3')?.value?.trim() || ''
+                    ].filter(Boolean);
+                    
+                    // Usar prompt editado o crear automáticamente
+                    imagePrompt = appState.currentDisplayPrompt || createImagePrompt(appState.generatedNarrative, customElements);
+                }
+                
+                const imageResult = await generatePerchanceImage(imagePrompt);
+                
+                loadingImage.classList.add('hidden');
+                displayImage(imageResult);
+                
+            } catch (error) {
+                console.error('Error regenerando imagen:', error);
+                loadingImage.classList.add('hidden');
+                
+                if (!showInGallery) {
+                    imagePlaceholder.classList.remove('hidden');
+                }
+                
+                alert('Error regenerando imagen: ' + error.message);
+            }
+        };
+
+        window.clearImageHistory = function() {
+            if (confirm('¿Seguro que quieres limpiar toda la galería de imágenes?')) {
+                appState.imageHistory = [];
+                appState.currentPromptHash = null;
+                
+                const gallery = document.getElementById('imageGallery');
+                const placeholder = document.getElementById('imagePlaceholder');
+                const controls = document.getElementById('imageControls');
+                const clearBtn = document.getElementById('clearHistoryBtn');
+                const status = document.getElementById('imageStatus');
+                
+                gallery.classList.add('hidden');
+                placeholder.classList.remove('hidden');
+                controls.classList.add('hidden');
+                clearBtn.classList.add('hidden');
+                status.classList.add('hidden');
+            }
+        };
+
+        window.openImageModal = function(imageId) {
+            const imageData = appState.imageHistory.find(img => img.id === imageId);
+            if (!imageData) return;
+            
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4';
+            modal.onclick = () => document.body.removeChild(modal);
+            
+            modal.innerHTML = `
+                <div class="max-w-4xl max-h-full bg-gray-800 rounded-lg overflow-hidden" onclick="event.stopPropagation()">
+                    <div class="p-4 border-b border-gray-600">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-lg font-semibold text-purple-400">🎨 Imagen IA - Detalles</h3>
+                            <button onclick="document.body.removeChild(document.querySelector('.fixed'))" class="text-gray-400 hover:text-white">✕</button>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <img src="${imageData.url}" alt="Imagen IA" class="w-full rounded-lg mb-4">
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <p class="text-purple-300 font-medium">Dimensiones:</p>
+                                <p class="text-gray-300">${imageData.width}x${imageData.height}</p>
+                            </div>
+                            <div>
+                                <p class="text-purple-300 font-medium">API:</p>
+                                <p class="text-gray-300">${imageData.api}</p>
+                            </div>
+                            <div>
+                                <p class="text-purple-300 font-medium">Seed:</p>
+                                <p class="text-gray-300">${imageData.seed}</p>
+                            </div>
+                            <div>
+                                <p class="text-purple-300 font-medium">Generado:</p>
+                                <p class="text-gray-300">${new Date(imageData.timestamp).toLocaleString('es-ES')}</p>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <p class="text-purple-300 font-medium mb-2">Prompt:</p>
+                            <p class="text-gray-300 text-xs font-mono bg-gray-900/50 p-3 rounded leading-relaxed">${imageData.prompt}</p>
+                        </div>
+                        <div class="flex gap-2 mt-4">
+                            <button onclick="regenerateFromImage('${imageData.id}')" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded text-sm">
+                                🔄 Crear Variación
+                            </button>
+                            <button onclick="downloadCompleteProject()" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded text-sm">
+                                📦 Descargar Proyecto
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+        };
+
+        window.removeImage = function(imageId) {
+            if (confirm('¿Eliminar esta imagen de la galería?')) {
+                appState.imageHistory = appState.imageHistory.filter(img => img.id !== imageId);
+                
+                if (appState.imageHistory.length === 0) {
+                    clearImageHistory();
+                } else {
+                    renderImageGallery();
+                }
+            }
+        };
+
+        window.regenerateFromImage = async function(imageId) {
+            const imageData = appState.imageHistory.find(img => img.id === imageId);
+            if (!imageData) return;
+            
+            appState.currentImagePrompt = imageData.prompt;
+            
+            const modal = document.querySelector('.fixed');
+            if (modal) document.body.removeChild(modal);
+            
+            await regenerateImage();
+        };
+
+        // Función para convertir imagen a blob JPG
+        async function convertImageToJPG(imageUrl, filename) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+                
+                img.onload = function() {
+                    try {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        
+                        ctx.fillStyle = '#FFFFFF';
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        ctx.drawImage(img, 0, 0);
+                        
+                        canvas.toBlob(function(blob) {
+                            resolve({ blob, filename });
+                        }, 'image/jpeg', 0.95);
+                    } catch (error) {
+                        reject(error);
+                    }
+                };
+                
+                img.onerror = function() {
+                    fetch(imageUrl)
+                        .then(response => response.blob())
+                        .then(blob => resolve({ blob, filename }))
+                        .catch(reject);
+                };
+                
+                img.src = imageUrl;
+            });
+        }
+
+        // Función principal para descargar proyecto completo
+        window.downloadCompleteProject = async function() {
+            if (!appState.generatedNarrative) {
+                alert('Genera una narrativa primero para descargar el proyecto.');
+                return;
+            }
+            
+            const downloadBtn = document.querySelector('[onclick="downloadCompleteProject()"]') || 
+                               document.getElementById('downloadZipBtn');
+            
+            let originalText = '📦 Descargar Proyecto (.zip)';
+            
+            if (downloadBtn) {
+                originalText = downloadBtn.textContent;
+                downloadBtn.textContent = '📦 Creando ZIP...';
+                downloadBtn.disabled = true;
+            }
+            
+            try {
+                const zip = new JSZip();
+                const timestamp = new Date().toISOString().slice(0, 19).replace(/[T:]/g, '-');
+                
+                const markdownContent = generateMarkdownContent();
+                zip.file('narrativa.md', markdownContent);
+                
+                if (appState.imageHistory.length > 0) {
+                    const imagePromises = appState.imageHistory.map(async (imageData, index) => {
+                        try {
+                            const filename = 'imagen-' + String(index + 1).padStart(2, '0') + '.jpg';
+                            const result = await convertImageToJPG(imageData.url, filename);
+                            zip.file(filename, result.blob);
+                            return true;
+                        } catch (error) {
+                            console.warn('Error añadiendo imagen:', error);
+                            return false;
+                        }
+                    });
+                    
+                    await Promise.all(imagePromises);
+                }
+                
+                const readmeContent = generateReadmeContent();
+                zip.file('README.txt', readmeContent);
+                
+                const zipBlob = await zip.generateAsync({ 
+                    type: 'blob',
+                    compression: 'DEFLATE',
+                    compressionOptions: { level: 6 }
+                });
+                
+                const url = URL.createObjectURL(zipBlob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'narrativAI-proyecto-' + timestamp + '.zip';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+                
+            } catch (error) {
+                console.error('Error creando proyecto ZIP:', error);
+                alert('Error creando el archivo ZIP: ' + error.message);
+            } finally {
+                if (downloadBtn) {
+                    downloadBtn.textContent = originalText;
+                    downloadBtn.disabled = false;
+                }
+            }
+        };
+
+        // Generar contenido Markdown
+        function generateMarkdownContent() {
+            const element1 = document.getElementById('element1');
+            const element2 = document.getElementById('element2');
+            const element3 = document.getElementById('element3');
+            
+            const customElements = [
+                element1 ? element1.value || 'No especificado' : 'No especificado',
+                element2 ? element2.value || 'No especificado' : 'No especificado',
+                element3 ? element3.value || 'No especificado' : 'No especificado'
+            ];
+            
+            let markdownContent = '# 🎭 Narrativa Épica - narrativAI\n\n';
+            markdownContent += '**Proyecto generado el:** ' + new Date().toLocaleString('es-ES') + '\n\n';
+            markdownContent += '## 📖 Tu Historia Épica\n\n';
+            markdownContent += appState.generatedNarrative + '\n\n';
+            
+            if (originalNarrativeText && originalNarrativeText !== appState.generatedNarrative) {
+                markdownContent += '*📝 Nota: Esta narrativa fue editada manualmente después de la generación inicial.*\n\n';
+            }
+            
+            markdownContent += '## ⚖️ Configuración de Géneros\n\n';
+            markdownContent += '**Géneros seleccionados:** ' + appState.selectedGenres.map(id => genres[id].icon + ' ' + genres[id].name + ' (' + (appState.genreIntensities[id] || 70) + '%)').join(', ') + '\n\n';
+            markdownContent += '## 🎯 Elementos Personalizados\n\n';
+            markdownContent += '- **🎯 Principal:** ' + customElements[0] + '\n';
+            markdownContent += '- **🔸 Secundario:** ' + customElements[1] + '\n';
+            markdownContent += '- **🏛️ Contexto:** ' + customElements[2] + '\n\n';
+            
+            if (appState.currentImagePrompt) {
+                markdownContent += '## 🎨 Configuración de Imagen IA\n\n';
+                markdownContent += '**Total de imágenes generadas:** ' + appState.imageHistory.length + '\n\n';
+                markdownContent += '**Prompt utilizado:**\n```\n' + appState.currentImagePrompt + '\n```\n\n';
+                markdownContent += '**Imágenes incluidas:**\n';
+                markdownContent += appState.imageHistory.map((img, index) => '- imagen-' + String(index + 1).padStart(2, '0') + '.jpg (' + img.width + 'x' + img.height + ', API: ' + img.api + ', Seed: ' + img.seed + ')').join('\n');
+            } else {
+                markdownContent += '## 🎨 Configuración de Imagen IA\n\nNo se generaron imágenes para este proyecto.';
+            }
+            
+            markdownContent += '\n\n---\n\n*Generado con ❤️ por **narrativAI*** 🎭✨';
+            
+            return markdownContent;
+        }
+
+        // Generar contenido README
+        function generateReadmeContent() {
+            let readmeContent = '📦 PROYECTO NARRATIVAI - INFORMACIÓN\n';
+            readmeContent += '=====================================\n\n';
+            readmeContent += '🎭 Contenido del proyecto:\n';
+            readmeContent += '- narrativa.md: Historia épica generada con configuración completa\n';
+            readmeContent += appState.imageHistory.length > 0 ? '- imagen-01.jpg a imagen-' + String(appState.imageHistory.length).padStart(2, '0') + '.jpg: Imágenes IA generadas\n' : '- No se incluyeron imágenes\n';
+            readmeContent += '- README.txt: Este archivo con información del proyecto\n\n';
+            readmeContent += '📊 Estadísticas:\n';
+            readmeContent += '- Narrativa: ' + (appState.generatedNarrative ? 'Incluida' : 'No generada') + '\n';
+            readmeContent += '- Géneros: ' + appState.selectedGenres.length + '/3 seleccionados\n';
+            readmeContent += '- Elementos personalizados: 3 configurados\n';
+            readmeContent += '- Imágenes IA: ' + appState.imageHistory.length + ' generadas\n';
+            readmeContent += '- Fecha de creación: ' + new Date().toLocaleString('es-ES') + '\n\n';
+            readmeContent += '🔧 Configuración utilizada:\n';
+            readmeContent += '- Géneros: ' + appState.selectedGenres.map(id => genres[id].name).join(', ') + '\n';
+            readmeContent += '- Imagen IA: ' + (appState.useImageAI ? 'Activada' : 'Desactivada') + '\n';
+            if (appState.currentImagePrompt) {
+                readmeContent += '- Prompt de imagen: "' + appState.currentImagePrompt.substring(0, 100) + '..."\n';
+            }
+            readmeContent += '\n🎨 Herramienta: narrativAI (GitHub Pages Edition)\n';
+            readmeContent += '✨ Proyecto exportado automáticamente\n\n';
+            readmeContent += '¡Gracias por usar narrativAI! 🎭\n';
+            
+            return readmeContent;
+        }
+
+        // Función para activar/desactivar modo de edición
+        window.toggleNarrativeEdit = function() {
+            const narrativeDisplay = document.getElementById('narrativeDisplay');
+            const narrativeEditor = document.getElementById('narrativeEditor');
+            const editBtn = document.getElementById('editNarrativeBtn');
+            const saveBtn = document.getElementById('saveNarrativeBtn');
+            const cancelBtn = document.getElementById('cancelNarrativeBtn');
+            
+            if (!isEditingNarrative) {
+                isEditingNarrative = true;
+                originalNarrativeText = appState.generatedNarrative;
+                
+                narrativeDisplay.classList.add('hidden');
+                narrativeEditor.classList.remove('hidden');
+                narrativeEditor.value = appState.generatedNarrative;
+                narrativeEditor.focus();
+                
+                editBtn.classList.add('hidden');
+                saveBtn.classList.remove('hidden');
+                cancelBtn.classList.remove('hidden');
+            }
+        };
+
+        // Función para guardar cambios
+        window.saveNarrativeEdit = function() {
+            const narrativeDisplay = document.getElementById('narrativeDisplay');
+            const narrativeEditor = document.getElementById('narrativeEditor');
+            const editBtn = document.getElementById('editNarrativeBtn');
+            const saveBtn = document.getElementById('saveNarrativeBtn');
+            const cancelBtn = document.getElementById('cancelNarrativeBtn');
+            
+            if (isEditingNarrative) {
+                const newText = narrativeEditor.value.trim();
+                
+                if (newText === '') {
+                    alert('La narrativa no puede estar vacía.');
+                    return;
+                }
+                
+                appState.generatedNarrative = newText;
+                narrativeDisplay.innerHTML = newText.replace(/\n/g, '<br><br>');
+                
+                narrativeDisplay.classList.remove('hidden');
+                narrativeEditor.classList.add('hidden');
+                
+                editBtn.classList.remove('hidden');
+                saveBtn.classList.add('hidden');
+                cancelBtn.classList.add('hidden');
+                
+                isEditingNarrative = false;
+                
+                if (appState.useImageAI) {
+                    updatePromptPreview();
+                }
+            }
+        };
+
+        // Función para cancelar edición
+        window.cancelNarrativeEdit = function() {
+            const narrativeDisplay = document.getElementById('narrativeDisplay');
+            const narrativeEditor = document.getElementById('narrativeEditor');
+            const editBtn = document.getElementById('editNarrativeBtn');
+            const saveBtn = document.getElementById('saveNarrativeBtn');
+            const cancelBtn = document.getElementById('cancelNarrativeBtn');
+            
+            if (isEditingNarrative) {
+                narrativeEditor.value = originalNarrativeText;
+                
+                narrativeDisplay.classList.remove('hidden');
+                narrativeEditor.classList.add('hidden');
+                
+                editBtn.classList.remove('hidden');
+                saveBtn.classList.add('hidden');
+                cancelBtn.classList.add('hidden');
+                
+                isEditingNarrative = false;
+            }
+        };
+
+        // Funciones para edición de prompt
+        window.togglePromptEdit = function() {
+            const promptDisplay = document.getElementById('promptDisplay');
+            const promptEditor = document.getElementById('promptEditor');
+            const editBtn = document.getElementById('editPromptBtn');
+            const saveBtn = document.getElementById('savePromptBtn');
+            const cancelBtn = document.getElementById('cancelPromptBtn');
+            
+            if (!isEditingPrompt) {
+                isEditingPrompt = true;
+                originalPromptText = promptDisplay.textContent || '';
+                
+                promptDisplay.classList.add('hidden');
+                promptEditor.classList.remove('hidden');
+                promptEditor.value = originalPromptText;
+                promptEditor.focus();
+                
+                editBtn.classList.add('hidden');
+                saveBtn.classList.remove('hidden');
+                cancelBtn.classList.remove('hidden');
+            }
+        };
+
+        window.savePromptEdit = function() {
+            const promptDisplay = document.getElementById('promptDisplay');
+            const promptEditor = document.getElementById('promptEditor');
+            const editBtn = document.getElementById('editPromptBtn');
+            const saveBtn = document.getElementById('savePromptBtn');
+            const cancelBtn = document.getElementById('cancelPromptBtn');
+            const promptMode = document.getElementById('promptMode');
+            
+            if (isEditingPrompt) {
+                const newPrompt = promptEditor.value.trim();
+                
+                if (newPrompt === '') {
+                    alert('El prompt no puede estar vacío.');
+                    return;
+                }
+                
+                // Marcar como manual y guardar
+                isPromptManual = true;
+                manualPromptText = newPrompt;
+                
+                promptDisplay.textContent = newPrompt;
+                promptDisplay.classList.remove('hidden');
+                promptEditor.classList.add('hidden');
+                
+                editBtn.classList.remove('hidden');
+                saveBtn.classList.add('hidden');
+                cancelBtn.classList.add('hidden');
+                
+                if (promptMode) {
+                    promptMode.textContent = '✏️ Modo manual';
+                }
+                
+                isEditingPrompt = false;
+                
+                // Actualizar el prompt almacenado
+                appState.currentDisplayPrompt = newPrompt;
+            }
+        };
+
+        window.cancelPromptEdit = function() {
+            const promptDisplay = document.getElementById('promptDisplay');
+            const promptEditor = document.getElementById('promptEditor');
+            const editBtn = document.getElementById('editPromptBtn');
+            const saveBtn = document.getElementById('savePromptBtn');
+            const cancelBtn = document.getElementById('cancelPromptBtn');
+            
+            if (isEditingPrompt) {
+                promptEditor.value = originalPromptText;
+                
+                promptDisplay.classList.remove('hidden');
+                promptEditor.classList.add('hidden');
+                
+                editBtn.classList.remove('hidden');
+                saveBtn.classList.add('hidden');
+                cancelBtn.classList.add('hidden');
+                
+                isEditingPrompt = false;
+            }
+        };
+
+        window.resetPromptToAuto = function() {
+            if (confirm('¿Volver al modo automático? Se perderán los cambios manuales del prompt.')) {
+                isPromptManual = false;
+                manualPromptText = '';
+                
+                // Forzar actualización del prompt automático
+                updatePromptPreview();
+            }
+        };
+
+        // Configurar event listeners de forma segura
+        function setupEventListeners() {
+            const useImageAICheckbox = document.getElementById('useImageAI');
+            if (useImageAICheckbox) {
+                useImageAICheckbox.addEventListener('change', (e) => {
+                    appState.useImageAI = e.target.checked;
+                    const info = document.getElementById('imageAIInfo');
+                    const controlsSection = document.getElementById('imageControlsSection');
+                    const promptPreview = document.getElementById('promptPreview');
+                    const placeholderMessage = document.getElementById('placeholderMessage');
+                    const readyMessage = document.getElementById('readyMessage');
+                    
+                    if (appState.useImageAI) {
+                        if (info) info.classList.remove('hidden');
+                        if (controlsSection) controlsSection.classList.remove('hidden');
+                        
+                        if (placeholderMessage) placeholderMessage.classList.add('hidden');
+                        if (readyMessage) readyMessage.classList.remove('hidden');
+                        
+                        if (appState.generatedNarrative) {
+                            updatePromptPreview();
+                        }
+                    } else {
+                        if (info) info.classList.add('hidden');
+                        if (controlsSection) controlsSection.classList.add('hidden');
+                        if (promptPreview) promptPreview.classList.add('hidden');
+                        
+                        if (placeholderMessage) placeholderMessage.classList.remove('hidden');
+                        if (readyMessage) readyMessage.classList.add('hidden');
+                    }
+                });
+            }
+
+            ['artStyle', 'detailLevel', 'promptStrength', 'enhancePrompt', 'imageWidth', 'imageHeight', 'imageComposition', 'sceneStructure', 'lighting'].forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.addEventListener('change', updatePromptPreview);
+                    element.addEventListener('input', updatePromptPreview);
+                }
+            });
+
+            const generateBtn = document.getElementById('generateBtn');
+            const downloadZipBtn = document.getElementById('downloadZipBtn');
+            const regenerateBtn = document.getElementById('regenerateBtn');
+            
+            if (generateBtn) {
+                generateBtn.addEventListener('click', handleGeneration);
+            }
+            
+            if (downloadZipBtn) {
+                downloadZipBtn.addEventListener('click', downloadCompleteProject);
+            }
+            
+            if (regenerateBtn) {
+                regenerateBtn.addEventListener('click', handleGeneration);
+            }
+
+            const narrativeEditor = document.getElementById('narrativeEditor');
+            if (narrativeEditor) {
+                narrativeEditor.addEventListener('keydown', function(e) {
+                    if (e.ctrlKey && e.key === 'Enter') {
+                        e.preventDefault();
+                        saveNarrativeEdit();
+                    } else if (e.key === 'Escape') {
+                        e.preventDefault();
+                        cancelNarrativeEdit();
+                    }
+                });
+            }
+
+            const promptEditor = document.getElementById('promptEditor');
+            if (promptEditor) {
+                promptEditor.addEventListener('keydown', function(e) {
+                    if (e.ctrlKey && e.key === 'Enter') {
+                        e.preventDefault();
+                        savePromptEdit();
+                    } else if (e.key === 'Escape') {
+                        e.preventDefault();
+                        cancelPromptEdit();
+                    }
+                });
+            }
+        }
+
+        // Inicialización
+        function initializeApp() {
+            try {
+                createGenreElements();
+                updateGenreCount();
+                setupEventListeners();
+                
+                const useImageAICheckbox = document.getElementById('useImageAI');
+                if (useImageAICheckbox) {
+                    const initialImageAIState = useImageAICheckbox.checked;
+                    appState.useImageAI = initialImageAIState;
+                    
+                    if (initialImageAIState) {
+                        const imageAIInfo = document.getElementById('imageAIInfo');
+                        const imageControlsSection = document.getElementById('imageControlsSection');
+                        const placeholderMessage = document.getElementById('placeholderMessage');
+                        const readyMessage = document.getElementById('readyMessage');
+                        
+                        if (imageAIInfo) imageAIInfo.classList.remove('hidden');
+                        if (imageControlsSection) imageControlsSection.classList.remove('hidden');
+                        if (placeholderMessage) placeholderMessage.classList.add('hidden');
+                        if (readyMessage) readyMessage.classList.remove('hidden');
+                    }
+                }
+                
+                console.log('🎭 narrativAI inicializado correctamente');
+                
+            } catch (error) {
+                console.error('Error en inicialización:', error);
+            }
+        }
+
+        // Inicializar cuando el DOM esté listo
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeApp);
+        } else {
+            initializeApp();
+        }
+    </script>
+</body>
+</html>
