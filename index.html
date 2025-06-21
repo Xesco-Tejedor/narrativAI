@@ -590,6 +590,34 @@
         let originalNarrativeText = '';
         let isEditingNarrative = false;
 
+        // Función auxiliar para mostrar notificaciones de forma consistente
+        function showNotification(message, type) {
+            const colors = {
+                'green': 'bg-green-600',
+                'yellow': 'bg-yellow-600', 
+                'red': 'bg-red-600',
+                'blue': 'bg-blue-600',
+                'purple': 'bg-purple-600'
+            };
+            
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 ${colors[type] || 'bg-gray-600'} text-white px-4 py-2 rounded-lg z-50 max-w-sm shadow-lg`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            // Auto-remove con verificación de existencia
+            setTimeout(() => {
+                try {
+                    if (document.body.contains(notification)) {
+                        document.body.removeChild(notification);
+                    }
+                } catch (error) {
+                    console.warn('Error removiendo notificación:', error);
+                }
+            }, type === 'red' ? 6000 : 3000);
+        }
+
         // Actualizar progreso y pasos
         function updateProgress() {
             const element1 = document.getElementById('element1').value.trim();
@@ -690,12 +718,7 @@
                     genreCard.classList.add('selected');
                     appState.genreIntensities[genreId] = 70;
                 } else {
-                    // Mejor UX: mostrar mensaje más amigable
-                    const notification = document.createElement('div');
-                    notification.className = 'fixed top-4 right-4 bg-yellow-600 text-white px-4 py-2 rounded-lg z-50';
-                    notification.textContent = '⚠️ Ya tienes 3 géneros. Deselecciona uno primero.';
-                    document.body.appendChild(notification);
-                    setTimeout(() => document.body.removeChild(notification), 3000);
+                    showNotification('⚠️ Ya tienes 3 géneros. Deselecciona uno primero.', 'yellow');
                     return;
                 }
             }
@@ -969,7 +992,96 @@
             return promptParts.join(', ');
         }
 
-        // Generar imagen usando múltiples APIs con fallback mejorado
+        // Función auxiliar para cargar imágenes de forma segura
+        async function loadImageSafely(imageUrl, apiName) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                const startTime = Date.now();
+                
+                // Configuración para evitar problemas de CORS
+                img.crossOrigin = 'anonymous';
+                
+                // Timeout robusto
+                const timeout = setTimeout(() => {
+                    img.onload = null;
+                    img.onerror = null;
+                    reject(new Error(`Timeout después de 12 segundos en ${apiName}`));
+                }, 12000);
+                
+                img.onload = function() {
+                    clearTimeout(timeout);
+                    const loadTime = Date.now() - startTime;
+                    
+                    resolve({
+                        width: this.naturalWidth || this.width,
+                        height: this.naturalHeight || this.height,
+                        loadTime: loadTime
+                    });
+                };
+                
+                img.onerror = function(error) {
+                    clearTimeout(timeout);
+                    reject(new Error(`Error de carga en ${apiName}: ${error.message || 'Error desconocido'}`));
+                };
+                
+                // Iniciar carga con manejo de errores
+                try {
+                    img.src = imageUrl;
+                } catch (error) {
+                    clearTimeout(timeout);
+                    reject(new Error(`Error estableciendo src en ${apiName}: ${error.message}`));
+                }
+            });
+        }
+        
+        // Crear placeholder artístico mejorado
+        function createArtisticPlaceholder(prompt, width, height, seed, lastError) {
+            const colors = [
+                ['#8b5cf6', '#ec4899'], // Púrpura a Rosa
+                ['#06b6d4', '#3b82f6'], // Cian a Azul  
+                ['#10b981', '#059669'], // Verde
+                ['#f59e0b', '#d97706'], // Ámbar
+                ['#ef4444', '#dc2626']  // Rojo
+            ];
+            
+            const colorPair = colors[seed % colors.length];
+            const emoji = ['🎭', '🎨', '✨', '🌟', '🎪'][seed % 5];
+            
+            const svgContent = `
+                <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:${colorPair[0]};stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:${colorPair[1]};stop-opacity:1" />
+                        </linearGradient>
+                        <pattern id="dots" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+                            <circle cx="10" cy="10" r="2" fill="rgba(255,255,255,0.1)"/>
+                        </pattern>
+                    </defs>
+                    <rect width="100%" height="100%" fill="url(#grad)"/>
+                    <rect width="100%" height="100%" fill="url(#dots)"/>
+                    <text x="50%" y="40%" text-anchor="middle" fill="white" font-size="64" font-family="Arial">${emoji}</text>
+                    <text x="50%" y="55%" text-anchor="middle" fill="white" font-size="24" font-family="Arial, sans-serif" font-weight="bold">Tu Imagen Épica</text>
+                    <text x="50%" y="65%" text-anchor="middle" fill="rgba(255,255,255,0.9)" font-size="16" font-family="Arial, sans-serif">narrativAI - Generador Visual</text>
+                    <text x="50%" y="75%" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="12" font-family="Arial, sans-serif">"${prompt.substring(0, 60)}${prompt.length > 60 ? '...' : ''}"</text>
+                    <text x="50%" y="85%" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-size="10" font-family="Arial, sans-serif">Seed: ${seed} | ${width}x${height}</text>
+                </svg>
+            `;
+            
+            return {
+                url: `data:image/svg+xml;base64,${btoa(svgContent)}`,
+                prompt: prompt,
+                originalPrompt: prompt,
+                width: width,
+                height: height,
+                seed: seed,
+                api: 'Placeholder Artístico',
+                isPlaceholder: true,
+                error: lastError?.message || 'APIs no disponibles'
+            };
+        }
+
+        // Generar imagen usando múltiples APIs con manejo de errores robusto
         async function generatePerchanceImage(prompt) {
             const width = 1024;
             const height = 768;
@@ -980,164 +1092,211 @@
                 .replace(/[^a-zA-Z0-9\s,.-]/g, ' ')
                 .replace(/\s+/g, ' ')
                 .trim()
-                .substring(0, 500); // Limitar longitud
+                .substring(0, 500);
             
+            console.log('🎨 Iniciando generación de imagen...');
+            console.log('📝 Prompt limpio:', cleanPrompt);
+            
+            // APIs con mejores configuraciones para evitar errores de runtime
             const imageAPIs = [
                 {
-                    name: 'Pollinations',
-                    generateUrl: () => `https://image.pollinations.ai/prompt/${encodeURIComponent(cleanPrompt)}?width=${width}&height=${height}&seed=${seed}&nologo=true&enhance=true`
+                    name: 'Pollinations AI',
+                    generateUrl: () => {
+                        const params = new URLSearchParams({
+                            width: width.toString(),
+                            height: height.toString(),
+                            seed: seed.toString(),
+                            nologo: 'true',
+                            enhance: 'true',
+                            model: 'flux'
+                        });
+                        return `https://image.pollinations.ai/prompt/${encodeURIComponent(cleanPrompt)}?${params.toString()}`;
+                    }
                 },
                 {
-                    name: 'Picsum (Placeholder)',
-                    generateUrl: () => `https://picsum.photos/${width}/${height}?random=${seed}`
+                    name: 'Picsum Photos',
+                    generateUrl: () => `https://picsum.photos/seed/${seed}/${width}/${height}.jpg?blur=0&grayscale=0`
                 },
                 {
                     name: 'Lorem Picsum',
-                    generateUrl: () => `https://picsum.photos/seed/${seed}/${width}/${height}`
+                    generateUrl: () => `https://picsum.photos/${width}/${height}?random=${seed}&t=${Date.now()}`
                 }
             ];
             
+            let lastError = null;
+            
             for (let i = 0; i < imageAPIs.length; i++) {
                 const api = imageAPIs[i];
+                
                 try {
-                    console.log(`🎨 Intentando generar imagen con ${api.name}...`);
-                    const imageUrl = api.generateUrl();
+                    console.log(`🔄 Intentando API ${i + 1}/${imageAPIs.length}: ${api.name}`);
                     
-                    const result = await new Promise((resolve, reject) => {
-                        const img = new Image();
-                        img.crossOrigin = 'anonymous';
+                    const imageUrl = api.generateUrl();
+                    console.log('🔗 URL generada:', imageUrl);
+                    
+                    // Usar fetch con timeout personalizado para evitar problemas de runtime
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => {
+                        controller.abort();
+                    }, 15000); // 15 segundos de timeout
+                    
+                    try {
+                        // Verificar primero con fetch
+                        const response = await fetch(imageUrl, {
+                            method: 'HEAD',
+                            signal: controller.signal,
+                            mode: 'no-cors' // Evitar problemas de CORS
+                        });
                         
-                        const timeout = setTimeout(() => {
-                            img.onload = null;
-                            img.onerror = null;
-                            reject(new Error(`Timeout en ${api.name} después de 20 segundos`));
-                        }, 20000);
+                        clearTimeout(timeoutId);
                         
-                        img.onload = () => {
-                            clearTimeout(timeout);
-                            console.log(`✅ Imagen cargada exitosamente con ${api.name}`);
-                            resolve({
+                        // Si fetch funciona, proceder con Image
+                        const result = await loadImageSafely(imageUrl, api.name);
+                        
+                        console.log(`✅ ¡Imagen cargada exitosamente con ${api.name}!`);
+                        
+                        return {
+                            url: imageUrl,
+                            prompt: cleanPrompt,
+                            originalPrompt: prompt,
+                            width: result.width || width,
+                            height: result.height || height,
+                            seed: seed,
+                            api: api.name,
+                            loadTime: result.loadTime
+                        };
+                        
+                    } catch (fetchError) {
+                        clearTimeout(timeoutId);
+                        console.warn(`⚠️ Fetch falló para ${api.name}:`, fetchError.message);
+                        
+                        // Intentar cargar directamente con Image como fallback
+                        try {
+                            const result = await loadImageSafely(imageUrl, api.name);
+                            console.log(`✅ Imagen cargada con fallback directo - ${api.name}`);
+                            
+                            return {
                                 url: imageUrl,
                                 prompt: cleanPrompt,
                                 originalPrompt: prompt,
-                                width: img.naturalWidth || width,
-                                height: img.naturalHeight || height,
+                                width: result.width || width,
+                                height: result.height || height,
                                 seed: seed,
-                                api: api.name
-                            });
-                        };
-                        
-                        img.onerror = (error) => {
-                            clearTimeout(timeout);
-                            console.warn(`❌ Error cargando imagen de ${api.name}:`, error);
-                            reject(new Error(`Error de red en ${api.name}`));
-                        };
-                        
-                        // Iniciar carga de imagen
-                        img.src = imageUrl;
-                    });
-                    
-                    return result;
+                                api: `${api.name} (Fallback)`,
+                                loadTime: result.loadTime
+                            };
+                            
+                        } catch (imageError) {
+                            console.warn(`❌ También falló el fallback para ${api.name}:`, imageError.message);
+                            lastError = imageError;
+                        }
+                    }
                     
                 } catch (error) {
-                    console.warn(`API ${api.name} falló:`, error.message);
-                    
-                    // Si no es la última API, continuar con la siguiente
-                    if (i < imageAPIs.length - 1) {
-                        console.log(`🔄 Probando siguiente API...`);
-                        continue;
-                    }
+                    console.warn(`💥 Error general en ${api.name}:`, error.message);
+                    lastError = error;
+                }
+                
+                // Pausa breve entre intentos para evitar rate limiting
+                if (i < imageAPIs.length - 1) {
+                    console.log('⏳ Esperando antes del siguiente intento...');
+                    await new Promise(resolve => setTimeout(resolve, 1000));
                 }
             }
             
-            // Si todas las APIs fallan, generar una imagen placeholder local
-            console.warn('⚠️ Todas las APIs fallaron, generando placeholder...');
-            return {
-                url: `data:image/svg+xml;base64,${btoa(`
-                    <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-                        <defs>
-                            <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" style="stop-color:#8b5cf6;stop-opacity:1" />
-                                <stop offset="100%" style="stop-color:#ec4899;stop-opacity:1" />
-                            </linearGradient>
-                        </defs>
-                        <rect width="100%" height="100%" fill="url(#grad)"/>
-                        <text x="50%" y="45%" text-anchor="middle" fill="white" font-size="48" font-family="Arial">🎭</text>
-                        <text x="50%" y="55%" text-anchor="middle" fill="white" font-size="16" font-family="Arial">Tu Imagen Épica</text>
-                        <text x="50%" y="65%" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="12" font-family="Arial">Prompt: ${cleanPrompt.substring(0, 50)}...</text>
-                    </svg>
-                `)}`,
-                prompt: cleanPrompt,
-                originalPrompt: prompt,
-                width: width,
-                height: height,
-                seed: seed,
-                api: 'Placeholder SVG'
-            };
+            // Si todas las APIs fallan, generar placeholder mejorado
+            console.warn('⚠️ Todas las APIs de imagen fallaron, generando placeholder artístico...');
+            
+            return createArtisticPlaceholder(cleanPrompt, width, height, seed, lastError);
         }
 
-        // Mostrar imagen generada en la galería
+        // Mostrar imagen generada en la galería con manejo robusto de errores
         function displayImage(imageResult) {
             console.log('🖼️ Mostrando imagen en galería:', imageResult);
             
-            const placeholder = document.getElementById('imagePlaceholder');
-            const gallery = document.getElementById('imageGallery');
-            const controls = document.getElementById('imageControls');
-            const status = document.getElementById('imageStatus');
-            
-            // Validar que tenemos los elementos necesarios
-            if (!placeholder || !gallery || !controls || !status) {
-                console.error('❌ No se encontraron los elementos de la galería');
-                return;
-            }
-            
-            appState.currentImageUrl = imageResult.url;
-            appState.currentImagePrompt = imageResult.prompt;
-            
-            const imageData = {
-                ...imageResult,
-                timestamp: Date.now(),
-                id: `img_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-            };
-            
-            appState.imageHistory.push(imageData);
-            console.log('📚 Imagen añadida al historial. Total:', appState.imageHistory.length);
-            
-            // Actualizar UI
-            placeholder.classList.add('hidden');
-            gallery.classList.remove('hidden');
-            controls.classList.remove('hidden');
-            
-            renderImageGallery();
-            
-            // Actualizar status con información más detallada
-            const artStyleSelect = document.getElementById('artStyle');
-            const selectedStyle = artStyleSelect ? artStyleSelect.options[artStyleSelect.selectedIndex].text : 'Desconocido';
-            
-            status.innerHTML = `
-                <div class="text-sm">
-                    🎨 <strong>Imagen generada:</strong> ${imageResult.width}x${imageResult.height}
-                    <br>📐 <strong>API:</strong> ${imageResult.api} | <strong>Estilo:</strong> ${selectedStyle}
-                    ${imageResult.seed ? `<br>🎲 <strong>Seed:</strong> ${imageResult.seed}` : ''}
-                </div>
-            `;
-            status.classList.remove('hidden');
-            
-            // Notificación de éxito
-            const notification = document.createElement('div');
-            notification.className = 'fixed top-4 right-4 bg-green-600 text-white px-4 py-2 rounded-lg z-50';
-            notification.innerHTML = `
-                <div class="text-sm">
-                    <div class="font-bold">✅ ¡Imagen épica creada!</div>
-                    <div class="text-xs mt-1">Generada con ${imageResult.api}</div>
-                </div>
-            `;
-            document.body.appendChild(notification);
-            setTimeout(() => {
-                if (document.body.contains(notification)) {
-                    document.body.removeChild(notification);
+            try {
+                const placeholder = document.getElementById('imagePlaceholder');
+                const gallery = document.getElementById('imageGallery');
+                const controls = document.getElementById('imageControls');
+                const status = document.getElementById('imageStatus');
+                
+                // Validar que tenemos los elementos necesarios
+                if (!placeholder || !gallery || !controls || !status) {
+                    console.error('❌ No se encontraron los elementos de la galería');
+                    showNotification('❌ Error en la interfaz de galería', 'red');
+                    return;
                 }
-            }, 3000);
+                
+                // Validar imageResult
+                if (!imageResult || !imageResult.url) {
+                    console.error('❌ Resultado de imagen inválido:', imageResult);
+                    showNotification('❌ Datos de imagen inválidos', 'red');
+                    return;
+                }
+                
+                appState.currentImageUrl = imageResult.url;
+                appState.currentImagePrompt = imageResult.prompt || '';
+                
+                const imageData = {
+                    ...imageResult,
+                    timestamp: Date.now(),
+                    id: `img_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+                };
+                
+                appState.imageHistory.push(imageData);
+                console.log('📚 Imagen añadida al historial. Total:', appState.imageHistory.length);
+                
+                // Actualizar UI de forma segura
+                try {
+                    placeholder.classList.add('hidden');
+                    gallery.classList.remove('hidden');
+                    controls.classList.remove('hidden');
+                    
+                    renderImageGallery();
+                    
+                    // Actualizar status con información más detallada
+                    const artStyleSelect = document.getElementById('artStyle');
+                    const selectedStyle = artStyleSelect ? 
+                        artStyleSelect.options[artStyleSelect.selectedIndex].text : 
+                        'Automático';
+                    
+                    const statusContent = `
+                        <div class="text-sm">
+                            🎨 <strong>Imagen generada:</strong> ${imageResult.width || 1024}x${imageResult.height || 768}
+                            <br>📐 <strong>API:</strong> ${imageResult.api || 'Desconocida'}
+                            <br>🎭 <strong>Estilo:</strong> ${selectedStyle}
+                            ${imageResult.seed ? `<br>🎲 <strong>Seed:</strong> ${imageResult.seed}` : ''}
+                            ${imageResult.loadTime ? `<br>⏱️ <strong>Tiempo:</strong> ${imageResult.loadTime}ms` : ''}
+                            ${imageResult.isPlaceholder ? '<br>⚠️ <strong>Modo:</strong> Placeholder' : ''}
+                        </div>
+                    `;
+                    
+                    status.innerHTML = statusContent;
+                    status.classList.remove('hidden');
+                    
+                } catch (uiError) {
+                    console.error('❌ Error actualizando UI:', uiError);
+                    showNotification('⚠️ Error en la interfaz, pero imagen guardada', 'yellow');
+                }
+                
+                // Notificación de éxito con manejo de errores
+                try {
+                    const notificationMessage = imageResult.isPlaceholder ? 
+                        '⚠️ Placeholder creado' : 
+                        '✅ ¡Imagen épica creada!';
+                    
+                    const notificationType = imageResult.isPlaceholder ? 'yellow' : 'green';
+                    
+                    showNotification(`${notificationMessage} - ${imageResult.api}`, notificationType);
+                    
+                } catch (notificationError) {
+                    console.warn('❌ Error mostrando notificación:', notificationError);
+                }
+                
+            } catch (error) {
+                console.error('❌ Error crítico en displayImage:', error);
+                showNotification('❌ Error crítico mostrando imagen', 'red');
+            }
         }
 
         // Renderizar galería de imágenes
@@ -1242,45 +1401,46 @@
                         const imagePrompt = createImagePrompt(narrative, customElements);
                         console.log('📝 Prompt creado:', imagePrompt);
                         
+                        // Agregar delay para evitar problemas de runtime
+                        await new Promise(resolve => setTimeout(resolve, 500));
+                        
                         const imageResult = await generatePerchanceImage(imagePrompt);
-                        console.log('✅ Imagen generada exitosamente:', imageResult);
+                        console.log('✅ Resultado de imagen:', imageResult);
                         
                         loadingImage.classList.add('hidden');
                         displayImage(imageResult);
                         
+                        // Mostrar notificación especial si es placeholder
+                        if (imageResult.isPlaceholder) {
+                            showNotification('⚠️ Modo Placeholder - APIs no disponibles', 'yellow');
+                        }
+                        
                     } catch (error) {
-                        console.error('❌ Error completo generando imagen:', error);
+                        console.error('❌ Error crítico generando imagen:', error);
                         loadingImage.classList.add('hidden');
                         imagePlaceholder.classList.remove('hidden');
                         
-                        // Mostrar notificación de error más detallada
-                        const notification = document.createElement('div');
-                        notification.className = 'fixed top-4 right-4 bg-red-600 text-white px-4 py-2 rounded-lg z-50 max-w-sm';
-                        notification.innerHTML = `
-                            <div class="text-sm">
-                                <div class="font-bold">⚠️ Error de imagen</div>
-                                <div class="text-xs mt-1">${error.message || 'Error desconocido'}</div>
-                                <div class="text-xs mt-1 opacity-75">Prueba regenerar o cambia el estilo</div>
-                            </div>
-                        `;
-                        document.body.appendChild(notification);
-                        setTimeout(() => {
-                            if (document.body.contains(notification)) {
-                                document.body.removeChild(notification);
-                            }
-                        }, 5000);
+                        // Crear placeholder de emergencia
+                        try {
+                            const emergencyPlaceholder = createArtisticPlaceholder(
+                                imagePrompt || 'imagen épica', 
+                                1024, 768, 
+                                Math.floor(Math.random() * 1000000),
+                                error
+                            );
+                            displayImage(emergencyPlaceholder);
+                        } catch (placeholderError) {
+                            console.error('❌ Error creando placeholder de emergencia:', placeholderError);
+                        }
+                        
+                        showNotification('❌ Error crítico - Sistema de placeholder activado', 'red');
                     }
                 }
                 
             } catch (error) {
                 console.error('Error en la generación:', error);
                 
-                // Mostrar error amigable
-                const notification = document.createElement('div');
-                notification.className = 'fixed top-4 right-4 bg-red-600 text-white px-4 py-2 rounded-lg z-50 max-w-sm';
-                notification.textContent = error.message;
-                document.body.appendChild(notification);
-                setTimeout(() => document.body.removeChild(notification), 5000);
+                showNotification(error.message, 'red');
                 
                 loadingNarrative.classList.add('hidden');
                 narrativePlaceholder.classList.remove('hidden');
@@ -1304,15 +1464,7 @@
 
         window.regenerateImage = async function() {
             if (!appState.generatedNarrative) {
-                const notification = document.createElement('div');
-                notification.className = 'fixed top-4 right-4 bg-yellow-600 text-white px-4 py-2 rounded-lg z-50';
-                notification.textContent = '⚠️ Genera una narrativa primero.';
-                document.body.appendChild(notification);
-                setTimeout(() => {
-                    if (document.body.contains(notification)) {
-                        document.body.removeChild(notification);
-                    }
-                }, 3000);
+                showNotification('⚠️ Genera una narrativa primero.', 'yellow');
                 return;
             }
             
@@ -1325,6 +1477,10 @@
             
             try {
                 console.log('🔄 Regenerando imagen...');
+                
+                // Delay para evitar problemas de runtime
+                await new Promise(resolve => setTimeout(resolve, 300));
+                
                 const customElements = [
                     document.getElementById('element1')?.value?.trim() || '',
                     document.getElementById('element2')?.value?.trim() || '',
@@ -1337,26 +1493,31 @@
                 if (loadingImage) loadingImage.classList.add('hidden');
                 displayImage(imageResult);
                 
+                // Notificación de regeneración exitosa
+                if (imageResult.isPlaceholder) {
+                    showNotification('⚠️ Regenerado en modo placeholder', 'yellow');
+                } else {
+                    showNotification('✅ ¡Nueva variación creada!', 'green');
+                }
+                
             } catch (error) {
                 console.error('❌ Error regenerando imagen:', error);
                 if (loadingImage) loadingImage.classList.add('hidden');
                 if (gallery) gallery.classList.remove('hidden');
                 
-                const notification = document.createElement('div');
-                notification.className = 'fixed top-4 right-4 bg-red-600 text-white px-4 py-2 rounded-lg z-50 max-w-sm';
-                notification.innerHTML = `
-                    <div class="text-sm">
-                        <div class="font-bold">⚠️ Error regenerando</div>
-                        <div class="text-xs mt-1">${error.message || 'Error desconocido'}</div>
-                        <div class="text-xs mt-1 opacity-75">Intenta cambiar el estilo artístico</div>
-                    </div>
-                `;
-                document.body.appendChild(notification);
-                setTimeout(() => {
-                    if (document.body.contains(notification)) {
-                        document.body.removeChild(notification);
-                    }
-                }, 5000);
+                // Intentar crear placeholder de emergencia
+                try {
+                    const emergencyPlaceholder = createArtisticPlaceholder(
+                        'imagen épica regenerada', 
+                        1024, 768, 
+                        Math.floor(Math.random() * 1000000),
+                        error
+                    );
+                    displayImage(emergencyPlaceholder);
+                    showNotification('⚠️ Placeholder generado tras error', 'yellow');
+                } catch (placeholderError) {
+                    showNotification(`❌ Error: ${error.message || 'Error crítico'}`, 'red');
+                }
             }
         };
 
@@ -1427,11 +1588,7 @@
         // Función principal para descargar proyecto completo
         window.downloadCompleteProject = async function() {
             if (!appState.generatedNarrative) {
-                const notification = document.createElement('div');
-                notification.className = 'fixed top-4 right-4 bg-yellow-600 text-white px-4 py-2 rounded-lg z-50';
-                notification.textContent = '⚠️ Genera una narrativa primero.';
-                document.body.appendChild(notification);
-                setTimeout(() => document.body.removeChild(notification), 3000);
+                showNotification('⚠️ Genera una narrativa primero.', 'yellow');
                 return;
             }
             
@@ -1507,20 +1664,11 @@
                 document.body.removeChild(link);
                 URL.revokeObjectURL(url);
                 
-                // Notificación de éxito
-                const notification = document.createElement('div');
-                notification.className = 'fixed top-4 right-4 bg-green-600 text-white px-4 py-2 rounded-lg z-50';
-                notification.textContent = '🎉 ¡Proyecto descargado exitosamente!';
-                document.body.appendChild(notification);
-                setTimeout(() => document.body.removeChild(notification), 3000);
+                showNotification('🎉 ¡Proyecto descargado exitosamente!', 'green');
                 
             } catch (error) {
                 console.error('Error creando proyecto ZIP:', error);
-                const notification = document.createElement('div');
-                notification.className = 'fixed top-4 right-4 bg-red-600 text-white px-4 py-2 rounded-lg z-50';
-                notification.textContent = '⚠️ Error creando el archivo ZIP.';
-                document.body.appendChild(notification);
-                setTimeout(() => document.body.removeChild(notification), 3000);
+                showNotification('⚠️ Error creando el archivo ZIP.', 'red');
             } finally {
                 downloadBtn.textContent = originalText;
                 downloadBtn.disabled = false;
@@ -1561,11 +1709,7 @@
                 const newText = narrativeEditor.value.trim();
                 
                 if (newText === '') {
-                    const notification = document.createElement('div');
-                    notification.className = 'fixed top-4 right-4 bg-yellow-600 text-white px-4 py-2 rounded-lg z-50';
-                    notification.textContent = '⚠️ La narrativa no puede estar vacía.';
-                    document.body.appendChild(notification);
-                    setTimeout(() => document.body.removeChild(notification), 3000);
+                    showNotification('⚠️ La narrativa no puede estar vacía.', 'yellow');
                     return;
                 }
                 
@@ -1581,12 +1725,7 @@
                 
                 isEditingNarrative = false;
                 
-                // Notificación de éxito
-                const notification = document.createElement('div');
-                notification.className = 'fixed top-4 right-4 bg-green-600 text-white px-4 py-2 rounded-lg z-50';
-                notification.textContent = '✅ Narrativa actualizada exitosamente.';
-                document.body.appendChild(notification);
-                setTimeout(() => document.body.removeChild(notification), 3000);
+                showNotification('✅ Narrativa actualizada exitosamente.', 'green');
             }
         };
 
@@ -1659,18 +1798,74 @@
             }
         }
 
-        // Inicialización
+        // Inicialización con manejo robusto de errores
         function initializeApp() {
             try {
-                createGenreElements();
-                updateGenreCount();
-                setupEventListeners();
-                updateProgress();
+                console.log('🚀 Iniciando narrativAI...');
+                
+                // Verificar elementos críticos del DOM
+                const criticalElements = [
+                    'genreGrid', 'generateBtn', 'step1-container', 
+                    'imageGallery', 'narrativeContent'
+                ];
+                
+                const missingElements = criticalElements.filter(id => 
+                    !document.getElementById(id)
+                );
+                
+                if (missingElements.length > 0) {
+                    console.warn('⚠️ Elementos faltantes:', missingElements);
+                }
+                
+                // Inicializar componentes de forma segura
+                try {
+                    createGenreElements();
+                    console.log('✅ Géneros creados');
+                } catch (error) {
+                    console.error('❌ Error creando géneros:', error);
+                }
+                
+                try {
+                    updateGenreCount();
+                    console.log('✅ Contador de géneros actualizado');
+                } catch (error) {
+                    console.error('❌ Error actualizando contador:', error);
+                }
+                
+                try {
+                    setupEventListeners();
+                    console.log('✅ Event listeners configurados');
+                } catch (error) {
+                    console.error('❌ Error configurando listeners:', error);
+                }
+                
+                try {
+                    updateProgress();
+                    console.log('✅ Progreso actualizado');
+                } catch (error) {
+                    console.error('❌ Error actualizando progreso:', error);
+                }
+                
+                // Verificar funcionalidades críticas
+                console.log('🔍 Verificando funcionalidades...');
+                console.log('- Estado de app:', appState);
+                console.log('- Géneros disponibles:', Object.keys(genres).length);
+                console.log('- IA de imágenes:', appState.useImageAI ? 'Activada' : 'Desactivada');
                 
                 console.log('🎭 narrativAI inicializado correctamente - ¡Listo para crear épicas!');
                 
+                // Notificación de bienvenida
+                setTimeout(() => {
+                    showNotification('🎭 ¡narrativAI listo! Comienza creando tu épica', 'purple');
+                }, 500);
+                
             } catch (error) {
-                console.error('Error en inicialización:', error);
+                console.error('❌ Error crítico en inicialización:', error);
+                
+                // Notificación de error crítico
+                setTimeout(() => {
+                    showNotification('❌ Error de inicialización - Recarga la página', 'red');
+                }, 1000);
             }
         }
 
