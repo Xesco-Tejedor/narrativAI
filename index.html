@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎭 narrativAI - Tu Motor de Narrativas Épicas Personalizadas</title>
+    <title>🎭 narrativAI - Generador de Épicas con IA REAL</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
@@ -27,31 +27,12 @@
             box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3);
             border-color: rgba(139, 92, 246, 0.5);
         }
-        .genre-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
-            transition: left 0.5s;
-        }
-        .genre-card:hover::before {
-            left: 100%;
-        }
         .loading-animation {
             animation: pulse 2s infinite;
         }
         @keyframes pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.5; }
-        }
-        .progress-bar {
-            background: linear-gradient(90deg, #8b5cf6, #ec4899, #f59e0b);
-            height: 4px;
-            border-radius: 2px;
-            transition: width 0.3s ease;
         }
         .step-indicator {
             transition: all 0.3s ease;
@@ -65,529 +46,277 @@
             background: linear-gradient(135deg, #10b981, #059669);
             color: white;
         }
-        .tooltip {
-            visibility: hidden;
-            opacity: 0;
-            position: absolute;
-            z-index: 1000;
-            bottom: 125%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(31, 41, 55, 0.95);
-            color: white;
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: 0.875rem;
-            white-space: nowrap;
-            transition: opacity 0.3s, visibility 0.3s;
-            border: 1px solid rgba(139, 92, 246, 0.3);
-        }
-        .tooltip::after {
-            content: '';
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            border: 5px solid transparent;
-            border-top-color: rgba(31, 41, 55, 0.95);
-        }
-        .tooltip-trigger:hover .tooltip {
-            visibility: visible;
-            opacity: 1;
-        }
-        .style-preview {
-            width: 40px;
-            height: 30px;
-            border-radius: 4px;
-            margin-right: 8px;
-            background-size: cover;
-            background-position: center;
-            border: 1px solid rgba(75, 85, 99, 0.5);
-        }
-        .control-group {
-            background: rgba(31, 41, 55, 0.5);
-            border: 1px solid rgba(75, 85, 99, 0.5);
-            backdrop-filter: blur(10px);
-        }
-        .narrative-area {
-            background: rgba(17, 24, 39, 0.7);
-            border: 1px solid rgba(139, 92, 246, 0.3);
-            backdrop-filter: blur(10px);
-        }
-        .image-gallery-item {
-            transition: all 0.3s ease;
-        }
-        .image-gallery-item:hover {
-            transform: scale(1.05);
-            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.4);
-        }
-        .floating-help {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 1000;
-        }
-        .hero-gradient {
-            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(236, 72, 153, 0.1), rgba(245, 158, 11, 0.1));
-        }
-        .step-container {
-            transition: all 0.5s ease;
-            opacity: 0.6;
-        }
-        .step-container.active {
-            opacity: 1;
-            transform: scale(1.02);
-        }
     </style>
 </head>
 <body class="text-white">
     <!-- Hero Section -->
-    <div class="hero-gradient py-8 mb-8">
-        <div class="container mx-auto px-4 max-w-7xl">
+    <div class="bg-gradient-to-r from-purple-600/20 via-pink-600/20 to-yellow-600/20 py-8 mb-8">
+        <div class="container mx-auto px-4 max-w-6xl">
             <div class="text-center">
                 <h1 class="text-4xl md:text-6xl font-bold bg-gradient-to-r from-purple-400 via-pink-500 to-yellow-500 bg-clip-text text-transparent mb-4">
                     🎭 narrativAI
                 </h1>
                 <p class="text-xl md:text-2xl text-gray-300 mb-2">
-                    Tu Motor de Narrativas Épicas Personalizadas
+                    Motor de Narrativas Épicas + Generación de Imágenes IA REAL
                 </p>
                 <p class="text-lg text-purple-300 mb-6">
-                    ✨ Crea historias únicas con elementos personalizados + Imágenes IA reales
+                    ✨ APIs reales de Pollinations AI + Arte estilizado + Sistema robusto de fallbacks
                 </p>
-                
-                <!-- Progress Indicator -->
-                <div class="max-w-2xl mx-auto">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="flex items-center space-x-4">
-                            <div id="step1-indicator" class="step-indicator active w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border-2 border-purple-500">1</div>
-                            <span class="text-sm text-gray-300">Elementos</span>
-                        </div>
-                        <div class="flex-1 h-1 bg-gray-700 mx-4 rounded">
-                            <div id="progress-bar" class="progress-bar w-0"></div>
-                        </div>
-                        <div class="flex items-center space-x-4">
-                            <div id="step2-indicator" class="step-indicator w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border-2 border-gray-600">2</div>
-                            <span class="text-sm text-gray-300">Géneros</span>
-                        </div>
-                        <div class="flex-1 h-1 bg-gray-700 mx-4 rounded">
-                            <div class="h-1 bg-gray-700 rounded"></div>
-                        </div>
-                        <div class="flex items-center space-x-4">
-                            <div id="step3-indicator" class="step-indicator w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border-2 border-gray-600">3</div>
-                            <span class="text-sm text-gray-300">Generar</span>
-                        </div>
-                        <div class="flex-1 h-1 bg-gray-700 mx-4 rounded">
-                            <div class="h-1 bg-gray-700 rounded"></div>
-                        </div>
-                        <div class="flex items-center space-x-4">
-                            <div id="step4-indicator" class="step-indicator w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border-2 border-gray-600">4</div>
-                            <span class="text-sm text-gray-300">Exportar</span>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
 
-    <div class="container mx-auto px-4 max-w-7xl">
+    <div class="container mx-auto px-4 max-w-6xl space-y-8">
         <!-- Paso 1: Elementos Clave -->
-        <div id="step1-container" class="step-container active mb-8">
-            <div class="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700">
-                <div class="flex items-center mb-6">
-                    <div class="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-xl font-bold mr-4">1</div>
-                    <div>
-                        <h2 class="text-2xl font-bold text-purple-400">Define Tus Elementos Clave</h2>
-                        <p class="text-gray-300">Introduce hasta tres elementos que formarán el corazón de tu narrativa</p>
-                    </div>
+        <div class="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700">
+            <div class="flex items-center mb-6">
+                <div class="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-xl font-bold mr-4">1</div>
+                <div>
+                    <h2 class="text-2xl font-bold text-purple-400">Define Tus Elementos Clave</h2>
+                    <p class="text-gray-300">Introduce hasta tres elementos para tu narrativa épica</p>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-purple-300 mb-2">
+                        🎯 Personaje o Elemento Central
+                    </label>
+                    <input type="text" id="element1" placeholder="ej: un valiente caballero, el último dragón..." 
+                           class="w-full p-4 bg-gray-700/70 border border-gray-600 rounded-lg focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30 text-white transition-all">
                 </div>
                 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="tooltip-trigger relative">
-                        <label class="block text-sm font-medium text-purple-300 mb-2">
-                            🎯 Personaje o Elemento Central
-                        </label>
-                        <input type="text" id="element1" placeholder="ej: un valiente caballero, el último dragón, un antiguo medallón..." 
-                               class="w-full p-4 bg-gray-700/70 border border-gray-600 rounded-lg focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30 text-white transition-all"
-                               oninput="updateProgress()">
-                        <div class="tooltip">
-                            ¿Quién o qué será el protagonista de tu historia? Ejemplos: "la última bibliotecaria", "un dragón mecánico", "una espada ancestral", "el guardián del tiempo"
-                        </div>
-                    </div>
-                    
-                    <div class="tooltip-trigger relative">
-                        <label class="block text-sm font-medium text-purple-300 mb-2">
-                            🔸 Entorno o Elemento de Apoyo
-                        </label>
-                        <input type="text" id="element2" placeholder="ej: una biblioteca perdida, un sabio ermitaño, un mapa estelar..." 
-                               class="w-full p-4 bg-gray-700/70 border border-gray-600 rounded-lg focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30 text-white transition-all"
-                               oninput="updateProgress()">
-                        <div class="tooltip">
-                            ¿Dónde se desarrollará parte de la acción o qué objeto secundario influirá en la trama? Ejemplos: "ruinas flotantes", "un oráculo misterioso", "torres de cristal", "portales dimensionales"
-                        </div>
-                    </div>
-                    
-                    <div class="tooltip-trigger relative">
-                        <label class="block text-sm font-medium text-purple-300 mb-2">
-                            🏛️ Atmósfera o Concepto
-                        </label>
-                        <input type="text" id="element3" placeholder="ej: un futuro distópico, un ritual olvidado, la era vikinga..." 
-                               class="w-full p-4 bg-gray-700/70 border border-gray-600 rounded-lg focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30 text-white transition-all"
-                               oninput="updateProgress()">
-                        <div class="tooltip">
-                            ¿Qué idea general o ambiente quieres que impregne tu narrativa? Ejemplos: "magia prohibida", "realidades paralelas", "civilización perdida", "apocalipsis mágico"
-                        </div>
-                    </div>
+                <div>
+                    <label class="block text-sm font-medium text-purple-300 mb-2">
+                        🔸 Entorno o Elemento de Apoyo
+                    </label>
+                    <input type="text" id="element2" placeholder="ej: una biblioteca perdida, un sabio ermitaño..." 
+                           class="w-full p-4 bg-gray-700/70 border border-gray-600 rounded-lg focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30 text-white transition-all">
                 </div>
                 
-                <div class="mt-6 p-4 bg-blue-900/20 border border-blue-500/30 rounded-lg">
-                    <p class="text-sm text-blue-300">
-                        💡 <strong>Consejo UX:</strong> Si necesitas inspiración, pasa el ratón sobre cada campo para ver ejemplos y sugerencias. No te preocupes por el orden; nuestros algoritmos integrarán estos elementos de forma inteligente en tu narrativa épica.
-                    </p>
+                <div>
+                    <label class="block text-sm font-medium text-purple-300 mb-2">
+                        🏛️ Atmósfera o Concepto
+                    </label>
+                    <input type="text" id="element3" placeholder="ej: un futuro distópico, un ritual olvidado..." 
+                           class="w-full p-4 bg-gray-700/70 border border-gray-600 rounded-lg focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30 text-white transition-all">
                 </div>
             </div>
         </div>
 
         <!-- Paso 2: Géneros -->
-        <div id="step2-container" class="step-container mb-8">
-            <div class="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700">
-                <div class="flex items-center mb-6">
-                    <div class="w-10 h-10 bg-gradient-to-r from-pink-500 to-yellow-500 rounded-full flex items-center justify-center text-xl font-bold mr-4">2</div>
-                    <div>
-                        <h2 class="text-2xl font-bold text-pink-400">Equilibra los Géneros de Tu Historia</h2>
-                        <p class="text-gray-300">Elige hasta tres géneros y ajusta su influencia con nuestros deslizadores inteligentes</p>
-                    </div>
-                </div>
-
-                <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-lg font-semibold text-purple-400">
-                        🎭 Selecciona géneros (máximo 3)
-                    </h3>
-                    <span id="genreCount" class="text-sm bg-gradient-to-r from-purple-600 to-pink-600 px-3 py-1 rounded-full font-medium">0/3</span>
-                </div>
-                
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6" id="genreGrid">
-                    <!-- Géneros se generan dinámicamente -->
-                </div>
-
-                <!-- Controles de intensidad de géneros -->
-                <div id="genreIntensityControls" class="hidden">
-                    <div class="bg-gray-900/50 rounded-xl p-6 border border-purple-500/30">
-                        <h4 class="text-lg font-medium text-purple-300 mb-4 flex items-center">
-                            ⚖️ Control de Intensidad Dinámico
-                            <div class="ml-4 text-sm bg-green-600 px-2 py-1 rounded-full" id="totalDisplay">100%</div>
-                        </h4>
-                        <div id="genreSliders" class="space-y-4">
-                            <!-- Sliders se generan dinámicamente -->
-                        </div>
-                        <div class="text-sm text-gray-400 mt-4 p-3 bg-purple-900/20 rounded-lg border border-purple-500/20">
-                            ⚖️ <strong>Control de Intensidad Dinámico:</strong> Una vez seleccionados, ajusta la intensidad de cada género usando estos intuitivos deslizadores. Observa cómo los porcentajes se reajustan automáticamente en tiempo real, garantizando que tus géneros siempre sumen exactamente el 100%. ¡Verás cómo la mezcla de tu historia se forma justo ante tus ojos!
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="mt-6 p-4 bg-yellow-900/20 border border-yellow-500/30 rounded-lg">
-                    <p class="text-sm text-yellow-300">
-                        ✨ <strong>Consejo UX:</strong> No puedes seleccionar más de 3 géneros. Si ya tienes tres, deselecciona uno para elegir uno nuevo. El sistema te avisará automáticamente.
-                    </p>
+        <div class="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700">
+            <div class="flex items-center mb-6">
+                <div class="w-10 h-10 bg-gradient-to-r from-pink-500 to-yellow-500 rounded-full flex items-center justify-center text-xl font-bold mr-4">2</div>
+                <div>
+                    <h2 class="text-2xl font-bold text-pink-400">Equilibra los Géneros</h2>
+                    <p class="text-gray-300">Selecciona hasta 3 géneros y ajusta su intensidad</p>
                 </div>
             </div>
-        </div>
 
-        <!-- Paso 3: Generar y Imagen IA -->
-        <div id="step3-container" class="step-container mb-8">
-            <div class="flex items-center mb-6">
-                <div class="w-10 h-10 bg-gradient-to-r from-yellow-500 to-green-500 rounded-full flex items-center justify-center text-xl font-bold mr-4">3</div>
-                <div>
-                    <h2 class="text-2xl font-bold text-yellow-400">Genera y Perfecciona Tu Épica</h2>
-                    <p class="text-gray-300">Crea tu narrativa e imágenes épicas de forma independiente</p>
-                </div>
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-lg font-semibold text-purple-400">
+                    🎭 Selecciona géneros (máximo 3)
+                </h3>
+                <span id="genreCount" class="text-sm bg-gradient-to-r from-purple-600 to-pink-600 px-3 py-1 rounded-full font-medium">0/3</span>
             </div>
             
-            <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                <!-- 3.1 Narrativa -->
-                <div class="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700">
-                    <div class="flex items-center justify-between mb-6">
-                        <div class="flex items-center">
-                            <div class="w-8 h-8 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full flex items-center justify-center text-sm font-bold mr-3">3.1</div>
-                            <div>
-                                <h3 class="text-xl font-bold text-yellow-400">Genera y Perfecciona</h3>
-                                <p class="text-gray-300 text-sm">Tu narrativa épica estructurada</p>
-                            </div>
-                        </div>
-                        <button id="generateBtn" class="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
-                            <span id="generateBtnText">🎭 Generar Narrativa</span>
-                        </button>
-                    </div>
-                    
-                    <div id="narrativePlaceholder" class="text-center text-gray-400 py-12 border-2 border-dashed border-gray-600 rounded-lg">
-                        <div class="text-4xl mb-3">📚</div>
-                        <p class="text-lg">¡Completa los elementos y géneros para comenzar!</p>
-                        <p class="text-sm mt-2 opacity-75">Tu narrativa épica de 4 párrafos aparecerá aquí</p>
-                    </div>
-                    
-                    <div id="narrativeContent" class="hidden">
-                        <div class="narrative-area rounded-lg p-6">
-                            <div class="flex items-center justify-between mb-4">
-                                <span class="text-sm text-purple-300 font-medium">📝 Tu Narrativa Épica</span>
-                                <div class="flex gap-2">
-                                    <button id="editNarrativeBtn" onclick="toggleNarrativeEdit()" class="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded-lg text-xs transition-colors">
-                                        ✏️ Editar Narrativa
-                                    </button>
-                                    <button id="saveNarrativeBtn" onclick="saveNarrativeEdit()" class="hidden px-3 py-1 bg-green-600 hover:bg-green-700 rounded-lg text-xs transition-colors">
-                                        ✅ Guardar Edición
-                                    </button>
-                                    <button id="cancelNarrativeBtn" onclick="cancelNarrativeEdit()" class="hidden px-3 py-1 bg-gray-600 hover:bg-gray-700 rounded-lg text-xs transition-colors">
-                                        ❌ Cancelar
-                                    </button>
-                                </div>
-                            </div>
-                            <div id="narrativeDisplay" class="text-gray-100 leading-relaxed text-lg"></div>
-                            <textarea id="narrativeEditor" class="hidden w-full h-40 p-4 bg-gray-800/70 border border-gray-600 rounded-lg text-gray-100 leading-relaxed resize-vertical focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30" placeholder="Edita tu narrativa aquí..."></textarea>
-                        </div>
-                        
-                        <div class="mt-4 p-4 bg-green-900/20 border border-green-500/30 rounded-lg">
-                            <p class="text-sm text-green-300">
-                                ✅ <strong>Narrativa Estructurada Garantizada:</strong> Cada historia sigue una estructura épica probada:<br>
-                                1️⃣ <strong>Establecimiento</strong> → 2️⃣ <strong>Desarrollo</strong> → 3️⃣ <strong>Clímax</strong> → 4️⃣ <strong>Resolución</strong>
-                            </p>
-                        </div>
-                    </div>
-                    
-                    <div id="loadingNarrative" class="hidden text-center py-8">
-                        <div class="loading-animation text-4xl mb-3">🎭</div>
-                        <p class="text-purple-300 text-lg">Tejiendo tu narrativa épica...</p>
-                        <div class="mt-4 w-full bg-gray-700 rounded-full h-2">
-                            <div class="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full animate-pulse" style="width: 60%"></div>
-                        </div>
-                    </div>
-                </div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6" id="genreGrid">
+                <!-- Géneros se generan dinámicamente -->
+            </div>
 
-                <!-- 3.2 Imágenes IA -->
-                <div class="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700">
-                    <div class="flex items-center justify-between mb-6">
-                        <div class="flex items-center">
-                            <div class="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-sm font-bold mr-3">3.2</div>
-                            <div>
-                                <h3 class="text-xl font-bold text-purple-400">Generación Real de Imágenes IA</h3>
-                                <p class="text-gray-300 text-sm">Dale dimensión visual a tu historia</p>
-                            </div>
-                        </div>
-                        <button id="generateImageBtn" class="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
-                            <span id="generateImageBtnText">🎨 Generar Imagen IA</span>
-                        </button>
-                    </div>
-                    
-                    <div class="mb-4 p-4 bg-blue-900/20 border border-blue-500/30 rounded-lg">
-                        <p class="text-sm text-blue-300">
-                            🎨 <strong>Sistema robusto con fallback:</strong> Múltiples APIs de IA (Pollinations, Hugging Face) intentarán generar tu imagen. Si las APIs principales fallan, usaremos imágenes temáticas relacionadas con tu narrativa.
-                        </p>
-                    </div>
-
-                    <!-- Selector de Estilo Artístico -->
-                    <div id="artStyleSection" class="mb-4">
-                        <label class="block text-sm font-medium text-purple-300 mb-3">
-                            🎨 Selección de Estilo Artístico
-                        </label>
-                        <p class="text-xs text-gray-400 mb-3">13 estilos artísticos profesionales con prompts técnicos optimizados. Cada estilo generará imágenes visualmente distintivas.</p>
-                        <select id="artStyle" class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-purple-500">
-                            <option value="auto">🤖 Automático (adapta el estilo a tu narrativa)</option>
-                            <option value="rackham-style">🧚 Arthur Rackham - Pen & ink con acuarelas delicadas, líneas orgánicas, cuentos de hadas</option>
-                            <option value="wrightson-style">💀 Bernie Wrightson - Tinta maestra con claroscuro dramático, horror gótico</option>
-                            <option value="moebius-style">🌌 Moebius - Líneas limpias sci-fi, paisajes etéreos, geometría surrealista</option>
-                            <option value="frazetta-style">⚔️ Frank Frazetta - Pinceladas poderosas, anatomía heroica, espada y brujería</option>
-                            <option value="brom-style">🌙 Gerald Brom - Fantasía oscura digital, gótico contemporáneo, romance macabro</option>
-                            <option value="giger-style">👾 H.R. Giger - Biomecánico alienígena, aerógrafo monocromático, horror técnico</option>
-                            <option value="photorealistic">📸 Fotorrealista - Calidad fotográfica profesional, iluminación natural</option>
-                            <option value="digital-art">🖥️ Arte Digital - Ilustración moderna vectorial, colores vibrantes, concept art</option>
-                            <option value="oil-painting">🎨 Pintura al Óleo - Técnica tradicional, pinceladas visibles, paleta clásica</option>
-                            <option value="anime">🇯🇵 Anime/Manga - Ojos expresivos, coloreado cel-shaded, estética japonesa</option>
-                            <option value="comic-book">📚 Cómic - Contornos audaces, colores primarios, acción dinámica</option>
-                            <option value="fantasy-art">🧙‍♂️ Arte Fantástico - Realismo mágico, criaturas mitológicas, mundo épico</option>
-                        </select>
-                    </div>
-
-                    <!-- Nivel de Detalle -->
-                    <div id="detailSection" class="mb-4">
-                        <label class="block text-sm font-medium text-purple-300 mb-3">
-                            🔍 Nivel de Detalle
-                        </label>
-                        <div class="grid grid-cols-4 gap-2">
-                            <button onclick="setDetailLevel('low')" class="detail-btn px-3 py-2 bg-gray-700 hover:bg-purple-600 rounded-lg text-xs transition-colors">
-                                Boceto
-                            </button>
-                            <button onclick="setDetailLevel('medium')" class="detail-btn active px-3 py-2 bg-purple-600 rounded-lg text-xs">
-                                Detallado
-                            </button>
-                            <button onclick="setDetailLevel('high')" class="detail-btn px-3 py-2 bg-gray-700 hover:bg-purple-600 rounded-lg text-xs transition-colors">
-                                Intrincado
-                            </button>
-                            <button onclick="setDetailLevel('ultra')" class="detail-btn px-3 py-2 bg-gray-700 hover:bg-purple-600 rounded-lg text-xs transition-colors">
-                                Obra Maestra
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div id="imagePlaceholder" class="text-center text-gray-400 py-8 border-2 border-dashed border-gray-600 rounded-lg">
-                        <div class="text-3xl mb-2">🎨</div>
-                        <div id="placeholderMessage">
-                            <p class="text-sm">Genera una narrativa primero, luego crea tu imagen épica</p>
-                            <p class="text-xs mt-1 opacity-75">🚀 Haz clic en "Generar Imagen IA" cuando estés listo</p>
-                        </div>
-                        <div id="readyMessage" class="hidden">
-                            <p class="text-sm text-green-300">✅ ¡Narrativa lista! Ahora puedes generar imagen</p>
-                            <p class="text-xs mt-1 opacity-75">🎨 Haz clic en "Generar Imagen IA" para crear tu imagen épica</p>
-                        </div>
-                    </div>
-                    
-                    <div id="loadingImage" class="hidden text-center py-8 border-2 border-dashed border-purple-500 rounded-lg">
-                        <div class="loading-animation text-3xl mb-2">🚀</div>
-                        <p class="text-purple-300 text-sm">Generando imagen épica con IA...</p>
-                        <p class="text-xs text-purple-400 mt-1">La generación de imágenes puede tardar unos segundos. Te informamos sobre el progreso.</p>
-                        <div class="mt-4 w-full bg-gray-700 rounded-full h-2">
-                            <div class="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full animate-pulse" style="width: 80%"></div>
-                        </div>
-                    </div>
-                    
-                    <!-- Galería de imágenes -->
-                    <div id="imageGallery" class="hidden space-y-4">
-                        <!-- Las imágenes se añadirán aquí dinámicamente -->
-                    </div>
-                    
-                    <div id="imageStatus" class="mt-3 p-3 bg-green-900/30 rounded-lg border border-green-500/50 text-sm text-green-300 hidden">
-                        <!-- Status se actualiza dinámicamente -->
-                    </div>
-
-                    <!-- Controles de imagen -->
-                    <div id="imageControls" class="hidden mt-4 flex flex-wrap gap-2">
-                        <button onclick="regenerateImage()" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg text-sm transition-colors">
-                            🔄 Nueva Variación
-                        </button>
-                        <button onclick="clearImageHistory()" class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-sm transition-colors">
-                            🗑️ Limpiar Galería
-                        </button>
+            <!-- Controles de intensidad -->
+            <div id="genreIntensityControls" class="hidden">
+                <div class="bg-gray-900/50 rounded-xl p-6 border border-purple-500/30">
+                    <h4 class="text-lg font-medium text-purple-300 mb-4 flex items-center">
+                        ⚖️ Control de Intensidad
+                        <div class="ml-4 text-sm bg-green-600 px-2 py-1 rounded-full" id="totalDisplay">100%</div>
+                    </h4>
+                    <div id="genreSliders" class="space-y-4">
+                        <!-- Sliders se generan dinámicamente -->
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Paso 4: Exportar -->
-        <div id="step4-container" class="step-container mb-8">
+        <!-- Paso 3: Generar -->
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+            <!-- 3.1 Narrativa -->
             <div class="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700">
                 <div class="flex items-center justify-between mb-6">
                     <div class="flex items-center">
-                        <div class="w-10 h-10 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center text-xl font-bold mr-4">4</div>
+                        <div class="w-8 h-8 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full flex items-center justify-center text-sm font-bold mr-3">3.1</div>
                         <div>
-                            <h2 class="text-2xl font-bold text-green-400">Exporta Tu Proyecto Completo</h2>
-                            <p class="text-gray-300">Descarga todo tu trabajo en un cómodo paquete ZIP</p>
+                            <h3 class="text-xl font-bold text-yellow-400">Genera Narrativa</h3>
+                            <p class="text-gray-300 text-sm">Tu historia épica estructurada</p>
                         </div>
                     </div>
-                    <button onclick="downloadCompleteProject()" id="downloadBtn" class="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg disabled:opacity-50">
-                        📦 Descargar Proyecto
+                    <button id="generateBtn" class="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
+                        <span id="generateBtnText">🎭 Generar Narrativa</span>
                     </button>
                 </div>
                 
-                <div id="exportPlaceholder" class="text-center text-gray-400 py-8 border-2 border-dashed border-gray-600 rounded-lg">
-                    <div class="text-4xl mb-3">📦</div>
-                    <p class="text-lg">Genera tu narrativa para activar la exportación</p>
-                    <p class="text-sm mt-2 opacity-75">Recibirás un ZIP completo con historia, imágenes y metadatos</p>
+                <div id="narrativePlaceholder" class="text-center text-gray-400 py-12 border-2 border-dashed border-gray-600 rounded-lg">
+                    <div class="text-4xl mb-3">📚</div>
+                    <p class="text-lg">¡Completa los elementos y géneros para comenzar!</p>
                 </div>
                 
-                <div id="exportReady" class="hidden">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div class="bg-blue-900/20 border border-blue-500/30 rounded-lg p-4">
-                            <div class="text-blue-400 text-xl mb-2">📄</div>
-                            <h4 class="font-semibold text-blue-300">narrativa.md</h4>
-                            <p class="text-xs text-gray-400">Historia completa con metadatos</p>
+                <div id="narrativeContent" class="hidden">
+                    <div class="bg-gray-900/50 rounded-lg p-6 border border-purple-500/30">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-sm text-purple-300 font-medium">📝 Tu Narrativa Épica</span>
+                            <div class="flex gap-2">
+                                <button id="editNarrativeBtn" onclick="toggleNarrativeEdit()" class="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded transition-colors">
+                                    ✏️ Editar
+                                </button>
+                                <button id="saveNarrativeBtn" onclick="saveNarrativeEdit()" class="hidden px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-xs rounded transition-colors">
+                                    💾 Guardar
+                                </button>
+                                <button id="cancelNarrativeBtn" onclick="cancelNarrativeEdit()" class="hidden px-3 py-1 bg-gray-600 hover:bg-gray-700 text-white text-xs rounded transition-colors">
+                                    ❌ Cancelar
+                                </button>
+                            </div>
                         </div>
-                        <div class="bg-purple-900/20 border border-purple-500/30 rounded-lg p-4">
-                            <div class="text-purple-400 text-xl mb-2">🖼️</div>
-                            <h4 class="font-semibold text-purple-300">imágenes.jpg</h4>
-                            <p class="text-xs text-gray-400">Todas tus imágenes optimizadas</p>
-                        </div>
-                        <div class="bg-green-900/20 border border-green-500/30 rounded-lg p-4">
-                            <div class="text-green-400 text-xl mb-2">📋</div>
-                            <h4 class="font-semibold text-green-300">README.txt</h4>
-                            <p class="text-xs text-gray-400">Información técnica del proyecto</p>
+                        
+                        <!-- Vista de lectura -->
+                        <div id="narrativeDisplay" class="text-gray-100 leading-relaxed text-lg"></div>
+                        
+                        <!-- Editor de texto -->
+                        <div id="narrativeEditor" class="hidden">
+                            <textarea id="narrativeTextarea" 
+                                      class="w-full h-64 p-4 bg-gray-800 border border-gray-600 rounded-lg text-gray-100 leading-relaxed text-lg resize-none focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30"
+                                      placeholder="Edita tu narrativa épica aquí..."></textarea>
+                            <div class="mt-2 text-xs text-gray-400 flex justify-between">
+                                <span>💡 Tip: Los cambios se aplicarán automáticamente al generar nuevas imágenes</span>
+                                <span id="charCount">0 caracteres</span>
+                            </div>
                         </div>
                     </div>
                     
                     <div class="mt-4 p-4 bg-green-900/20 border border-green-500/30 rounded-lg">
                         <p class="text-sm text-green-300">
-                            🎉 <strong>¡Tu leyenda está lista!</strong> Tu proyecto está completo y listo para ser compartido, editado o utilizado en cualquier otro proyecto.
+                            ✅ <strong>Narrativa estructurada:</strong> Establecimiento → Desarrollo → Clímax → Resolución
                         </p>
                     </div>
                 </div>
+                
+                <div id="loadingNarrative" class="hidden text-center py-8">
+                    <div class="loading-animation text-4xl mb-3">🎭</div>
+                    <p class="text-purple-300 text-lg">Tejiendo tu narrativa épica...</p>
+                </div>
+            </div>
+
+            <!-- 3.2 Imágenes IA REAL -->
+            <div class="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-sm font-bold mr-3">3.2</div>
+                        <div>
+                            <h3 class="text-xl font-bold text-purple-400">Generación IA REAL</h3>
+                            <p class="text-gray-300 text-sm">APIs reales + Arte estilizado robusto</p>
+                        </div>
+                    </div>
+                    <button id="generateImageBtn" class="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
+                        <span id="generateImageBtnText">🎨 Generar Imagen IA</span>
+                    </button>
+                </div>
+                
+                <!-- Selector de Estilo Artístico CORREGIDO -->
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-purple-300 mb-3">
+                        🎨 Estilo Artístico
+                    </label>
+                    <select id="artStyle" class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-purple-500">
+                        <option value="auto">🤖 Automático (adapta el estilo a tu narrativa)</option>
+                        <option value="lorenzale-allegory-style">🏛️ Claudi Lorenzale - Alegoría romántico-nazarena</option>
+                        <option value="rackham-style">🧚 Arthur Rackham - Pen & ink con acuarelas delicadas</option>
+                        <option value="wrightson-style">💀 Bernie Wrightson - Tinta maestra con claroscuro dramático</option>
+                        <option value="moebius-style">🌌 Moebius - Líneas limpias sci-fi, paisajes etéreos</option>
+                        <option value="frazetta-style">⚔️ Frank Frazetta - Pinceladas poderosas, anatomía heroica</option>
+                        <option value="brom-style">🌙 Gerald Brom - Fantasía oscura digital, gótico contemporáneo</option>
+                        <option value="giger-style">👾 H.R. Giger - Biomecánico alienígena, aerógrafo monocromático</option>
+                        <option value="photorealistic">📸 Fotorrealista - Calidad fotográfica profesional</option>
+                        <option value="digital-art">🖥️ Arte Digital - Ilustración moderna vectorial</option>
+                        <option value="oil-painting">🎨 Pintura al Óleo - Técnica tradicional, pinceladas visibles</option>
+                        <option value="anime">🇯🇵 Anime/Manga - Ojos expresivos, coloreado cel-shaded</option>
+                        <option value="comic-book">📚 Cómic - Contornos audaces, colores primarios</option>
+                        <option value="fantasy-art">🧙‍♂️ Arte Fantástico - Realismo mágico, criaturas mitológicas</option>
+                    </select>
+                </div>
+                
+                <div id="imagePlaceholder" class="text-center text-gray-400 py-8 border-2 border-dashed border-gray-600 rounded-lg">
+                    <div class="text-3xl mb-2">🎨</div>
+                    <div id="placeholderMessage">
+                        <p class="text-sm">Genera una narrativa primero, luego crea tu imagen épica</p>
+                    </div>
+                    <div id="readyMessage" class="hidden">
+                        <p class="text-sm text-green-300">✅ ¡Narrativa lista! Ahora puedes generar imagen</p>
+                    </div>
+                </div>
+                
+                <div id="loadingImage" class="hidden text-center py-8 border-2 border-dashed border-purple-500 rounded-lg">
+                    <div class="loading-animation text-3xl mb-2">🚀</div>
+                    <p class="text-purple-300 text-sm">Generando imagen épica con IA REAL...</p>
+                    <div class="mt-4 w-full bg-gray-700 rounded-full h-2">
+                        <div class="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full animate-pulse" style="width: 80%"></div>
+                    </div>
+                </div>
+                
+                <!-- Galería de imágenes -->
+                <div id="imageGallery" class="hidden space-y-4">
+                    <!-- Las imágenes se añadirán aquí dinámicamente -->
+                </div>
+                
+                <div id="imageStatus" class="mt-3 p-3 bg-green-900/30 rounded-lg border border-green-500/50 text-sm text-green-300 hidden">
+                    <!-- Status se actualiza dinámicamente -->
+                </div>
+
+                <!-- Controles de imagen -->
+                <div id="imageControls" class="hidden mt-4 flex flex-wrap gap-2">
+                    <button onclick="regenerateImage()" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg text-sm transition-colors">
+                        🔄 Nueva Variación
+                    </button>
+                    <button onclick="clearImageHistory()" class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-sm transition-colors">
+                        🗑️ Limpiar Galería
+                    </button>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- Ayuda Flotante -->
-    <div class="floating-help">
-        <button onclick="toggleHelp()" class="bg-purple-600 hover:bg-purple-700 text-white w-12 h-12 rounded-full flex items-center justify-center text-xl transition-all transform hover:scale-110">
-            ?
-        </button>
-    </div>
-
-    <!-- Modal de Ayuda -->
-    <div id="helpModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="max-w-2xl bg-gray-800 rounded-lg overflow-hidden">
-            <div class="p-6 border-b border-gray-600">
-                <div class="flex justify-between items-center">
-                    <h3 class="text-xl font-bold text-purple-400">🎭 Guía Rápida - narrativAI</h3>
-                    <button onclick="toggleHelp()" class="text-gray-400 hover:text-white text-2xl">×</button>
+        <!-- Paso 4: Exportar -->
+        <div class="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700">
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center text-xl font-bold mr-4">4</div>
+                    <div>
+                        <h2 class="text-2xl font-bold text-green-400">Exporta Tu Proyecto</h2>
+                        <p class="text-gray-300">Descarga todo en un ZIP completo</p>
+                    </div>
                 </div>
+                <button onclick="downloadProject()" id="downloadBtn" class="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg disabled:opacity-50">
+                    📦 Descargar ZIP
+                </button>
             </div>
-            <div class="p-6 space-y-4">
-                <div class="flex items-start space-x-3">
-                    <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-sm font-bold">1</div>
-                    <div>
-                        <h4 class="font-semibold text-purple-300">Define Elementos</h4>
-                        <p class="text-sm text-gray-400">Ingresa hasta 3 elementos que darán vida a tu historia</p>
-                    </div>
-                </div>
-                <div class="flex items-start space-x-3">
-                    <div class="w-8 h-8 bg-pink-500 rounded-full flex items-center justify-center text-sm font-bold">2</div>
-                    <div>
-                        <h4 class="font-semibold text-pink-300">Equilibra Géneros</h4>
-                        <p class="text-sm text-gray-400">Selecciona hasta 3 géneros y ajusta su influencia</p>
-                    </div>
-                </div>
-                <div class="flex items-start space-x-3">
-                    <div class="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center text-sm font-bold">3</div>
-                    <div>
-                        <h4 class="font-semibold text-yellow-300">Genera y Perfecciona</h4>
-                        <p class="text-sm text-gray-400">Crea tu narrativa e imágenes IA opcionales</p>
-                    </div>
-                </div>
-                <div class="flex items-start space-x-3">
-                    <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-sm font-bold">4</div>
-                    <div>
-                        <h4 class="font-semibold text-green-300">Exporta Proyecto</h4>
-                        <p class="text-sm text-gray-400">Descarga todo en un ZIP completo y organizado</p>
-                    </div>
-                </div>
+            
+            <div id="exportStatus" class="text-center text-gray-400 py-8">
+                <div class="text-4xl mb-3">📦</div>
+                <p class="text-lg">Genera tu narrativa para activar la exportación</p>
             </div>
         </div>
     </div>
 
     <script>
-        // Estado de la aplicación
+        // ==================== ESTADO DE LA APLICACIÓN ====================
         let appState = {
             selectedGenres: [],
             genreIntensities: {},
             generatedNarrative: '',
-            useImageAI: false,
-            currentImageUrl: '',
-            currentImagePrompt: '',
-            currentDisplayPrompt: '',
-            isGenerating: false,
             imageHistory: [],
-            currentPromptHash: null,
-            currentStep: 1,
-            detailLevel: 'medium'
+            isGenerating: false,
+            currentGeneration: 0 // CONTADOR PARA DEBUGGING
         };
 
-        // Géneros disponibles
+        // ==================== GÉNEROS DISPONIBLES ====================
         const genres = {
             'terror': { name: 'Terror', icon: '👻', color: 'from-red-600 to-red-800' },
             'fantasia': { name: 'Fantasía', icon: '🧙‍♂️', color: 'from-purple-600 to-purple-800' },
@@ -599,104 +328,116 @@
             'drama': { name: 'Drama', icon: '🎭', color: 'from-indigo-600 to-indigo-800' }
         };
 
-        // Variables para edición
-        let originalNarrativeText = '';
-        let isEditingNarrative = false;
+        // ==================== ESTILOS ARTÍSTICOS CORREGIDOS ====================
+        const artisticStyles = {
+            'auto': {
+                name: 'Automático',
+                prompt: 'epic fantasy art, masterpiece quality, professional illustration, cinematic lighting',
+                keywords: ['epic', 'fantasy', 'professional', 'cinematic']
+            },
+            'lorenzale-allegory-style': {
+                name: 'Claudi Lorenzale i Sugrañes',
+                prompt: 'masterpiece in the style of Claudi Lorenzale i Sugrañes, 19th century Romantic-Nazarene Catalan painter, precise academic drawing with clear contours, idealized female figures with classical beauty, serene melancholic expressions, flowing classical drapery, warm golden and earth tone palette, balanced neoclassical composition, allegory of moral virtues, soft diffused lighting, meticulous anatomical detail, Barcelona romantic school painting',
+                keywords: ['Lorenzale', 'romantic painting', 'academic drawing', 'allegorical', 'classical', 'Catalan school']
+            },
+            'rackham-style': {
+                name: 'Arthur Rackham',
+                prompt: 'Arthur Rackham style illustration, intricate pen and ink linework, delicate watercolor washes, sinuous organic lines, muted earth tones with touches of gold, fairy tale atmosphere, detailed crosshatching, golden age book illustration, mystical folklore',
+                keywords: ['pen and ink', 'watercolor', 'fairy tale', 'crosshatching', 'organic lines']
+            },
+            'wrightson-style': {
+                name: 'Bernie Wrightson',
+                prompt: 'Bernie Wrightson style horror illustration, masterful ink work with deep blacks, dramatic chiaroscuro lighting, intricate crosshatching and stippling, gothic horror atmosphere, detailed linework, dramatic shadows and highlights, macabre and atmospheric',
+                keywords: ['horror', 'ink work', 'crosshatching', 'chiaroscuro', 'gothic']
+            },
+            'moebius-style': {
+                name: 'Moebius',
+                prompt: 'Moebius Jean Giraud style illustration, clean precise linework, ethereal sci-fi landscapes, surreal dreamlike compositions, soft pastel colors with electric blues, floating geometric structures, European comic book style, detailed mechanical and organic forms',
+                keywords: ['moebius', 'sci-fi', 'clean lines', 'surreal', 'geometric']
+            },
+            'frazetta-style': {
+                name: 'Frank Frazetta',
+                prompt: 'Frank Frazetta style painting, powerful visible brushwork, heroic fantasy themes, dramatic muscle definition, rich warm color palette, dynamic action poses, oil painting technique with impasto effects, barbarian and sword-and-sorcery aesthetic, raw power and energy',
+                keywords: ['frazetta', 'oil painting', 'heroic', 'muscular', 'sword and sorcery']
+            },
+            'brom-style': {
+                name: 'Gerald Brom',
+                prompt: 'Gerald Brom style dark fantasy art, rich digital painting technique, gothic and macabre themes, muted desaturated colors with deep browns and reds, detailed character work with emotional intensity, blend of beauty and horror, contemporary dark fantasy aesthetic',
+                keywords: ['brom', 'dark fantasy', 'gothic', 'digital painting', 'macabre']
+            },
+            'giger-style': {
+                name: 'H.R. Giger',
+                prompt: 'H.R. Giger biomechanical style, nightmarish fusion of organic and mechanical elements, masterful airbrush technique in monochromatic grays, alien imagery, detailed technical precision, surreal horror aesthetic, xenomorph-inspired, dark industrial Gothic',
+                keywords: ['biomechanical', 'alien', 'airbrush', 'horror', 'technical']
+            },
+            'photorealistic': {
+                name: 'Fotorrealista',
+                prompt: 'photorealistic style, professional photography quality, sharp focus with shallow depth of field, natural lighting, high dynamic range, ultra-detailed textures, cinematic composition, documentary realism, perfect exposure',
+                keywords: ['photorealistic', 'professional photography', 'natural lighting', 'sharp focus']
+            },
+            'digital-art': {
+                name: 'Arte Digital',
+                prompt: 'modern digital art illustration, clean vector-influenced style, vibrant saturated colors, smooth gradients and lighting effects, contemporary graphic design aesthetic, professional concept art quality, polished and refined technique',
+                keywords: ['digital art', 'concept art', 'vector style', 'vibrant colors']
+            },
+            'oil-painting': {
+                name: 'Pintura al Óleo',
+                prompt: 'traditional oil painting technique, visible brushstrokes with impasto texture, rich and vibrant color palette, academic realism style, canvas texture visible, classical European painting tradition, deep color depth and luminosity',
+                keywords: ['oil painting', 'classical', 'brushstrokes', 'traditional', 'impasto']
+            },
+            'anime': {
+                name: 'Anime/Manga',
+                prompt: 'anime and manga art style, large expressive eyes, stylized colorful hair and clothing, cell-shaded coloring technique, Japanese animation aesthetic, clean linework, bright saturated colors, dramatic expressions and poses',
+                keywords: ['anime', 'manga', 'cell-shaded', 'japanese animation', 'expressive']
+            },
+            'comic-book': {
+                name: 'Cómic',
+                prompt: 'comic book illustration style, bold outlines with flat color fills, dynamic action-oriented composition, primary color palette with high contrast, superhero comic aesthetic, dramatic perspective and foreshortening, sequential visual narrative',
+                keywords: ['comic book', 'bold outlines', 'primary colors', 'dynamic action']
+            },
+            'fantasy-art': {
+                name: 'Arte Fantástico',
+                prompt: 'fantasy art illustration, magical realism style, detailed world-building elements, rich atmospheric lighting, mythological and legendary themes, dragons and magical creatures, elaborate costume and architectural design, epic dramatic compositions',
+                keywords: ['fantasy art', 'magical realism', 'mythological', 'elaborate design']
+            }
+        };
 
-        // Función auxiliar para mostrar notificaciones de forma consistente
+        // ==================== SISTEMA DE NOTIFICACIONES ====================
         function showNotification(message, type) {
-            const colors = {
-                'green': 'bg-green-600',
-                'yellow': 'bg-yellow-600', 
-                'red': 'bg-red-600',
-                'blue': 'bg-blue-600',
-                'purple': 'bg-purple-600'
-            };
+            console.log(`📢 ${type.toUpperCase()}: ${message}`);
             
-            const notification = document.createElement('div');
-            notification.className = `fixed top-4 right-4 ${colors[type] || 'bg-gray-600'} text-white px-4 py-2 rounded-lg z-50 max-w-sm shadow-lg`;
-            notification.textContent = message;
-            
-            document.body.appendChild(notification);
-            
-            // Auto-remove con verificación de existencia
-            setTimeout(() => {
-                try {
-                    if (document.body.contains(notification)) {
-                        document.body.removeChild(notification);
-                    }
-                } catch (error) {
-                    console.warn('Error removiendo notificación:', error);
+            try {
+                const colors = {
+                    'green': 'bg-green-600',
+                    'yellow': 'bg-yellow-600', 
+                    'red': 'bg-red-600',
+                    'blue': 'bg-blue-600',
+                    'purple': 'bg-purple-600'
+                };
+                
+                const notification = document.createElement('div');
+                notification.className = `fixed top-4 right-4 ${colors[type] || 'bg-gray-600'} text-white px-4 py-2 rounded-lg z-50 max-w-sm shadow-lg transition-all duration-300`;
+                notification.textContent = message;
+                
+                if (document.body) {
+                    document.body.appendChild(notification);
+                    
+                    setTimeout(() => {
+                        try {
+                            if (notification && notification.parentNode) {
+                                document.body.removeChild(notification);
+                            }
+                        } catch (removeError) {
+                            console.warn('Error removiendo notificación:', removeError);
+                        }
+                    }, type === 'red' ? 6000 : 3000);
                 }
-            }, type === 'red' ? 6000 : 3000);
-        }
-
-        // Actualizar progreso y pasos
-        function updateProgress() {
-            const element1 = document.getElementById('element1').value.trim();
-            const element2 = document.getElementById('element2').value.trim();
-            const element3 = document.getElementById('element3').value.trim();
-            
-            const hasElements = element1 || element2 || element3;
-            const hasGenres = appState.selectedGenres.length > 0;
-            const hasNarrative = appState.generatedNarrative !== '';
-            
-            // Actualizar indicadores de paso
-            updateStepIndicator(1, hasElements);
-            updateStepIndicator(2, hasGenres);
-            updateStepIndicator(3, hasNarrative);
-            updateStepIndicator(4, hasNarrative);
-            
-            // Actualizar contenedores de paso
-            updateStepContainers(hasElements, hasGenres, hasNarrative);
-            
-            // Actualizar barra de progreso
-            let progress = 0;
-            if (hasElements) progress += 25;
-            if (hasGenres) progress += 25;
-            if (hasNarrative) progress += 50;
-            
-            document.getElementById('progress-bar').style.width = progress + '%';
-        }
-
-        function updateStepIndicator(step, completed) {
-            const indicator = document.getElementById(`step${step}-indicator`);
-            if (completed) {
-                indicator.className = 'step-indicator completed w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border-2 border-green-500';
-            } else if (step === appState.currentStep) {
-                indicator.className = 'step-indicator active w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border-2 border-purple-500';
-            } else {
-                indicator.className = 'step-indicator w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border-2 border-gray-600';
+            } catch (error) {
+                console.error('Error creando notificación:', error);
             }
         }
 
-        function updateStepContainers(hasElements, hasGenres, hasNarrative) {
-            // Paso 1 siempre activo
-            document.getElementById('step1-container').className = 'step-container active mb-8';
-            
-            // Paso 2 activo si hay elementos
-            const step2 = document.getElementById('step2-container');
-            step2.className = hasElements ? 'step-container active mb-8' : 'step-container mb-8';
-            
-            // Paso 3 activo si hay elementos y géneros
-            const step3 = document.getElementById('step3-container');
-            step3.className = (hasElements && hasGenres) ? 'step-container active mb-8' : 'step-container mb-8';
-            
-            // Paso 4 activo si hay narrativa
-            const step4 = document.getElementById('step4-container');
-            step4.className = hasNarrative ? 'step-container active mb-8' : 'step-container mb-8';
-            
-            // Actualizar placeholders de exportación
-            if (hasNarrative) {
-                document.getElementById('exportPlaceholder').classList.add('hidden');
-                document.getElementById('exportReady').classList.remove('hidden');
-            } else {
-                document.getElementById('exportPlaceholder').classList.remove('hidden');
-                document.getElementById('exportReady').classList.add('hidden');
-            }
-        }
-
-        // Crear elementos de género
+        // ==================== GESTIÓN DE GÉNEROS ====================
         function createGenreElements() {
             const genreGrid = document.getElementById('genreGrid');
             
@@ -716,7 +457,6 @@
             });
         }
 
-        // Alternar selección de género
         function toggleGenre(genreId) {
             const genreCard = document.querySelector(`[data-genre-id="${genreId}"]`);
             const isSelected = appState.selectedGenres.includes(genreId);
@@ -729,7 +469,7 @@
                 if (appState.selectedGenres.length < 3) {
                     appState.selectedGenres.push(genreId);
                     genreCard.classList.add('selected');
-                    appState.genreIntensities[genreId] = 70;
+                    appState.genreIntensities[genreId] = Math.floor(100 / (appState.selectedGenres.length));
                 } else {
                     showNotification('⚠️ Ya tienes 3 géneros. Deselecciona uno primero.', 'yellow');
                     return;
@@ -738,10 +478,13 @@
             
             updateGenreCount();
             updateGenreIntensityControls();
-            updateProgress();
         }
 
-        // Actualizar controles de intensidad de géneros
+        function updateGenreCount() {
+            const genreCount = document.getElementById('genreCount');
+            genreCount.textContent = `${appState.selectedGenres.length}/3`;
+        }
+
         function updateGenreIntensityControls() {
             const controlsSection = document.getElementById('genreIntensityControls');
             const slidersContainer = document.getElementById('genreSliders');
@@ -755,11 +498,16 @@
             slidersContainer.innerHTML = '';
             
             // Inicializar intensidades para que sumen 100
-            initializeIntensitiesTo100();
+            const baseValue = Math.floor(100 / appState.selectedGenres.length);
+            const remainder = 100 - (baseValue * appState.selectedGenres.length);
+            
+            appState.selectedGenres.forEach((genreId, index) => {
+                appState.genreIntensities[genreId] = baseValue + (index < remainder ? 1 : 0);
+            });
             
             appState.selectedGenres.forEach(genreId => {
                 const genre = genres[genreId];
-                const intensity = appState.genreIntensities[genreId] || Math.floor(100 / appState.selectedGenres.length);
+                const intensity = appState.genreIntensities[genreId];
                 
                 const sliderHtml = `
                     <div class="bg-gray-800/50 rounded-lg p-4 border border-gray-600">
@@ -787,21 +535,7 @@
             
             updateTotalIndicator();
         }
-        
-        // Inicializar intensidades para que sumen exactamente 100
-        function initializeIntensitiesTo100() {
-            const numGenres = appState.selectedGenres.length;
-            if (numGenres === 0) return;
-            
-            const baseValue = Math.floor(100 / numGenres);
-            const remainder = 100 - (baseValue * numGenres);
-            
-            appState.selectedGenres.forEach((genreId, index) => {
-                appState.genreIntensities[genreId] = baseValue + (index < remainder ? 1 : 0);
-            });
-        }
-        
-        // Actualizar indicador de total
+
         function updateTotalIndicator() {
             const total = appState.selectedGenres.reduce((sum, id) => sum + (appState.genreIntensities[id] || 0), 0);
             const totalDisplay = document.getElementById('totalDisplay');
@@ -814,7 +548,6 @@
             }
         }
 
-        // Actualizar intensidad de género específico manteniendo suma = 100
         window.updateGenreIntensity = function(genreId, value) {
             const newValue = parseInt(value);
             appState.genreIntensities[genreId] = newValue;
@@ -849,20 +582,14 @@
             updateTotalIndicator();
         };
 
-        // Actualizar contador de géneros
-        function updateGenreCount() {
-            const genreCount = document.getElementById('genreCount');
-            genreCount.textContent = `${appState.selectedGenres.length}/3`;
-        }
-
-        // Generar narrativa épica con intensidades
+        // ==================== GENERACIÓN DE NARRATIVA ====================
         function generateNarrative() {
             const element1 = document.getElementById('element1').value.trim();
             const element2 = document.getElementById('element2').value.trim();
             const element3 = document.getElementById('element3').value.trim();
             
             if (!element1 && !element2 && !element3) {
-                throw new Error('🎯 Ingresa al menos un elemento personalizado para comenzar tu épica.');
+                throw new Error('🎯 Ingresa al menos un elemento para comenzar tu épica.');
             }
             
             if (appState.selectedGenres.length === 0) {
@@ -883,7 +610,7 @@
             let narrativeStyle = '';
             if (dominantGenres[0]?.intensity > 85) {
                 narrativeStyle = `Con una fuerte influencia de ${dominantGenres[0].name.toLowerCase()}, `;
-            } else if (dominantGenres.length > 1 && dominantGenres[0]?.intensity > 70) {
+            } else if (dominantGenres.length > 1) {
                 narrativeStyle = `Balanceando elementos de ${dominantGenres.map(g => g.name.toLowerCase()).join(' y ')}, `;
             }
 
@@ -900,27 +627,28 @@
             return narratives.join('\n\n');
         }
 
-        // Traducir texto al inglés de forma simple pero efectiva
+        // ==================== SISTEMA ROBUSTO DE GENERACIÓN DE IMÁGENES ====================
+        
+        // Traducir español a inglés de forma simple pero efectiva
         function translateToEnglish(text) {
             if (!text) return text;
             
             const translations = {
-                // Básicos
+                // Palabras básicas
                 'y': 'and', 'o': 'or', 'en': 'in', 'el': 'the', 'la': 'the', 'los': 'the', 'las': 'the',
-                'un': 'a', 'una': 'a', 'de': 'of', 'del': 'of the', 'al': 'to the', 'con': 'with',
-                
+                'un': 'a', 'una': 'a', 'de': 'of', 'del': 'of the', 'con': 'with',
                 // Narrativa
                 'historia': 'story', 'narrativa': 'narrative', 'aventura': 'adventure', 'cuento': 'tale',
                 'protagonista': 'protagonist', 'personaje': 'character', 'héroe': 'hero', 'heroína': 'heroine',
-                
                 // Lugares
                 'castillo': 'castle', 'biblioteca': 'library', 'bosque': 'forest', 'montaña': 'mountain',
                 'océano': 'ocean', 'templo': 'temple', 'cueva': 'cave', 'torre': 'tower',
-                
                 // Objetos
                 'libro': 'book', 'espada': 'sword', 'cristal': 'crystal', 'dragón': 'dragon',
                 'mago': 'wizard', 'hada': 'fairy', 'magia': 'magic',
-                
+                // Géneros
+                'terror': 'horror', 'fantasia': 'fantasy', 'romance': 'romance', 'misterio': 'mystery',
+                'ciencia ficcion': 'science fiction', 'aventura': 'adventure', 'comedia': 'comedy', 'drama': 'drama',
                 // Frases específicas
                 'pececillo de plata': 'silverfish creature',
                 'biblioteca gigantesca': 'gigantic library',
@@ -949,132 +677,23 @@
             return translatedText.replace(/\s+/g, ' ').trim();
         }
 
-        // Sistema completo de estilos artísticos con definiciones técnicas optimizadas y expandidas
-        const artisticStyles = {
-            'auto': {
-                name: 'Automático',
-                prompt: 'epic fantasy art, dynamic composition, professional quality',
-                keywords: ['epic', 'fantasy', 'professional'],
-                quality: 'high',
-                moodBoost: 'balanced and epic'
-            },
-            'rackham-style': {
-                name: 'Arthur Rackham',
-                prompt: 'Arthur Rackham style illustration, intricate pen and ink linework, delicate watercolor washes, sinuous organic lines, muted earth tones with touches of gold, fairy tale atmosphere, grotesque and whimsical characters in equal measure, detailed crosshatching, golden age book illustration, ethereal and mystical, folklore storytelling',
-                keywords: ['pen and ink', 'watercolor', 'fairy tale', 'crosshatching', 'organic lines'],
-                quality: 'high',
-                moodBoost: 'mystical and enchanting with folkloric charm'
-            },
-            'wrightson-style': {
-                name: 'Bernie Wrightson',
-                prompt: 'Bernie Wrightson style horror illustration, masterful ink work with deep blacks, dramatic chiaroscuro lighting, intricate crosshatching and stippling, gothic horror atmosphere, detailed linework reminiscent of classic horror comics, dramatic shadows and highlights, black and white with occasional spot color, macabre and atmospheric',
-                keywords: ['horror', 'ink work', 'crosshatching', 'chiaroscuro', 'gothic'],
-                quality: 'high',
-                moodBoost: 'dark and haunting with dramatic tension'
-            },
-            'moebius-style': {
-                name: 'Moebius',
-                prompt: 'Moebius (Jean Giraud) style illustration, clean precise linework, ethereal sci-fi landscapes, surreal and dreamlike compositions, soft pastel color palette with electric blues and warm yellows, floating geometric structures, desert and cosmic themes, European comic book style, detailed mechanical and organic forms blended seamlessly',
-                keywords: ['moebius', 'sci-fi', 'clean lines', 'surreal', 'geometric'],
-                quality: 'high',
-                moodBoost: 'ethereal and otherworldly with cosmic wonder'
-            },
-            'frazetta-style': {
-                name: 'Frank Frazetta',
-                prompt: 'Frank Frazetta style painting, powerful visible brushwork with texture, heroic fantasy themes, dramatic muscle definition and idealized anatomy, rich warm color palette dominated by oranges and browns, dynamic action poses, oil painting technique with impasto effects, barbarian and sword-and-sorcery aesthetic, romantic realism with fantastical elements, raw power and visceral energy, darkly romantic sensuality',
-                keywords: ['frazetta', 'oil painting', 'heroic', 'muscular', 'sword and sorcery', 'impasto', 'barbarian'],
-                quality: 'high',
-                moodBoost: 'heroic and primal with savage beauty and raw power'
-            },
-            'brom-style': {
-                name: 'Gerald Brom',
-                prompt: 'Gerald Brom style dark fantasy art, rich digital painting technique with visible brushstrokes, gothic and macabre themes, muted desaturated color palette with deep browns reds and bruised purples, detailed character work with emotional intensity, blend of beauty and horror, contemporary dark fantasy aesthetic, painterly digital technique with traditional influences, decay and rust textures, scarred tormented figures',
-                keywords: ['brom', 'dark fantasy', 'gothic', 'digital painting', 'macabre', 'decay', 'tormented'],
-                quality: 'high',
-                moodBoost: 'darkly beautiful with gothic romance and psychological depth'
-            },
-            'giger-style': {
-                name: 'H.R. Giger',
-                prompt: 'H.R. Giger biomechanical style, nightmarish fusion of organic and mechanical elements, masterful airbrush technique in monochromatic grays and blacks, sexual and alien imagery, detailed technical precision, surreal horror aesthetic, xenomorph-inspired creatures, dark industrial Gothic, meticulous attention to anatomical and mechanical detail, claustrophobic compositions, cold metallic surfaces and wet organic textures',
-                keywords: ['biomechanical', 'alien', 'airbrush', 'horror', 'technical', 'xenomorph', 'monochromatic'],
-                quality: 'ultra',
-                moodBoost: 'alien and unsettling with biomechanical precision and existential dread'
-            },
-            'photorealistic': {
-                name: 'Fotorrealista',
-                prompt: 'photorealistic style, professional photography quality, sharp focus with shallow depth of field, natural lighting with subtle color grading, high dynamic range, ultra-detailed textures and materials, cinematic composition, documentary realism, perfect exposure and white balance, meticulous creation that appears to be high-resolution photography, extreme fidelity to reality',
-                keywords: ['photorealistic', 'professional photography', 'natural lighting', 'sharp focus', 'high resolution'],
-                quality: 'ultra',
-                moodBoost: 'realistic and believable with cinematic quality and documentary precision'
-            },
-            'digital-art': {
-                name: 'Arte Digital',
-                prompt: 'modern digital art illustration, clean vector-influenced style with unparalleled flexibility, vibrant saturated colors with millions of color possibilities, smooth gradients and lighting effects, contemporary graphic design aesthetic, professional concept art quality, polished and refined technique, trending on digital art platforms, perfect precision with infinite color control, seamless compositing of elements',
-                keywords: ['digital art', 'concept art', 'vector style', 'vibrant colors', 'precise control', 'unlimited palette'],
-                quality: 'high',
-                moodBoost: 'modern and polished with digital precision and limitless creativity'
-            },
-            'oil-painting': {
-                name: 'Pintura al Óleo',
-                prompt: 'traditional oil painting technique, visible brushstrokes with impasto texture, rich and vibrant color palette with high saturation, academic realism style, canvas texture visible, slow drying allowing for blending and transitions, classical European painting tradition, rich color mixing and blending, versatile effects from precise details to expressive brushwork, deep color depth and luminosity through layering',
-                keywords: ['oil painting', 'classical', 'brushstrokes', 'traditional', 'impasto', 'rich colors', 'blending'],
-                quality: 'high',
-                moodBoost: 'classical and timeless with artistic heritage and rich traditional technique'
-            },
-            'anime': {
-                name: 'Anime/Manga',
-                prompt: 'anime and manga art style, large expressive eyes with dynamic emotional range, stylized colorful hair and clothing, cell-shaded coloring technique, Japanese animation aesthetic, clean linework with varied line weights, bright saturated colors, dramatic expressions and poses, Studio Ghibli influence, dynamic visual narrative, precise clean lines defining forms and movement',
-                keywords: ['anime', 'manga', 'cell-shaded', 'japanese animation', 'expressive eyes', 'dynamic poses'],
-                quality: 'high',
-                moodBoost: 'energetic and expressive with Japanese aesthetic and emotional intensity'
-            },
-            'comic-book': {
-                name: 'Cómic',
-                prompt: 'comic book illustration style, bold outlines with flat color fills, dynamic action-oriented composition, Ben-Day dot printing effects, primary color palette with high contrast, superhero comic aesthetic, Roy Lichtenstein pop art influence, dramatic perspective and foreshortening, sequential visual narrative, expressive line work, onomatopoeia and visual effects, organized in panels and viñetas',
-                keywords: ['comic book', 'bold outlines', 'primary colors', 'dynamic action', 'sequential narrative', 'panels'],
-                quality: 'medium',
-                moodBoost: 'dynamic and heroic with pop art energy and visual storytelling'
-            },
-            'fantasy-art': {
-                name: 'Arte Fantástico',
-                prompt: 'fantasy art illustration, magical realism style exploring imaginative worlds, detailed world-building elements, rich atmospheric lighting, mythological and legendary themes, dragons and magical creatures with intricate design, elaborate costume and architectural design, Boris Vallejo and Julie Bell influenced, romantic fantasy aesthetic, epic and dramatic compositions, heroic or monstrous characters in magical environments',
-                keywords: ['fantasy art', 'magical realism', 'mythological', 'elaborate design', 'epic composition', 'magical creatures'],
-                quality: 'high',
-                moodBoost: 'magical and legendary with romantic fantasy and creative freedom'
-            }
-        };
-
-        // Debug del estado del estilo antes de generar prompt
-        function debugStyleState() {
+        // Crear prompt optimizado para IA con estilo artístico
+        function createImagePrompt(narrative, customElements) {
+            // Obtener estilo artístico seleccionado
             const artStyleSelect = document.getElementById('artStyle');
             const selectedStyle = artStyleSelect ? artStyleSelect.value : 'auto';
             const styleData = artisticStyles[selectedStyle] || artisticStyles['auto'];
             
-            console.log('🔍 DEBUG ESTADO DEL ESTILO:');
-            console.log(`- Elemento selector existe: ${!!artStyleSelect}`);
-            console.log(`- Valor seleccionado: "${selectedStyle}"`);
-            console.log(`- Nombre del estilo: "${styleData.name}"`);
-            console.log(`- Prompt del estilo: "${styleData.prompt.substring(0, 50)}..."`);
-            console.log(`- Keywords: [${styleData.keywords.join(', ')}]`);
+            console.log(`🎨 APLICANDO ESTILO: "${styleData.name}"`);
+            console.log(`📝 Prompt del estilo: ${styleData.prompt.substring(0, 100)}...`);
             
-            return { selectedStyle, styleData };
-        }
-
-        // Crear prompt optimizado para IA real con sistema completo de estilos
-        function createImagePrompt(narrative, customElements) {
-            // DEBUG: Verificar estado del estilo
-            const debugInfo = debugStyleState();
-            const { selectedStyle, styleData } = debugInfo;
+            // Comenzar con el prompt del estilo (máxima prioridad)
+            let promptParts = [styleData.prompt];
             
+            // Traducir narrativa al inglés
             const englishNarrative = translateToEnglish(narrative);
             
-            let promptParts = [];
-            
-            // 1. PROMPT DEL ESTILO ARTÍSTICO AL INICIO (máxima prioridad)
-            promptParts.push(styleData.prompt);
-            console.log(`🎨 ESTILO APLICADO AL INICIO: "${styleData.name}"`);
-            
-            // 2. Elementos personalizados traducidos con roles específicos
+            // Añadir elementos personalizados traducidos
             if (customElements.length > 0) {
                 customElements.forEach((element, index) => {
                     const translatedElement = translateToEnglish(element);
@@ -1086,7 +705,7 @@
                 });
             }
             
-            // 3. Analizar narrativa para mood básico
+            // Analizar narrativa para mood
             let baseMood = 'epic scene';
             const lowerText = englishNarrative.toLowerCase();
             if (lowerText.includes('dark') || lowerText.includes('shadow')) baseMood = 'dark mysterious scene';
@@ -1095,255 +714,142 @@
             else if (lowerText.includes('horror') || lowerText.includes('terror')) baseMood = 'horror terrifying scene';
             else if (lowerText.includes('adventure') || lowerText.includes('heroic')) baseMood = 'adventurous heroic scene';
             
-            // 4. Combinar mood base con mood boost del estilo
-            const enhancedMood = selectedStyle !== 'auto' ? 
-                `${baseMood}, ${styleData.moodBoost}` : 
-                `${baseMood}, epic atmosphere`;
+            promptParts.push(baseMood);
             
-            promptParts.push(enhancedMood);
+            // Añadir keywords del estilo
+            promptParts.push(styleData.keywords.slice(0, 3).join(', '));
             
-            // 5. Aplicar nivel de detalle
-            const detailPrompts = {
-                'low': 'simple composition, clean style',
-                'medium': 'detailed artwork, well composed',
-                'high': 'highly detailed masterwork, intricate composition',
-                'ultra': 'ultra detailed masterpiece, perfect artistic execution'
-            };
+            // Calidad profesional
+            promptParts.push('professional artwork, masterpiece quality');
             
-            promptParts.push(detailPrompts[appState.detailLevel]);
+            const finalPrompt = promptParts.join(', ');
             
-            // 6. Keywords específicos del estilo (refuerzo final)
-            const styleKeywords = styleData.keywords.slice(0, 3).join(', ');
-            promptParts.push(styleKeywords);
-            console.log(`🔧 KEYWORDS APLICADOS: "${styleKeywords}"`);
-            
-            // 7. Calidad final específica del estilo
-            const qualityEnhancer = styleData.quality === 'ultra' ? 
-                ', museum quality artwork' : 
-                styleData.quality === 'high' ? 
-                ', professional quality' : 
-                ', artistic quality';
-            
-            const finalPrompt = promptParts.join(', ') + qualityEnhancer;
-            
-            console.log(`🎨 PROMPT FINAL PARA "${styleData.name}":`, finalPrompt);
-            console.log(`🔧 Keywords del estilo en prompt:`, styleData.keywords);
-            console.log(`📊 Calidad del estilo aplicada:`, styleData.quality);
+            console.log(`🎨 PROMPT FINAL CON ESTILO "${styleData.name}":`, finalPrompt);
             
             return finalPrompt;
         }
-        
-        // Aplicar estilo artístico con máxima prioridad en APIs de IA
-        function optimizePromptForAI(basePrompt, customElements) {
-            // El basePrompt ya viene con el estilo aplicado desde createImagePrompt
-            let optimizedPrompt = basePrompt;
-            
-            // Obtener estilo seleccionado para aplicar optimizaciones específicas
-            const artStyleSelect = document.getElementById('artStyle');
-            const selectedStyle = artStyleSelect ? artStyleSelect.value : 'auto';
-            const styleData = artisticStyles[selectedStyle] || artisticStyles['auto'];
-            
-            // Aplicar refuerzos específicos por estilo artístico
-            const styleOptimizations = {
-                'rackham-style': ', pen and ink illustration, watercolor technique, fairy tale book art',
-                'wrightson-style': ', horror comic art, detailed ink work, crosshatching technique',
-                'moebius-style': ', European comic book style, clean line art, sci-fi illustration',
-                'frazetta-style': ', oil painting technique, heroic fantasy art, dynamic brushwork',
-                'brom-style': ', dark fantasy digital art, gothic painting, emotional character art',
-                'giger-style': ', biomechanical art, airbrush technique, surreal horror design',
-                'photorealistic': ', photographic quality, realistic lighting, high detail photography',
-                'digital-art': ', modern digital illustration, concept art, clean digital painting',
-                'oil-painting': ', traditional oil painting, visible brushstrokes, classical technique',
-                'anime': ', anime art style, manga illustration, Japanese animation style',
-                'comic-book': ', comic book art, bold outlines, graphic novel style',
-                'fantasy-art': ', fantasy illustration, magical realism, epic fantasy art'
-            };
-            
-            // Aplicar optimización específica del estilo
-            if (styleOptimizations[selectedStyle]) {
-                optimizedPrompt += styleOptimizations[selectedStyle];
-            }
-            
-            // Detectar género dominante para optimización temática complementaria
-            const dominantGenre = appState.selectedGenres.length > 0 ? 
-                appState.selectedGenres[0] : 'fantasia';
-            
-            const genreOptimizations = {
-                'terror': ', dark atmospheric lighting, ominous mood',
-                'fantasia': ', magical lighting, mystical atmosphere',
-                'romance': ', warm soft lighting, emotional mood',
-                'misterio': ', dramatic shadows, mysterious atmosphere',
-                'ciencia-ficcion': ', futuristic lighting, sci-fi mood',
-                'aventura': ', dynamic composition, heroic mood',
-                'comedia': ', bright cheerful colors, playful mood',
-                'drama': ', intense dramatic lighting, emotional depth'
-            };
-            
-            // Aplicar optimización por género (complementaria, no dominante)
-            if (genreOptimizations[dominantGenre]) {
-                optimizedPrompt += genreOptimizations[dominantGenre];
-            }
-            
-            // Keywords finales específicos del estilo para refuerzo
-            const finalStyleKeywords = styleData.keywords.slice(0, 2).join(', ');
-            optimizedPrompt += `, ${finalStyleKeywords}`;
-            
-            // Limpiar y limitar longitud
-            optimizedPrompt = optimizedPrompt
-                .replace(/,\s*,/g, ',') // Eliminar comas dobles
-                .replace(/\s+/g, ' ')   // Espacios múltiples
-                .trim()
-                .substring(0, 600);     // Límite más generoso para estilos complejos
-            
-            console.log(`🔧 Prompt FINAL optimizado:`, optimizedPrompt);
-            console.log(`🎯 Estilo dominante aplicado:`, styleData.name);
-            
-            return optimizedPrompt;
-        }
 
-        // Función auxiliar para cargar imágenes de forma segura
-        async function loadImageSafely(imageUrl, apiName) {
+        // Intentar generación directa de imagen con API real
+        async function tryImageGeneration(apiConfig, prompt) {
             return new Promise((resolve, reject) => {
-                const img = new Image();
                 const startTime = Date.now();
+                const timeout = apiConfig.timeout || 30000; // 30 segundos timeout generoso
                 
-                // Configuración para evitar problemas de CORS
-                img.crossOrigin = 'anonymous';
+                console.log(`🚀 Intentando ${apiConfig.name} con timeout de ${timeout}ms`);
+                console.log(`🔗 URL: ${apiConfig.url}`);
                 
-                // Timeout robusto
-                const timeout = setTimeout(() => {
-                    img.onload = null;
-                    img.onerror = null;
-                    reject(new Error(`Timeout después de 12 segundos en ${apiName}`));
-                }, 12000);
+                const timeoutId = setTimeout(() => {
+                    console.warn(`⏰ Timeout alcanzado en ${apiConfig.name} después de ${timeout}ms`);
+                    reject(new Error(`Timeout después de ${timeout}ms`));
+                }, timeout);
+                
+                const img = new Image();
                 
                 img.onload = function() {
-                    clearTimeout(timeout);
+                    clearTimeout(timeoutId);
                     const loadTime = Date.now() - startTime;
+                    const width = this.naturalWidth || this.width;
+                    const height = this.naturalHeight || this.height;
                     
-                    resolve({
-                        width: this.naturalWidth || this.width,
-                        height: this.naturalHeight || this.height,
-                        loadTime: loadTime
-                    });
+                    console.log(`✅ ¡IMAGEN REAL CARGADA EN ${apiConfig.name}!`);
+                    console.log(`📐 Dimensiones: ${width}x${height}`);
+                    console.log(`⏱️ Tiempo: ${loadTime}ms`);
+                    
+                    if (width > 50 && height > 50) {
+                        resolve({
+                            url: apiConfig.url,
+                            width: width,
+                            height: height,
+                            loadTime: loadTime,
+                            isValid: true,
+                            isRealAI: true,
+                            apiName: apiConfig.name
+                        });
+                    } else {
+                        reject(new Error(`Imagen muy pequeña: ${width}x${height}`));
+                    }
                 };
                 
                 img.onerror = function(error) {
-                    clearTimeout(timeout);
-                    reject(new Error(`Error de carga en ${apiName}: ${error.message || 'Error desconocido'}`));
+                    clearTimeout(timeoutId);
+                    console.warn(`❌ Error en ${apiConfig.name}:`, error);
+                    reject(new Error(`Error de carga: ${error.type || 'desconocido'}`));
                 };
                 
-                // Iniciar carga con manejo de errores
                 try {
-                    img.src = imageUrl;
-                } catch (error) {
-                    clearTimeout(timeout);
-                    reject(new Error(`Error estableciendo src en ${apiName}: ${error.message}`));
+                    img.src = apiConfig.url;
+                } catch (srcError) {
+                    clearTimeout(timeoutId);
+                    reject(new Error(`Error configurando imagen: ${srcError.message}`));
                 }
             });
         }
-        
-        // Crear placeholder artístico mejorado
-        function createArtisticPlaceholder(prompt, width, height, seed, lastError) {
-            const colors = [
-                ['#8b5cf6', '#ec4899'], // Púrpura a Rosa
-                ['#06b6d4', '#3b82f6'], // Cian a Azul  
-                ['#10b981', '#059669'], // Verde
-                ['#f59e0b', '#d97706'], // Ámbar
-                ['#ef4444', '#dc2626']  // Rojo
-            ];
-            
-            const colorPair = colors[seed % colors.length];
-            const emoji = ['🎭', '🎨', '✨', '🌟', '🎪'][seed % 5];
-            
-            const svgContent = `
-                <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                        <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" style="stop-color:${colorPair[0]};stop-opacity:1" />
-                            <stop offset="100%" style="stop-color:${colorPair[1]};stop-opacity:1" />
-                        </linearGradient>
-                        <pattern id="dots" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
-                            <circle cx="10" cy="10" r="2" fill="rgba(255,255,255,0.1)"/>
-                        </pattern>
-                    </defs>
-                    <rect width="100%" height="100%" fill="url(#grad)"/>
-                    <rect width="100%" height="100%" fill="url(#dots)"/>
-                    <text x="50%" y="40%" text-anchor="middle" fill="white" font-size="64" font-family="Arial">${emoji}</text>
-                    <text x="50%" y="55%" text-anchor="middle" fill="white" font-size="24" font-family="Arial, sans-serif" font-weight="bold">Tu Imagen Épica</text>
-                    <text x="50%" y="65%" text-anchor="middle" fill="rgba(255,255,255,0.9)" font-size="16" font-family="Arial, sans-serif">narrativAI - Generador Visual</text>
-                    <text x="50%" y="75%" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="12" font-family="Arial, sans-serif">"${prompt.substring(0, 60)}${prompt.length > 60 ? '...' : ''}"</text>
-                    <text x="50%" y="85%" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-size="10" font-family="Arial, sans-serif">Seed: ${seed} | ${width}x${height}</text>
-                </svg>
-            `;
-            
-            return {
-                url: `data:image/svg+xml;base64,${btoa(svgContent)}`,
-                prompt: prompt,
-                originalPrompt: prompt,
-                width: width,
-                height: height,
-                seed: seed,
-                api: 'Placeholder Artístico',
-                isPlaceholder: true,
-                error: lastError?.message || 'APIs no disponibles'
-            };
-        }
 
-        // Función para placeholder simple (compatibilidad)
-        function createSimplePlaceholder(prompt, width, height, seed) {
-            return createArtisticPlaceholder(prompt, width, height, seed, { message: 'Placeholder simple' });
-        }
-
-        // Sistema REAL de generación de imágenes con ESTILO ARTÍSTICO APLICADO
-        async function generatePerchanceImage(prompt) {
+        // FUNCIÓN PRINCIPAL DE GENERACIÓN - COMPLETAMENTE CORREGIDA
+        async function generateImageWithStyle(prompt) {
             const width = 1024;
             const height = 768;
             const seed = Math.floor(Math.random() * 1000000);
             
-            // Aplicar optimización final con estilo artístico
-            const optimizedPrompt = optimizePromptForAI(prompt, []);
+            // Incrementar contador de generación
+            appState.currentGeneration++;
+            console.log(`🎨 === GENERACIÓN #${appState.currentGeneration} INICIADA ===`);
             
-            // Limpiar pero preservar palabras clave del estilo
-            const cleanPrompt = optimizedPrompt
+            // Obtener estilo seleccionado
+            const artStyleSelect = document.getElementById('artStyle');
+            const selectedStyle = artStyleSelect ? artStyleSelect.value : 'auto';
+            const styleData = artisticStyles[selectedStyle] || artisticStyles['auto'];
+            
+            console.log(`🎭 ESTILO SELECCIONADO: "${styleData.name}"`);
+            
+            // Limpiar prompt para APIs
+            const cleanPrompt = prompt
                 .replace(/[^\w\s,.!?-]/g, ' ')
                 .replace(/\s+/g, ' ')
                 .trim()
-                .substring(0, 600); // Más caracteres para preservar detalles del estilo
+                .substring(0, 500);
             
-            console.log('🎨 Generando imagen REAL con IA + ESTILO ARTÍSTICO...');
-            console.log('📝 Prompt con estilo aplicado:', cleanPrompt);
+            console.log(`📝 PROMPT LIMPIO (${cleanPrompt.length} chars):`, cleanPrompt);
             
-            // APIs reales de generación de imágenes con parámetros optimizados para estilos
-            const realAPIs = [
+            // APIS MÚLTIPLES CON CONFIGURACIÓN ROBUSTA
+            const imageAPIs = [
                 {
-                    name: 'Pollinations AI Enhanced',
-                    url: `https://image.pollinations.ai/prompt/${encodeURIComponent(cleanPrompt)}?width=${width}&height=${height}&seed=${seed}&nologo=true&enhance=true&model=flux`
+                    name: 'Pollinations AI Flux Ultra',
+                    url: `https://image.pollinations.ai/prompt/${encodeURIComponent(cleanPrompt)}?width=${width}&height=${height}&seed=${seed}&nologo=true&model=flux&enhance=true&quality=high`,
+                    timeout: 35000
                 },
                 {
-                    name: 'Pollinations AI Standard',
-                    url: `https://image.pollinations.ai/prompt/${encodeURIComponent(cleanPrompt)}?width=${width}&height=${height}&seed=${seed}&nologo=true&enhance=true`
+                    name: 'Pollinations AI Standard Plus',
+                    url: `https://image.pollinations.ai/prompt/${encodeURIComponent(cleanPrompt)}?width=${width}&height=${height}&seed=${seed}&nologo=true&enhance=true`,
+                    timeout: 30000
                 },
                 {
-                    name: 'Pollinations Turbo',
-                    url: `https://image.pollinations.ai/prompt/${encodeURIComponent(cleanPrompt)}?width=${width}&height=${height}&seed=${seed}&nologo=true&model=turbo`
+                    name: 'Pollinations AI Basic',
+                    url: `https://image.pollinations.ai/prompt/${encodeURIComponent(cleanPrompt.substring(0, 300))}?seed=${seed}&nologo=true`,
+                    timeout: 25000
+                },
+                {
+                    name: 'Pollinations AI Simple',
+                    url: `https://image.pollinations.ai/prompt/${encodeURIComponent(cleanPrompt.substring(0, 200))}?seed=${seed}`,
+                    timeout: 20000
+                },
+                {
+                    name: 'Pollinations AI Minimal',
+                    url: `https://image.pollinations.ai/prompt/${encodeURIComponent(cleanPrompt.substring(0, 100))}`,
+                    timeout: 15000
                 }
             ];
             
-            // Intentar generar imagen real con estilo aplicado
-            for (let i = 0; i < realAPIs.length; i++) {
-                const api = realAPIs[i];
-                console.log(`🔄 Intentando ${api.name} con estilo artístico...`);
+            // PROBAR CADA API CON LOGGING DETALLADO
+            for (let i = 0; i < imageAPIs.length; i++) {
+                const api = imageAPIs[i];
+                console.log(`🔄 [Generación #${appState.currentGeneration}] Probando API ${i+1}/${imageAPIs.length}: ${api.name}`);
                 
                 try {
-                    const result = await tryRealImageAPI(api, cleanPrompt);
-                    if (result && result.url) {
-                        console.log(`✅ ¡ÉXITO! Imagen con estilo generada con ${api.name}`);
-                        
-                        // Obtener información del estilo aplicado
-                        const artStyleSelect = document.getElementById('artStyle');
-                        const selectedStyle = artStyleSelect ? artStyleSelect.value : 'auto';
-                        const styleData = artisticStyles[selectedStyle] || artisticStyles['auto'];
+                    const result = await tryImageGeneration(api, cleanPrompt);
+                    
+                    if (result && result.isValid) {
+                        console.log(`🎉 [Generación #${appState.currentGeneration}] ¡ÉXITO CON ${api.name}!`);
                         
                         return {
                             url: result.url,
@@ -1351,404 +857,331 @@
                             originalPrompt: prompt,
                             appliedStyle: styleData.name,
                             styleKeywords: styleData.keywords,
-                            width: width,
-                            height: height,
+                            width: result.width || width,
+                            height: result.height || height,
                             seed: seed,
                             api: api.name,
                             isRealAI: true,
+                            isGenerated: true,
                             isPlaceholder: false,
-                            loadTime: result.loadTime || 0
+                            loadTime: result.loadTime,
+                            generation: appState.currentGeneration
                         };
                     }
                 } catch (error) {
-                    console.warn(`❌ ${api.name} falló:`, error.message);
+                    console.warn(`❌ [Generación #${appState.currentGeneration}] ${api.name} falló:`, error.message);
                     // Continuar con la siguiente API
                 }
-                
-                // Pausa entre intentos
-                if (i < realAPIs.length - 1) {
-                    await new Promise(resolve => setTimeout(resolve, 1000));
-                }
             }
             
-            // Si todas las APIs reales fallan, crear arte temático con estilo
-            console.log('⚠️ APIs de IA no disponibles, creando arte temático con estilo...');
-            return await createStyledArtwork(cleanPrompt, width, height, seed);
-        }
-        
-        // Intentar API real de imagen
-        async function tryRealImageAPI(api, prompt) {
-            return new Promise((resolve, reject) => {
-                const startTime = Date.now();
+            // SI TODAS LAS APIs FALLAN: Fallback a arte estilizado
+            console.log(`🎨 [Generación #${appState.currentGeneration}] Todas las APIs fallaron, creando arte estilizado...`);
+            
+            try {
+                const styledArt = await createStyledArt(cleanPrompt, width, height, seed, styleData);
+                console.log(`✅ [Generación #${appState.currentGeneration}] Arte estilizado creado con éxito`);
                 
-                if (api.method === 'POST') {
-                    // Para APIs que requieren POST
-                    fetch(api.url, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: api.body || JSON.stringify({ inputs: prompt })
-                    })
-                    .then(response => {
-                        if (!response.ok) throw new Error('API response not ok');
-                        return response.blob();
-                    })
-                    .then(blob => {
-                        const imageUrl = URL.createObjectURL(blob);
-                        resolve({
-                            url: imageUrl,
-                            loadTime: Date.now() - startTime
-                        });
-                    })
-                    .catch(reject);
+                return {
+                    ...styledArt,
+                    generation: appState.currentGeneration
+                };
+                
+            } catch (artError) {
+                console.error(`❌ [Generación #${appState.currentGeneration}] Error en arte estilizado:`, artError);
+                
+                // ÚLTIMO RECURSO: Placeholder informativo
+                return createErrorPlaceholder(cleanPrompt, width, height, seed, styleData, appState.currentGeneration);
+            }
+        }
+
+        // Crear arte estilizado personalizado
+        async function createStyledArt(prompt, width, height, seed, styleData) {
+            console.log(`🎨 Creando arte estilizado con estilo: ${styleData.name}`);
+            
+            // Paletas específicas por estilo
+            const stylePalettes = {
+                'lorenzale-allegory-style': ['#D4AF37', '#CD853F', '#F5DEB3', '#FFF8DC'], // Dorados académicos
+                'rackham-style': ['#8B4513', '#D2691E', '#F4A460', '#DDD6C1'], // Tierra y oro
+                'wrightson-style': ['#1C1C1C', '#4A4A4A', '#696969', '#A9A9A9'], // Grises dramáticos
+                'moebius-style': ['#4169E1', '#87CEEB', '#F0E68C', '#E6E6FA'], // Azules etéreos
+                'frazetta-style': ['#CD853F', '#A0522D', '#D2691E', '#F4A460'], // Cálidos heroicos
+                'brom-style': ['#2F1B14', '#4A0E0E', '#6B1C1C', '#8B4513'], // Oscuros góticos
+                'giger-style': ['#2C2C2C', '#4A4A4A', '#696969', '#808080'], // Metálicos biomecánicos
+                'auto': ['#8b5cf6', '#ec4899', '#06b6d4', '#10b981'] // Épico moderno
+            };
+            
+            const iconMap = {
+                'lorenzale-allegory-style': '👸',
+                'rackham-style': '🧚',
+                'wrightson-style': '💀',
+                'moebius-style': '🌌',
+                'frazetta-style': '⚔️',
+                'brom-style': '🌙',
+                'giger-style': '👾',
+                'auto': '✨'
+            };
+            
+            const colorPalette = stylePalettes[styleData.name] || stylePalettes['auto'];
+            const mainIcon = iconMap[styleData.name] || iconMap['auto'];
+            
+            const cleanPrompt = prompt.replace(/[<>&"']/g, '').substring(0, 40);
+            const cleanStyleName = styleData.name.replace(/[<>&"']/g, '');
+            const cleanKeywords = styleData.keywords.slice(0, 3).join(', ').replace(/[<>&"']/g, '');
+            
+            const svgContent = `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <radialGradient id="artGrad${seed}" cx="50%" cy="50%" r="70%">
+                        <stop offset="0%" style="stop-color:${colorPalette[0]};stop-opacity:0.9" />
+                        <stop offset="40%" style="stop-color:${colorPalette[1]};stop-opacity:0.7" />
+                        <stop offset="70%" style="stop-color:${colorPalette[2]};stop-opacity:0.5" />
+                        <stop offset="100%" style="stop-color:${colorPalette[3]};stop-opacity:0.8" />
+                    </radialGradient>
+                    <filter id="glow${seed}">
+                        <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                        <feMerge>
+                            <feMergeNode in="coloredBlur"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                    </filter>
+                </defs>
+                <rect width="100%" height="100%" fill="url(#artGrad${seed})"/>
+                <text x="50%" y="35%" text-anchor="middle" fill="white" font-size="80" font-family="Arial" filter="url(#glow${seed})">${mainIcon}</text>
+                <text x="50%" y="50%" text-anchor="middle" fill="white" font-size="24" font-family="Arial, sans-serif" font-weight="bold">${cleanStyleName}</text>
+                <text x="50%" y="58%" text-anchor="middle" fill="rgba(255,255,255,0.9)" font-size="16" font-family="Arial, sans-serif">Arte Estilizado - narrativAI</text>
+                <text x="50%" y="66%" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="12" font-family="Arial, sans-serif" font-style="italic">${cleanKeywords}</text>
+                <text x="50%" y="78%" text-anchor="middle" fill="rgba(255,255,255,0.6)" font-size="11" font-family="Arial, sans-serif">${cleanPrompt}${cleanPrompt.length >= 40 ? '...' : ''}</text>
+                <text x="50%" y="88%" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-size="10" font-family="Arial, sans-serif">Seed: ${seed} | ${width}x${height}</text>
+                <rect x="3" y="3" width="${width-6}" height="${height-6}" fill="none" stroke="${colorPalette[1]}" stroke-width="2" rx="8" opacity="0.6"/>
+            </svg>`;
+            
+            try {
+                const encodedSvg = btoa(unescape(encodeURIComponent(svgContent)));
+                
+                return {
+                    url: `data:image/svg+xml;base64,${encodedSvg}`,
+                    prompt: prompt,
+                    originalPrompt: prompt,
+                    appliedStyle: styleData.name,
+                    styleKeywords: styleData.keywords,
+                    width: width,
+                    height: height,
+                    seed: seed,
+                    api: `Arte Estilizado ${styleData.name}`,
+                    isRealAI: false,
+                    isGenerated: true,
+                    isPlaceholder: false,
+                    isStyled: true,
+                    loadTime: 500
+                };
+            } catch (encodingError) {
+                console.error('Error codificando SVG:', encodingError);
+                throw new Error('Error creando arte estilizado');
+            }
+        }
+
+        // Crear placeholder de error informativo
+        function createErrorPlaceholder(prompt, width, height, seed, styleData, generation) {
+            const cleanPrompt = prompt.replace(/[<>&"']/g, '').substring(0, 40);
+            const cleanStyleName = styleData.name.replace(/[<>&"']/g, '');
+            
+            const svgContent = `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="errorGrad${seed}" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#ef4444;stop-opacity:0.9" />
+                        <stop offset="100%" style="stop-color:#dc2626;stop-opacity:0.9" />
+                    </linearGradient>
+                </defs>
+                <rect width="100%" height="100%" fill="url(#errorGrad${seed})"/>
+                <text x="50%" y="25%" text-anchor="middle" fill="white" font-size="48" font-family="Arial">⚠️</text>
+                <text x="50%" y="35%" text-anchor="middle" fill="white" font-size="20" font-family="Arial, sans-serif" font-weight="bold">APIs Temporalmente No Disponibles</text>
+                <text x="50%" y="45%" text-anchor="middle" fill="rgba(255,255,255,0.9)" font-size="14" font-family="Arial, sans-serif">Generación #${generation} - Sistema en mantenimiento</text>
+                <text x="50%" y="55%" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="12" font-family="Arial, sans-serif">Estilo: ${cleanStyleName}</text>
+                <text x="50%" y="65%" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="12" font-family="Arial, sans-serif">Prompt: ${cleanPrompt}${cleanPrompt.length >= 40 ? '...' : ''}</text>
+                <text x="50%" y="78%" text-anchor="middle" fill="rgba(255,255,255,0.6)" font-size="10" font-family="Arial, sans-serif">Intenta "🔄 Nueva Variación" en unos minutos</text>
+                <text x="50%" y="85%" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-size="10" font-family="Arial, sans-serif">narrativAI | Seed: ${seed}</text>
+                <rect x="3" y="3" width="${width-6}" height="${height-6}" fill="none" stroke="#ffffff" stroke-width="2" rx="8" opacity="0.3" stroke-dasharray="10,5"/>
+            </svg>`;
+            
+            try {
+                const encodedSvg = btoa(unescape(encodeURIComponent(svgContent)));
+                
+                return {
+                    url: `data:image/svg+xml;base64,${encodedSvg}`,
+                    prompt: prompt,
+                    originalPrompt: prompt,
+                    appliedStyle: styleData.name,
+                    styleKeywords: styleData.keywords,
+                    width: width,
+                    height: height,
+                    seed: seed,
+                    api: 'Placeholder Error',
+                    isRealAI: false,
+                    isGenerated: false,
+                    isPlaceholder: true,
+                    error: 'APIs temporalmente no disponibles',
+                    generation: generation
+                };
+            } catch (encodingError) {
+                console.error('Error creando placeholder:', encodingError);
+                
+                // Fallback ultra-simple
+                return {
+                    url: `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgContent)}`,
+                    prompt: prompt,
+                    originalPrompt: prompt,
+                    appliedStyle: styleData.name,
+                    width: width,
+                    height: height,
+                    seed: seed,
+                    api: 'Placeholder Fallback',
+                    isRealAI: false,
+                    isGenerated: false,
+                    isPlaceholder: true,
+                    error: 'Error crítico',
+                    generation: generation
+                };
+            }
+        }
+
+        // ==================== MANEJADORES DE EVENTOS ====================
+        
+        async function handleGenerateNarrative() {
+            if (appState.isGenerating) return;
+            
+            const generateBtn = document.getElementById('generateBtn');
+            const generateBtnText = document.getElementById('generateBtnText');
+            const loadingNarrative = document.getElementById('loadingNarrative');
+            const narrativePlaceholder = document.getElementById('narrativePlaceholder');
+            const narrativeContent = document.getElementById('narrativeContent');
+            
+            try {
+                appState.isGenerating = true;
+                generateBtn.disabled = true;
+                generateBtnText.textContent = '🎭 Tejiendo épica...';
+                loadingNarrative.classList.remove('hidden');
+                narrativePlaceholder.classList.add('hidden');
+                narrativeContent.classList.add('hidden');
+                
+                const narrative = generateNarrative();
+                appState.generatedNarrative = narrative;
+                
+                // Simular tiempo de procesamiento
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                loadingNarrative.classList.add('hidden');
+                
+                const narrativeDisplay = document.getElementById('narrativeDisplay');
+                if (narrativeDisplay) {
+                    narrativeDisplay.innerHTML = narrative.replace(/\n/g, '<br><br>');
+                }
+                
+                narrativeContent.classList.remove('hidden');
+                updateImageReadyState();
+                
+                showNotification('🎭 ¡Narrativa épica generada! Ahora puedes crear la imagen', 'green');
+                
+            } catch (error) {
+                console.error('Error en la generación:', error);
+                showNotification(error.message, 'red');
+                
+                loadingNarrative.classList.add('hidden');
+                narrativePlaceholder.classList.remove('hidden');
+            } finally {
+                appState.isGenerating = false;
+                generateBtn.disabled = false;
+                generateBtnText.textContent = '🎭 Generar Narrativa';
+            }
+        }
+
+        async function handleGenerateImage() {
+            console.log(`🎨 === INICIANDO GENERACIÓN DE IMAGEN #${appState.currentGeneration + 1} ===`);
+            
+            if (!appState.generatedNarrative) {
+                showNotification('⚠️ Genera una narrativa primero.', 'yellow');
+                return;
+            }
+            
+            if (appState.isGenerating) {
+                console.log('⚠️ Ya hay una generación en progreso');
+                return;
+            }
+            
+            const generateImageBtn = document.getElementById('generateImageBtn');
+            const generateImageBtnText = document.getElementById('generateImageBtnText');
+            const loadingImage = document.getElementById('loadingImage');
+            const imagePlaceholder = document.getElementById('imagePlaceholder');
+            
+            try {
+                appState.isGenerating = true;
+                generateImageBtn.disabled = true;
+                generateImageBtnText.textContent = '🎨 Creando imagen...';
+                
+                imagePlaceholder.classList.add('hidden');
+                loadingImage.classList.remove('hidden');
+                
+                // Recoger elementos personalizados
+                const customElements = [
+                    document.getElementById('element1')?.value?.trim() || '',
+                    document.getElementById('element2')?.value?.trim() || '',
+                    document.getElementById('element3')?.value?.trim() || ''
+                ].filter(Boolean);
+                
+                // Crear prompt con estilo aplicado
+                const imagePrompt = createImagePrompt(appState.generatedNarrative, customElements);
+                
+                console.log(`📝 Prompt final enviado a APIs:`, imagePrompt);
+                
+                // GENERAR IMAGEN CON SISTEMA ROBUSTO
+                const imageResult = await generateImageWithStyle(imagePrompt);
+                
+                console.log(`✅ Resultado obtenido:`, imageResult);
+                
+                loadingImage.classList.add('hidden');
+                displayImage(imageResult);
+                
+                // Notificaciones específicas
+                if (imageResult.isRealAI && !imageResult.isPlaceholder) {
+                    showNotification(`🎉 ¡IMAGEN IA REAL! API: ${imageResult.api}`, 'green');
+                } else if (imageResult.isStyled && !imageResult.isPlaceholder) {
+                    showNotification(`🎨 Arte estilizado: ${imageResult.appliedStyle}`, 'blue');
+                } else if (imageResult.isPlaceholder) {
+                    showNotification('⚠️ APIs no disponibles - Intenta "🔄 Nueva Variación"', 'yellow');
                 } else {
-                    // Para APIs que usan GET directo
-                    const img = new Image();
-                    const timeout = setTimeout(() => {
-                        reject(new Error('Timeout'));
-                    }, 15000);
-                    
-                    img.onload = () => {
-                        clearTimeout(timeout);
-                        resolve({
-                            url: api.url,
-                            loadTime: Date.now() - startTime
-                        });
-                    };
-                    
-                    img.onerror = () => {
-                        clearTimeout(timeout);
-                        reject(new Error('Image load failed'));
-                    };
-                    
-                    // Sin crossOrigin para evitar problemas CORS
-                    img.src = api.url;
+                    showNotification('✅ Imagen creada', 'green');
                 }
-            });
-        }
-        
-        // Usar imágenes temáticas como fallback inteligente
-        async function tryThematicImages(prompt, width, height, seed) {
-            const promptLower = prompt.toLowerCase();
-            
-            // Detectar tema principal del prompt
-            let theme = 'nature';
-            let searchTerms = ['landscape'];
-            
-            if (promptLower.includes('dragon') || promptLower.includes('fantasy')) {
-                theme = 'fantasy';
-                searchTerms = ['dragon', 'fantasy', 'magical'];
-            } else if (promptLower.includes('castle') || promptLower.includes('medieval')) {
-                theme = 'architecture';
-                searchTerms = ['castle', 'medieval', 'ancient'];
-            } else if (promptLower.includes('forest') || promptLower.includes('tree')) {
-                theme = 'nature';
-                searchTerms = ['forest', 'trees', 'nature'];
-            } else if (promptLower.includes('ocean') || promptLower.includes('sea')) {
-                theme = 'water';
-                searchTerms = ['ocean', 'sea', 'water'];
-            } else if (promptLower.includes('magic') || promptLower.includes('wizard')) {
-                theme = 'mystical';
-                searchTerms = ['mystical', 'magic', 'ethereal'];
-            }
-            
-            // APIs temáticas
-            const thematicAPIs = [
-                `https://source.unsplash.com/featured/${width}x${height}?${searchTerms[0]}`,
-                `https://source.unsplash.com/${width}x${height}?${searchTerms.join(',')}&orientation=landscape`,
-                `https://picsum.photos/${width}/${height}?random=${seed}`,
-                `https://loremflickr.com/${width}/${height}/${searchTerms[0]}/all`
-            ];
-            
-            for (let i = 0; i < thematicAPIs.length; i++) {
-                try {
-                    const result = await testImageURL(thematicAPIs[i], `Temática ${theme} ${i+1}`);
-                    if (result) {
-                        return {
-                            url: result.url,
-                            prompt: prompt,
-                            width: width,
-                            height: height,
-                            seed: seed,
-                            api: result.api,
-                            theme: theme,
-                            isRealAI: false,
-                            isPlaceholder: false,
-                            isThematic: true
-                        };
-                    }
-                } catch (error) {
-                    console.warn(`Temática ${i+1} falló:`, error.message);
-                }
-            }
-            
-            // Último recurso: arte generativo avanzado
-            console.log('📐 Creando arte generativo avanzado...');
-            return createAdvancedArtwork(prompt, width, height, seed);
-        }
-        
-        // Probar URL de imagen de forma segura
-        async function testImageURL(url, apiName) {
-            return new Promise((resolve, reject) => {
-                const img = new Image();
-                const timeout = setTimeout(() => {
-                    reject(new Error(`Timeout en ${apiName}`));
-                }, 8000);
                 
-                img.onload = () => {
-                    clearTimeout(timeout);
-                    resolve({
-                        url: url,
-                        api: apiName
-                    });
-                };
+            } catch (error) {
+                console.error(`❌ Error en generación #${appState.currentGeneration}:`, error);
                 
-                img.onerror = () => {
-                    clearTimeout(timeout);
-                    reject(new Error(`Error en ${apiName}`));
-                };
+                loadingImage.classList.add('hidden');
+                imagePlaceholder.classList.remove('hidden');
                 
-                img.src = url;
-            });
-        }
-        
-        // Crear arte personalizado con estilo artístico aplicado
-        async function createStyledArtwork(prompt, width, height, seed) {
-            // Obtener estilo artístico seleccionado
-            const artStyleSelect = document.getElementById('artStyle');
-            const selectedStyle = artStyleSelect ? artStyleSelect.value : 'auto';
-            const styleData = artisticStyles[selectedStyle] || artisticStyles['auto'];
-            
-            console.log(`🎨 Creando arte temático con estilo: ${styleData.name}`);
-            
-            // Analizar prompt para determinar tema base
-            const promptLower = prompt.toLowerCase();
-            
-            // Paletas y temas basados en el ESTILO ARTÍSTICO seleccionado
-            let colorPalette, theme, mainIcon, pattern;
-            
-            switch (selectedStyle) {
-                case 'rackham-style':
-                    colorPalette = ['#8B4513', '#D2691E', '#F4A460', '#DDD6C1'];
-                    theme = 'Ilustración de Cuentos';
-                    mainIcon = '🧚';
-                    pattern = 'organic';
-                    break;
-                case 'wrightson-style':
-                    colorPalette = ['#1C1C1C', '#4A4A4A', '#696969', '#A9A9A9'];
-                    theme = 'Horror Gótico';
-                    mainIcon = '💀';
-                    pattern = 'crosshatch';
-                    break;
-                case 'moebius-style':
-                    colorPalette = ['#4169E1', '#87CEEB', '#F0E68C', '#E6E6FA'];
-                    theme = 'Sci-Fi Surrealista';
-                    mainIcon = '🌌';
-                    pattern = 'geometric';
-                    break;
-                case 'frazetta-style':
-                    colorPalette = ['#CD853F', '#A0522D', '#D2691E', '#F4A460'];
-                    theme = 'Fantasía Heroica';
-                    mainIcon = '⚔️';
-                    pattern = 'brush';
-                    break;
-                case 'brom-style':
-                    colorPalette = ['#2F1B14', '#4A0E0E', '#6B1C1C', '#8B4513'];
-                    theme = 'Fantasía Oscura';
-                    mainIcon = '🌙';
-                    pattern = 'gothic';
-                    break;
-                case 'giger-style':
-                    colorPalette = ['#2C2C2C', '#4A4A4A', '#696969', '#808080'];
-                    theme = 'Biomecánico';
-                    mainIcon = '👾';
-                    pattern = 'mechanical';
-                    break;
-                case 'photorealistic':
-                    colorPalette = ['#8FBC8F', '#20B2AA', '#4682B4', '#DDA0DD'];
-                    theme = 'Realismo Fotográfico';
-                    mainIcon = '📸';
-                    pattern = 'photo';
-                    break;
-                case 'digital-art':
-                    colorPalette = ['#FF6347', '#40E0D0', '#DA70D6', '#98FB98'];
-                    theme = 'Arte Digital Moderno';
-                    mainIcon = '🖥️';
-                    pattern = 'digital';
-                    break;
-                case 'oil-painting':
-                    colorPalette = ['#8B4513', '#A0522D', '#CD853F', '#F5DEB3'];
-                    theme = 'Pintura al Óleo';
-                    mainIcon = '🎨';
-                    pattern = 'painterly';
-                    break;
-                case 'anime':
-                    colorPalette = ['#FF69B4', '#00CED1', '#FFD700', '#98FB98'];
-                    theme = 'Estilo Anime';
-                    mainIcon = '🇯🇵';
-                    pattern = 'anime';
-                    break;
-                case 'comic-book':
-                    colorPalette = ['#FF0000', '#0000FF', '#FFFF00', '#00FF00'];
-                    theme = 'Arte de Cómic';
-                    mainIcon = '📚';
-                    pattern = 'comic';
-                    break;
-                case 'fantasy-art':
-                    colorPalette = ['#8B5A2B', '#CD853F', '#DDA0DD', '#98FB98'];
-                    theme = 'Arte Fantástico';
-                    mainIcon = '🧙‍♂️';
-                    pattern = 'fantasy';
-                    break;
-                default:
-                    colorPalette = ['#8b5cf6', '#ec4899', '#06b6d4', '#10b981'];
-                    theme = 'Arte Épico';
-                    mainIcon = '✨';
-                    pattern = 'epic';
+                showNotification('❌ Error técnico - Intenta de nuevo', 'red');
+                
+            } finally {
+                appState.isGenerating = false;
+                generateImageBtn.disabled = false;
+                generateImageBtnText.textContent = '🎨 Generar Imagen IA';
             }
-            
-            // Generar SVG con el estilo artístico aplicado
-            const svg = generateStyledSVG(width, height, colorPalette, theme, mainIcon, pattern, prompt, seed, styleData);
-            
-            return {
-                url: `data:image/svg+xml;base64,${btoa(svg)}`,
-                prompt: prompt,
-                originalPrompt: prompt,
-                appliedStyle: styleData.name,
-                styleKeywords: styleData.keywords,
-                width: width,
-                height: height,
-                seed: seed,
-                api: `Arte ${styleData.name}`,
-                theme: theme,
-                isPlaceholder: false,
-                isRealAI: false,
-                isArtwork: true,
-                isStyled: true,
-                loadTime: 1500
-            };
         }
 
-        // Generar SVG con patrones específicos del estilo artístico
-        function generateStyledSVG(width, height, colorPalette, theme, mainIcon, pattern, prompt, seed, styleData) {
-            const patternElements = {
-                'organic': `<path d="M10,10 Q20,5 30,10 T50,10" stroke="rgba(255,255,255,0.1)" fill="none" stroke-width="1"/>`,
-                'crosshatch': `<g stroke="rgba(255,255,255,0.1)" stroke-width="0.5">
-                                <line x1="0" y1="0" x2="40" y2="40"/>
-                                <line x1="40" y1="0" x2="0" y2="40"/>
-                               </g>`,
-                'geometric': `<polygon points="20,5 35,15 35,25 20,35 5,25 5,15" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>`,
-                'brush': `<circle cx="20" cy="20" r="15" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="2" stroke-dasharray="5,5"/>`,
-                'gothic': `<path d="M20,5 L25,15 L35,10 L30,20 L40,25 L25,30 L30,40 L20,35 L10,40 L15,30 L5,25 L15,20 L10,10 L20,15 Z" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>`,
-                'mechanical': `<rect x="5" y="5" width="30" height="30" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1" rx="3"/>`,
-                'photo': `<circle cx="20" cy="20" r="18" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>`,
-                'digital': `<polygon points="20,2 38,20 20,38 2,20" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>`,
-                'painterly': `<path d="M5,20 Q20,5 35,20 Q20,35 5,20" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="2"/>`,
-                'anime': `<path d="M20,5 L30,15 L25,25 L15,25 L10,15 Z" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>`,
-                'comic': `<rect x="10" y="10" width="20" height="20" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="2"/>`,
-                'fantasy': `<path d="M20,5 C30,10 30,30 20,35 C10,30 10,10 20,5" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>`,
-                'epic': `<polygon points="20,5 35,15 35,25 20,35 5,25 5,15" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>`
-            };
-            
-            const selectedPattern = patternElements[pattern] || patternElements['epic'];
-            
-            return `
-                <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                        <radialGradient id="bgGrad" cx="50%" cy="50%" r="70%">
-                            <stop offset="0%" style="stop-color:${colorPalette[0]};stop-opacity:0.9" />
-                            <stop offset="40%" style="stop-color:${colorPalette[1]};stop-opacity:0.7" />
-                            <stop offset="70%" style="stop-color:${colorPalette[2]};stop-opacity:0.5" />
-                            <stop offset="100%" style="stop-color:${colorPalette[3]};stop-opacity:0.8" />
-                        </radialGradient>
-                        
-                        <linearGradient id="titleGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                            <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
-                            <stop offset="50%" style="stop-color:${colorPalette[3]};stop-opacity:0.9" />
-                            <stop offset="100%" style="stop-color:#ffffff;stop-opacity:1" />
-                        </linearGradient>
-                        
-                        <pattern id="stylePattern" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
-                            ${selectedPattern}
-                        </pattern>
-                        
-                        <filter id="glow">
-                            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
-                            <feMerge>
-                                <feMergeNode in="coloredBlur"/>
-                                <feMergeNode in="SourceGraphic"/>
-                            </feMerge>
-                        </filter>
-                    </defs>
-                    
-                    <!-- Fondo base -->
-                    <rect width="100%" height="100%" fill="url(#bgGrad)"/>
-                    
-                    <!-- Patrón específico del estilo -->
-                    <rect width="100%" height="100%" fill="url(#stylePattern)"/>
-                    
-                    <!-- Icono principal del estilo -->
-                    <text x="50%" y="35%" text-anchor="middle" fill="url(#titleGrad)" font-size="80" font-family="Arial" filter="url(#glow)">${mainIcon}</text>
-                    
-                    <!-- Nombre del estilo -->
-                    <text x="50%" y="50%" text-anchor="middle" fill="url(#titleGrad)" font-size="26" font-family="Arial, sans-serif" font-weight="bold" filter="url(#glow)">
-                        ${styleData.name}
-                    </text>
-                    
-                    <!-- Subtítulo temático -->
-                    <text x="50%" y="58%" text-anchor="middle" fill="rgba(255,255,255,0.9)" font-size="16" font-family="Arial, sans-serif">
-                        ${theme} - narrativAI
-                    </text>
-                    
-                    <!-- Keywords del estilo -->
-                    <text x="50%" y="66%" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="12" font-family="Arial, sans-serif" font-style="italic">
-                        "${styleData.keywords.slice(0, 3).join(', ')}"
-                    </text>
-                    
-                    <!-- Prompt del usuario -->
-                    <text x="50%" y="78%" text-anchor="middle" fill="rgba(255,255,255,0.6)" font-size="11" font-family="Arial, sans-serif">
-                        "${prompt.length > 60 ? prompt.substring(0, 57) + '...' : prompt}"
-                    </text>
-                    
-                    <!-- Metadatos -->
-                    <text x="50%" y="88%" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-size="10" font-family="Arial, sans-serif">
-                        Estilo: ${styleData.name} | Seed: ${seed} | ${width}×${height}
-                    </text>
-                    
-                    <!-- Marco con el color del estilo -->
-                    <rect x="3" y="3" width="${width-6}" height="${height-6}" fill="none" stroke="${colorPalette[1]}" stroke-width="2" rx="8" opacity="0.6"/>
-                </svg>
-            `;
-        }
-
-        // Mostrar imagen generada en la galería con manejo robusto de errores
+        // ==================== GESTIÓN DE GALERÍA ====================
+        
         function displayImage(imageResult) {
             console.log('🖼️ Mostrando imagen en galería:', imageResult);
             
             try {
+                if (!imageResult || !imageResult.url) {
+                    console.error('❌ Resultado de imagen inválido');
+                    return;
+                }
+                
                 const placeholder = document.getElementById('imagePlaceholder');
                 const gallery = document.getElementById('imageGallery');
                 const controls = document.getElementById('imageControls');
                 const status = document.getElementById('imageStatus');
                 
-                // Validar que tenemos los elementos necesarios
-                if (!placeholder || !gallery || !controls || !status) {
-                    console.error('❌ No se encontraron los elementos de la galería');
-                    showNotification('❌ Error en la interfaz de galería', 'red');
-                    return;
-                }
-                
-                // Validar imageResult
-                if (!imageResult || !imageResult.url) {
-                    console.error('❌ Resultado de imagen inválido:', imageResult);
-                    showNotification('❌ Datos de imagen inválidos', 'red');
-                    return;
-                }
-                
-                appState.currentImageUrl = imageResult.url;
-                appState.currentImagePrompt = imageResult.prompt || '';
-                
+                // Añadir al historial
                 const imageData = {
                     ...imageResult,
                     timestamp: Date.now(),
@@ -1756,91 +1189,56 @@
                 };
                 
                 appState.imageHistory.push(imageData);
-                console.log('📚 Imagen añadida al historial. Total:', appState.imageHistory.length);
+                console.log(`📚 Imagen añadida. Total: ${appState.imageHistory.length}`);
                 
-                // Actualizar UI de forma segura
-                try {
-                    placeholder.classList.add('hidden');
-                    gallery.classList.remove('hidden');
-                    controls.classList.remove('hidden');
-                    
-                    renderImageGallery();
-                    
-                    // Actualizar status con información detallada del estilo aplicado
-                    const artStyleSelect = document.getElementById('artStyle');
-                    const selectedStyle = artStyleSelect ? 
-                        artStyleSelect.options[artStyleSelect.selectedIndex].text : 
-                        'Automático';
-                    
-                    const statusContent = `
-                        <div class="text-sm">
-                            🎨 <strong>Imagen generada:</strong> ${imageResult.width || 1024}x${imageResult.height || 768}
-                            <br>📐 <strong>API:</strong> ${imageResult.api || 'Desconocida'}
-                            <br>🎭 <strong>Estilo aplicado:</strong> ${imageResult.appliedStyle || selectedStyle}
-                            ${imageResult.styleKeywords ? `<br>🔧 <strong>Keywords:</strong> ${imageResult.styleKeywords.slice(0,3).join(', ')}` : ''}
-                            ${imageResult.seed ? `<br>🎲 <strong>Seed:</strong> ${imageResult.seed}` : ''}
-                            ${imageResult.loadTime ? `<br>⏱️ <strong>Tiempo:</strong> ${imageResult.loadTime}ms` : ''}
-                            ${imageResult.isPlaceholder ? '<br>⚠️ <strong>Modo:</strong> Placeholder' : ''}
-                            ${imageResult.isRealAI ? '<br>✅ <strong>IA Real:</strong> Estilo integrado en prompt' : ''}
-                            ${imageResult.isStyled ? '<br>🎨 <strong>Arte Temático:</strong> Con estilo personalizado' : ''}
-                        </div>
-                    `;
-                    
-                    status.innerHTML = statusContent;
-                    status.classList.remove('hidden');
-                    
-                } catch (uiError) {
-                    console.error('❌ Error actualizando UI:', uiError);
-                    showNotification('⚠️ Error en la interfaz, pero imagen guardada', 'yellow');
-                }
+                // Actualizar UI
+                placeholder.classList.add('hidden');
+                gallery.classList.remove('hidden');
+                controls.classList.remove('hidden');
                 
-                // Notificación de éxito con manejo de errores
-                try {
-                    const notificationMessage = imageResult.isPlaceholder ? 
-                        '⚠️ Placeholder creado' : 
-                        '✅ ¡Imagen épica creada!';
-                    
-                    const notificationType = imageResult.isPlaceholder ? 'yellow' : 'green';
-                    
-                    showNotification(`${notificationMessage} - ${imageResult.api}`, notificationType);
-                    
-                } catch (notificationError) {
-                    console.warn('❌ Error mostrando notificación:', notificationError);
-                }
+                renderImageGallery();
+                
+                // Mostrar status detallado
+                const statusContent = `
+                    <div class="text-sm">
+                        🎨 <strong>Generación #${imageResult.generation || '?'}:</strong> ${imageResult.width || 1024}x${imageResult.height || 768}
+                        <br>📐 <strong>Método:</strong> ${imageResult.api || 'Desconocido'}
+                        <br>🎭 <strong>Estilo:</strong> ${imageResult.appliedStyle || 'Auto'}
+                        ${imageResult.styleKeywords ? `<br>🔧 <strong>Keywords:</strong> ${imageResult.styleKeywords.slice(0,3).join(', ')}` : ''}
+                        ${imageResult.seed ? `<br>🎲 <strong>Seed:</strong> ${imageResult.seed}` : ''}
+                        ${imageResult.loadTime ? `<br>⏱️ <strong>Tiempo:</strong> ${imageResult.loadTime}ms` : ''}
+                        ${imageResult.isRealAI ? '<br>✅ <strong>IA REAL:</strong> Generada por API externa' : ''}
+                        ${imageResult.isStyled ? '<br>🎨 <strong>ARTE ESTILIZADO:</strong> Con estilo personalizado' : ''}
+                        ${imageResult.isPlaceholder ? '<br>⚠️ <strong>PLACEHOLDER:</strong> APIs temporalmente no disponibles' : ''}
+                        ${imageResult.error ? `<br>❌ <strong>Info:</strong> ${imageResult.error}` : ''}
+                    </div>
+                `;
+                
+                status.innerHTML = statusContent;
+                status.classList.remove('hidden');
                 
             } catch (error) {
-                console.error('❌ Error crítico en displayImage:', error);
-                showNotification('❌ Error crítico mostrando imagen', 'red');
+                console.error('❌ Error mostrando imagen:', error);
+                showNotification('❌ Error en la galería', 'red');
             }
         }
 
-        // Renderizar galería de imágenes con mejor manejo
         function renderImageGallery() {
             const gallery = document.getElementById('imageGallery');
             
-            if (!gallery) {
-                console.error('❌ No se encontró el elemento gallery');
+            if (!gallery || appState.imageHistory.length === 0) {
                 return;
             }
             
-            if (appState.imageHistory.length === 0) {
-                gallery.innerHTML = '';
-                return;
-            }
+            console.log(`🖼️ Renderizando galería con ${appState.imageHistory.length} imágenes`);
             
-            console.log('🖼️ Renderizando galería con', appState.imageHistory.length, 'imágenes');
-            
-            // Mostrar la última imagen generada de forma prominente
             const latestImage = appState.imageHistory[appState.imageHistory.length - 1];
             
             let galleryHTML = `
                 <div class="mb-4 p-4 bg-purple-900/20 rounded-lg border border-purple-500/30">
                     <h4 class="text-sm font-medium text-purple-300 mb-2">🎨 Tu Galería Épica (${appState.imageHistory.length} ${appState.imageHistory.length === 1 ? 'imagen' : 'imágenes'})</h4>
                 </div>
-            `;
-            
-            // Imagen principal (la más reciente)
-            galleryHTML += `
+                
                 <div class="mb-6">
                     <div class="relative group">
                         <img src="${latestImage.url}" 
@@ -1849,7 +1247,6 @@
                              onclick="openImageModal('${latestImage.id}')"
                              onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
                         
-                        <!-- Fallback en caso de error de carga -->
                         <div class="hidden w-full h-64 bg-gradient-to-br from-purple-600 to-pink-600 rounded-lg border-2 border-purple-500 flex items-center justify-center">
                             <div class="text-center text-white">
                                 <div class="text-4xl mb-2">🎭</div>
@@ -1883,7 +1280,7 @@
                 </div>
             `;
             
-            // Historial de imágenes (si hay más de una)
+            // Historial si hay más de una imagen
             if (appState.imageHistory.length > 1) {
                 galleryHTML += `
                     <div class="mb-4">
@@ -1891,17 +1288,15 @@
                         <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
                 `;
                 
-                // Mostrar todas las imágenes anteriores
                 appState.imageHistory.slice(0, -1).forEach((imageData, index) => {
                     galleryHTML += `
-                        <div class="image-gallery-item relative group">
+                        <div class="relative group">
                             <img src="${imageData.url}" 
                                  alt="Imagen épica ${index + 1}" 
-                                 class="w-full h-32 object-cover rounded-lg border border-gray-600 cursor-pointer"
+                                 class="w-full h-32 object-cover rounded-lg border border-gray-600 cursor-pointer hover:scale-105 transition-transform"
                                  onclick="openImageModal('${imageData.id}')"
                                  onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
                             
-                            <!-- Fallback para imágenes del historial -->
                             <div class="hidden w-full h-32 bg-gradient-to-br from-gray-600 to-gray-800 rounded-lg border border-gray-600 flex items-center justify-center">
                                 <div class="text-center text-white">
                                     <div class="text-2xl mb-1">🎭</div>
@@ -1933,65 +1328,170 @@
             }
             
             gallery.innerHTML = galleryHTML;
-            console.log('✅ Galería renderizada exitosamente');
+            console.log('✅ Galería renderizada');
         }
 
-        // Manejar generación de narrativa (separada de imágenes)
-        async function handleGeneration() {
-            if (appState.isGenerating) return;
+        function updateImageReadyState() {
+            const placeholderMessage = document.getElementById('placeholderMessage');
+            const readyMessage = document.getElementById('readyMessage');
+            const generateImageBtn = document.getElementById('generateImageBtn');
             
-            const generateBtn = document.getElementById('generateBtn');
-            const generateBtnText = document.getElementById('generateBtnText');
-            const loadingNarrative = document.getElementById('loadingNarrative');
-            const narrativePlaceholder = document.getElementById('narrativePlaceholder');
-            const narrativeContent = document.getElementById('narrativeContent');
+            if (appState.generatedNarrative && placeholderMessage && readyMessage) {
+                placeholderMessage.classList.add('hidden');
+                readyMessage.classList.remove('hidden');
+            }
             
-            try {
-                appState.isGenerating = true;
-                generateBtn.disabled = true;
-                generateBtnText.textContent = '🎭 Tejiendo épica...';
-                loadingNarrative.classList.remove('hidden');
-                narrativePlaceholder.classList.add('hidden');
-                narrativeContent.classList.add('hidden');
-                
-                const narrative = generateNarrative();
-                appState.generatedNarrative = narrative;
-                
-                // Simular tiempo de procesamiento para mejor UX
-                await new Promise(resolve => setTimeout(resolve, 2000));
-                loadingNarrative.classList.add('hidden');
-                
-                const narrativeDisplay = document.getElementById('narrativeDisplay');
-                if (narrativeDisplay) {
-                    narrativeDisplay.innerHTML = narrative.replace(/\n/g, '<br><br>');
-                }
-                
-                narrativeContent.classList.remove('hidden');
-                updateProgress();
-                
-                // Actualizar mensaje de imagen para indicar que ya puede generar
-                updateImageReadyState();
-                
-                showNotification('🎭 ¡Narrativa épica generada! Ahora puedes crear la imagen', 'green');
-                
-            } catch (error) {
-                console.error('Error en la generación:', error);
-                
-                showNotification(error.message, 'red');
-                
-                loadingNarrative.classList.add('hidden');
-                narrativePlaceholder.classList.remove('hidden');
-            } finally {
-                appState.isGenerating = false;
-                generateBtn.disabled = false;
-                generateBtnText.textContent = '🎭 Generar Narrativa';
+            if (generateImageBtn) {
+                generateImageBtn.disabled = !appState.generatedNarrative;
             }
         }
 
-        // Manejar generación de imagen (independiente de narrativa)
-        async function handleImageGeneration() {
-            console.log('🎨 Botón de imagen presionado');
-            console.log('🔍 Estado de narrativa:', appState.generatedNarrative ? 'Existe' : 'No existe');
+        // ==================== EDICIÓN DE NARRATIVA ====================
+        
+        let isEditingNarrative = false;
+        let originalNarrativeText = '';
+        
+        window.toggleNarrativeEdit = function() {
+            const narrativeDisplay = document.getElementById('narrativeDisplay');
+            const narrativeEditor = document.getElementById('narrativeEditor');
+            const narrativeTextarea = document.getElementById('narrativeTextarea');
+            const editBtn = document.getElementById('editNarrativeBtn');
+            const saveBtn = document.getElementById('saveNarrativeBtn');
+            const cancelBtn = document.getElementById('cancelNarrativeBtn');
+            const charCount = document.getElementById('charCount');
+            
+            if (!isEditingNarrative) {
+                // Entrar en modo edición
+                isEditingNarrative = true;
+                originalNarrativeText = appState.generatedNarrative;
+                
+                // Ocultar vista de lectura y mostrar editor
+                narrativeDisplay.classList.add('hidden');
+                narrativeEditor.classList.remove('hidden');
+                
+                // Configurar textarea con el contenido actual
+                narrativeTextarea.value = appState.generatedNarrative;
+                updateCharCount();
+                
+                // Cambiar botones
+                editBtn.classList.add('hidden');
+                saveBtn.classList.remove('hidden');
+                cancelBtn.classList.remove('hidden');
+                
+                // Enfocar el textarea
+                setTimeout(() => {
+                    narrativeTextarea.focus();
+                    narrativeTextarea.setSelectionRange(0, 0); // Cursor al inicio
+                }, 100);
+                
+                console.log('🖊️ Modo edición activado');
+                showNotification('✏️ Modo edición activado', 'blue');
+                
+            } else {
+                // Salir del modo edición (sin guardar)
+                cancelNarrativeEdit();
+            }
+        };
+        
+        window.saveNarrativeEdit = function() {
+            const narrativeTextarea = document.getElementById('narrativeTextarea');
+            const newText = narrativeTextarea.value.trim();
+            
+            if (newText === '') {
+                showNotification('⚠️ La narrativa no puede estar vacía', 'yellow');
+                return;
+            }
+            
+            if (newText === originalNarrativeText) {
+                showNotification('💡 No se detectaron cambios', 'blue');
+                cancelNarrativeEdit();
+                return;
+            }
+            
+            // Guardar los cambios
+            appState.generatedNarrative = newText;
+            
+            // Actualizar la vista de lectura
+            const narrativeDisplay = document.getElementById('narrativeDisplay');
+            narrativeDisplay.innerHTML = newText.replace(/\n/g, '<br><br>');
+            
+            // Salir del modo edición
+            exitEditMode();
+            
+            console.log('💾 Narrativa editada y guardada');
+            showNotification('💾 ¡Cambios guardados exitosamente!', 'green');
+            
+            // Limpiar historial de imágenes si había imágenes previas
+            if (appState.imageHistory.length > 0) {
+                const shouldClearImages = confirm('🖼️ ¿Quieres limpiar las imágenes anteriores? (La narrativa editada puede generar imágenes diferentes)');
+                if (shouldClearImages) {
+                    clearImageHistory();
+                    showNotification('🗑️ Galería limpiada para nueva narrativa', 'blue');
+                }
+            }
+        };
+        
+        window.cancelNarrativeEdit = function() {
+            const narrativeTextarea = document.getElementById('narrativeTextarea');
+            const currentText = narrativeTextarea.value.trim();
+            
+            // Verificar si hay cambios
+            if (currentText !== originalNarrativeText && currentText !== '') {
+                const confirmCancel = confirm('❓ ¿Estás seguro de cancelar? Se perderán los cambios no guardados.');
+                if (!confirmCancel) {
+                    return;
+                }
+            }
+            
+            exitEditMode();
+            showNotification('❌ Edición cancelada', 'yellow');
+            console.log('❌ Edición cancelada - cambios descartados');
+        };
+        
+        function exitEditMode() {
+            const narrativeDisplay = document.getElementById('narrativeDisplay');
+            const narrativeEditor = document.getElementById('narrativeEditor');
+            const editBtn = document.getElementById('editNarrativeBtn');
+            const saveBtn = document.getElementById('saveNarrativeBtn');
+            const cancelBtn = document.getElementById('cancelNarrativeBtn');
+            
+            // Salir del modo edición
+            isEditingNarrative = false;
+            originalNarrativeText = '';
+            
+            // Mostrar vista de lectura y ocultar editor
+            narrativeDisplay.classList.remove('hidden');
+            narrativeEditor.classList.add('hidden');
+            
+            // Restaurar botones
+            editBtn.classList.remove('hidden');
+            saveBtn.classList.add('hidden');
+            cancelBtn.classList.add('hidden');
+        }
+        
+        function updateCharCount() {
+            const narrativeTextarea = document.getElementById('narrativeTextarea');
+            const charCount = document.getElementById('charCount');
+            
+            if (narrativeTextarea && charCount) {
+                const count = narrativeTextarea.value.length;
+                charCount.textContent = `${count} caracteres`;
+                
+                // Cambiar color según la longitud
+                if (count < 100) {
+                    charCount.className = 'text-red-400';
+                } else if (count < 500) {
+                    charCount.className = 'text-yellow-400';
+                } else {
+                    charCount.className = 'text-green-400';
+                }
+            }
+        }
+        
+        // ==================== FUNCIONES GLOBALES ====================
+        
+        window.regenerateImage = async function() {
+            console.log(`🔄 === REGENERANDO IMAGEN (Generación #${appState.currentGeneration + 1}) ===`);
             
             if (!appState.generatedNarrative) {
                 showNotification('⚠️ Genera una narrativa primero.', 'yellow');
@@ -1999,22 +1499,21 @@
             }
             
             if (appState.isGenerating) {
-                console.log('⚠️ Ya hay una generación en progreso');
+                console.log('⚠️ Ya hay una regeneración en progreso');
                 return;
             }
             
-            const generateImageBtn = document.getElementById('generateImageBtn');
-            const generateImageBtnText = document.getElementById('generateImageBtnText');
+            showNotification('🔄 Creando nueva variación...', 'blue');
+            
             const loadingImage = document.getElementById('loadingImage');
-            const imagePlaceholder = document.getElementById('imagePlaceholder');
+            const gallery = document.getElementById('imageGallery');
             
             try {
-                appState.isGenerating = true;
-                generateImageBtn.disabled = true;
-                generateImageBtnText.textContent = '🎨 Creando imagen...';
+                if (loadingImage) loadingImage.classList.remove('hidden');
+                if (gallery) gallery.classList.add('hidden');
                 
-                imagePlaceholder.classList.add('hidden');
-                loadingImage.classList.remove('hidden');
+                // Marcar como generando
+                appState.isGenerating = true;
                 
                 const customElements = [
                     document.getElementById('element1')?.value?.trim() || '',
@@ -2022,197 +1521,39 @@
                     document.getElementById('element3')?.value?.trim() || ''
                 ].filter(Boolean);
                 
-                console.log('🎨 Iniciando generación de imagen...');
-                const imagePrompt = createImagePrompt(appState.generatedNarrative, customElements);
-                console.log('📝 Prompt creado:', imagePrompt);
-                
-                // Agregar delay para evitar problemas de runtime
-                await new Promise(resolve => setTimeout(resolve, 500));
-                
-                const imageResult = await generatePerchanceImage(imagePrompt);
-                console.log('✅ Resultado de imagen:', imageResult);
-                
-                loadingImage.classList.add('hidden');
-                displayImage(imageResult);
-                
-                // Notificaciones específicas con información del estilo aplicado
-                if (imageResult.isRealAI) {
-                    showNotification(`🎉 ¡Imagen IA REAL con estilo ${imageResult.appliedStyle || 'aplicado'}!`, 'green');
-                } else if (imageResult.isStyled) {
-                    showNotification(`🎨 Arte temático con estilo ${imageResult.appliedStyle}: ${imageResult.theme}`, 'blue');
-                } else if (imageResult.isThematic) {
-                    showNotification(`🖼️ Imagen temática: ${imageResult.theme}`, 'blue');
-                } else if (imageResult.isArtwork) {
-                    showNotification(`🎨 Arte generativo: ${imageResult.theme}`, 'yellow');
-                } else {
-                    showNotification('✅ Imagen creada exitosamente', 'green');
-                }
-                
-            } catch (error) {
-                console.error('❌ Error crítico generando imagen:', error);
-                loadingImage.classList.add('hidden');
-                imagePlaceholder.classList.remove('hidden');
-                
-                // Crear placeholder de emergencia
-                try {
-                    const emergencyPlaceholder = createArtisticPlaceholder(
-                        'imagen épica de emergencia', 
-                        1024, 768, 
-                        Math.floor(Math.random() * 1000000),
-                        error
-                    );
-                    displayImage(emergencyPlaceholder);
-                } catch (placeholderError) {
-                    console.error('❌ Error creando placeholder de emergencia:', placeholderError);
-                }
-                
-                showNotification('❌ Error crítico - Sistema de placeholder activado', 'red');
-            } finally {
-                appState.isGenerating = false;
-                generateImageBtn.disabled = false;
-                generateImageBtnText.textContent = '🎨 Generar Imagen IA';
-            }
-        }
-
-        // Actualizar estado de imagen cuando la narrativa está lista
-        function updateImageReadyState() {
-            const placeholderMessage = document.getElementById('placeholderMessage');
-            const readyMessage = document.getElementById('readyMessage');
-            const generateImageBtn = document.getElementById('generateImageBtn');
-            
-            console.log('🔄 Actualizando estado de imagen...');
-            console.log('📝 Narrativa existe:', !!appState.generatedNarrative);
-            
-            if (appState.generatedNarrative && placeholderMessage && readyMessage) {
-                placeholderMessage.classList.add('hidden');
-                readyMessage.classList.remove('hidden');
-                console.log('✅ Mensaje actualizado a "listo"');
-            }
-            
-            if (generateImageBtn) {
-                const wasDisabled = generateImageBtn.disabled;
-                generateImageBtn.disabled = !appState.generatedNarrative;
-                console.log(`🔘 Botón ${wasDisabled ? 'era' : 'no era'} disabled, ahora ${generateImageBtn.disabled ? 'está' : 'no está'} disabled`);
-            } else {
-                console.error('❌ No se encontró el botón generateImageBtn');
-            }
-        }
-
-        // Funciones globales para controles
-        window.setDetailLevel = function(level) {
-            appState.detailLevel = level;
-            
-            // Actualizar botones visuales
-            document.querySelectorAll('.detail-btn').forEach(btn => {
-                btn.className = 'detail-btn px-3 py-2 bg-gray-700 hover:bg-purple-600 rounded-lg text-xs transition-colors';
-            });
-            event.target.className = 'detail-btn active px-3 py-2 bg-purple-600 rounded-lg text-xs';
-        };
-
-        window.regenerateImage = async function() {
-            if (!appState.generatedNarrative) {
-                showNotification('⚠️ Genera una narrativa primero.', 'yellow');
-                return;
-            }
-            
-            console.log('🔄 Regenerando imagen CON ESTILO...');
-            showNotification('🔄 Creando nueva variación con estilo aplicado...', 'blue');
-            
-            const loadingImage = document.getElementById('loadingImage');
-            const gallery = document.getElementById('imageGallery');
-            
-            // Mostrar loading
-            try {
-                if (loadingImage) loadingImage.classList.remove('hidden');
-                if (gallery) gallery.classList.add('hidden');
-            } catch (uiError) {
-                console.warn('Error UI menor:', uiError);
-            }
-            
-            try {
-                // Pausa para mejorar UX
-                await new Promise(resolve => setTimeout(resolve, 600));
-                
-                // USAR EL SISTEMA COMPLETO DE PROMPT CON ESTILO
-                const customElements = [];
-                try {
-                    const el1 = document.getElementById('element1');
-                    const el2 = document.getElementById('element2');
-                    const el3 = document.getElementById('element3');
-                    
-                    if (el1?.value?.trim()) customElements.push(el1.value.trim());
-                    if (el2?.value?.trim()) customElements.push(el2.value.trim());
-                    if (el3?.value?.trim()) customElements.push(el3.value.trim());
-                } catch (elementError) {
-                    console.warn('Error recogiendo elementos:', elementError);
-                }
-                
-                // APLICAR EL SISTEMA COMPLETO DE CREACIÓN DE PROMPT
                 const regenerationPrompt = createImagePrompt(appState.generatedNarrative, customElements);
+                console.log(`🎨 Prompt para regeneración:`, regenerationPrompt);
                 
-                console.log('🎨 Prompt completo para regeneración:', regenerationPrompt);
+                const imageResult = await generateImageWithStyle(regenerationPrompt);
                 
-                // Verificar estilo seleccionado
-                const artStyleSelect = document.getElementById('artStyle');
-                const selectedStyle = artStyleSelect ? artStyleSelect.value : 'auto';
-                const styleData = artisticStyles[selectedStyle] || artisticStyles['auto'];
-                console.log(`🎭 Regenerando con estilo: ${styleData.name}`);
-                
-                const imageResult = await generatePerchanceImage(regenerationPrompt);
-                
-                // Ocultar loading
-                try {
-                    if (loadingImage) loadingImage.classList.add('hidden');
-                } catch (hideError) {
-                    console.warn('Error ocultando loading:', hideError);
-                }
+                if (loadingImage) loadingImage.classList.add('hidden');
                 
                 if (imageResult && imageResult.url) {
                     displayImage(imageResult);
                     
-                    // Notificación específica con estilo aplicado
-                    const styleName = imageResult.appliedStyle || styleData.name;
-                    if (imageResult.isRealAI) {
-                        showNotification(`✅ ¡Nueva variación IA con estilo ${styleName}!`, 'green');
-                    } else if (imageResult.isStyled) {
-                        showNotification(`✅ Nueva variación temática: ${styleName}`, 'blue');
+                    if (imageResult.isRealAI && !imageResult.isPlaceholder) {
+                        showNotification(`✅ ¡Nueva imagen IA real! (${imageResult.api})`, 'green');
+                    } else if (imageResult.isStyled && !imageResult.isPlaceholder) {
+                        showNotification(`✅ Nueva variación estilizada: ${imageResult.appliedStyle}`, 'blue');
+                    } else if (imageResult.isPlaceholder) {
+                        showNotification('⚠️ Nueva variación (APIs no disponibles)', 'yellow');
                     } else {
-                        showNotification(`✅ Nueva variación creada (${styleName})`, 'green');
+                        showNotification('✅ Nueva variación creada', 'green');
                     }
                 } else {
                     throw new Error('No se obtuvo imagen válida');
                 }
                 
             } catch (error) {
-                console.error('❌ Error regenerando imagen:', error);
+                console.error(`❌ Error en regeneración:`, error);
                 
-                // Restaurar UI
-                try {
-                    if (loadingImage) loadingImage.classList.add('hidden');
-                    if (gallery) gallery.classList.remove('hidden');
-                } catch (restoreError) {
-                    console.warn('Error restaurando UI:', restoreError);
-                }
+                if (loadingImage) loadingImage.classList.add('hidden');
+                if (gallery) gallery.classList.remove('hidden');
                 
-                // Crear placeholder estilizado de emergencia
-                try {
-                    const seed = Math.floor(Math.random() * 1000000);
-                    
-                    // Usar el sistema de estilo para el placeholder también
-                    const artStyleSelect = document.getElementById('artStyle');
-                    const selectedStyle = artStyleSelect ? artStyleSelect.value : 'auto';
-                    
-                    const emergencyResult = await createStyledArtwork(
-                        'nueva variación épica con estilo', 
-                        1024, 768, 
-                        seed
-                    );
-                    displayImage(emergencyResult);
-                    showNotification(`⚠️ Variación estilizada creada: ${emergencyResult.appliedStyle}`, 'yellow');
-                } catch (emergencyError) {
-                    console.error('❌ Error crítico creando placeholder:', emergencyError);
-                    showNotification('❌ Error técnico - Intenta de nuevo', 'red');
-                }
+                showNotification('❌ Error en regeneración - Intenta de nuevo', 'red');
+                
+            } finally {
+                appState.isGenerating = false;
             }
         };
 
@@ -2229,6 +1570,8 @@
                 placeholder.classList.remove('hidden');
                 controls.classList.add('hidden');
                 status.classList.add('hidden');
+                
+                showNotification('🗑️ Galería limpiada', 'blue');
             }
         };
 
@@ -2244,7 +1587,7 @@
                 <div class="max-w-4xl max-h-full bg-gray-800 rounded-lg overflow-hidden" onclick="event.stopPropagation()">
                     <div class="p-4 border-b border-gray-600">
                         <div class="flex justify-between items-center">
-                            <h3 class="text-lg font-semibold text-purple-400">🎨 Tu Imagen Épica</h3>
+                            <h3 class="text-lg font-semibold text-purple-400">🎨 Detalles de Imagen Épica</h3>
                             <button onclick="document.body.removeChild(document.querySelector('.fixed'))" class="text-gray-400 hover:text-white text-xl">×</button>
                         </div>
                     </div>
@@ -2253,6 +1596,9 @@
                         <div class="text-sm text-gray-300">
                             <p><strong>Generado:</strong> ${new Date(imageData.timestamp).toLocaleString('es-ES')}</p>
                             <p><strong>Dimensiones:</strong> ${imageData.width}x${imageData.height}</p>
+                            <p><strong>Estilo:</strong> ${imageData.appliedStyle}</p>
+                            <p><strong>API:</strong> ${imageData.api}</p>
+                            ${imageData.generation ? `<p><strong>Generación #:</strong> ${imageData.generation}</p>` : ''}
                             <p class="mt-2"><strong>Prompt:</strong></p>
                             <p class="text-xs font-mono bg-gray-900/50 p-3 rounded mt-1">${imageData.prompt}</p>
                         </div>
@@ -2272,16 +1618,12 @@
                 } else {
                     renderImageGallery();
                 }
+                
+                showNotification('🗑️ Imagen eliminada', 'blue');
             }
         };
 
-        window.toggleHelp = function() {
-            const modal = document.getElementById('helpModal');
-            modal.classList.toggle('hidden');
-        };
-
-        // Función principal para descargar proyecto completo
-        window.downloadCompleteProject = async function() {
+        window.downloadProject = async function() {
             if (!appState.generatedNarrative) {
                 showNotification('⚠️ Genera una narrativa primero.', 'yellow');
                 return;
@@ -2296,7 +1638,7 @@
                 const zip = new JSZip();
                 const timestamp = new Date().toISOString().slice(0, 19).replace(/[T:]/g, '-');
                 
-                // Generar contenido markdown
+                // Contenido markdown
                 let markdownContent = '# 🎭 Tu Narrativa Épica - narrativAI\n\n';
                 markdownContent += '**Proyecto generado el:** ' + new Date().toLocaleString('es-ES') + '\n\n';
                 markdownContent += '## 📖 Tu Historia Épica\n\n';
@@ -2314,8 +1656,17 @@
                 markdownContent += '- **🏛️ Contexto:** ' + element3 + '\n\n';
                 
                 if (appState.imageHistory.length > 0) {
-                    markdownContent += '## 🎨 Configuración de Imagen IA\n\n';
-                    markdownContent += '**Total de imágenes generadas:** ' + appState.imageHistory.length + '\n\n';
+                    markdownContent += '## 🎨 Galería de Imágenes\n\n';
+                    markdownContent += `**Total de imágenes generadas:** ${appState.imageHistory.length}\n\n`;
+                    
+                    appState.imageHistory.forEach((img, index) => {
+                        markdownContent += `### Imagen ${index + 1}\n`;
+                        markdownContent += `- **Estilo:** ${img.appliedStyle}\n`;
+                        markdownContent += `- **API:** ${img.api}\n`;
+                        markdownContent += `- **Dimensiones:** ${img.width}x${img.height}\n`;
+                        if (img.generation) markdownContent += `- **Generación #:** ${img.generation}\n`;
+                        markdownContent += `- **Generada:** ${new Date(img.timestamp).toLocaleString('es-ES')}\n\n`;
+                    });
                 }
                 
                 markdownContent += '\n\n---\n\n*Generado con ❤️ por **narrativAI*** 🎭✨';
@@ -2370,224 +1721,107 @@
             }
         };
 
-        // Funciones de edición de narrativa
-        window.toggleNarrativeEdit = function() {
-            const narrativeDisplay = document.getElementById('narrativeDisplay');
-            const narrativeEditor = document.getElementById('narrativeEditor');
-            const editBtn = document.getElementById('editNarrativeBtn');
-            const saveBtn = document.getElementById('saveNarrativeBtn');
-            const cancelBtn = document.getElementById('cancelNarrativeBtn');
-            
-            if (!isEditingNarrative) {
-                isEditingNarrative = true;
-                originalNarrativeText = appState.generatedNarrative;
-                
-                narrativeDisplay.classList.add('hidden');
-                narrativeEditor.classList.remove('hidden');
-                narrativeEditor.value = appState.generatedNarrative;
-                narrativeEditor.focus();
-                
-                editBtn.classList.add('hidden');
-                saveBtn.classList.remove('hidden');
-                cancelBtn.classList.remove('hidden');
-            }
-        };
-
-        window.saveNarrativeEdit = function() {
-            const narrativeDisplay = document.getElementById('narrativeDisplay');
-            const narrativeEditor = document.getElementById('narrativeEditor');
-            const editBtn = document.getElementById('editNarrativeBtn');
-            const saveBtn = document.getElementById('saveNarrativeBtn');
-            const cancelBtn = document.getElementById('cancelNarrativeBtn');
-            
-            if (isEditingNarrative) {
-                const newText = narrativeEditor.value.trim();
-                
-                if (newText === '') {
-                    showNotification('⚠️ La narrativa no puede estar vacía.', 'yellow');
-                    return;
-                }
-                
-                appState.generatedNarrative = newText;
-                narrativeDisplay.innerHTML = newText.replace(/\n/g, '<br><br>');
-                
-                narrativeDisplay.classList.remove('hidden');
-                narrativeEditor.classList.add('hidden');
-                
-                editBtn.classList.remove('hidden');
-                saveBtn.classList.add('hidden');
-                cancelBtn.classList.add('hidden');
-                
-                isEditingNarrative = false;
-                
-                showNotification('✅ Narrativa actualizada exitosamente.', 'green');
-            }
-        };
-
-        window.cancelNarrativeEdit = function() {
-            const narrativeDisplay = document.getElementById('narrativeDisplay');
-            const narrativeEditor = document.getElementById('narrativeEditor');
-            const editBtn = document.getElementById('editNarrativeBtn');
-            const saveBtn = document.getElementById('saveNarrativeBtn');
-            const cancelBtn = document.getElementById('cancelNarrativeBtn');
-            
-            if (isEditingNarrative) {
-                narrativeEditor.value = originalNarrativeText;
-                
-                narrativeDisplay.classList.remove('hidden');
-                narrativeEditor.classList.add('hidden');
-                
-                editBtn.classList.remove('hidden');
-                saveBtn.classList.add('hidden');
-                cancelBtn.classList.add('hidden');
-                
-                isEditingNarrative = false;
-            }
-        };
-
-        // Configurar event listeners
+        // ==================== INICIALIZACIÓN ====================
+        
         function setupEventListeners() {
             console.log('🔗 Configurando event listeners...');
             
+            // Botón de narrativa
             const generateBtn = document.getElementById('generateBtn');
             if (generateBtn) {
-                generateBtn.addEventListener('click', handleGeneration);
+                generateBtn.removeEventListener('click', handleGenerateNarrative);
+                generateBtn.addEventListener('click', handleGenerateNarrative);
                 console.log('✅ Listener de narrativa configurado');
-            } else {
-                console.error('❌ No se encontró generateBtn');
             }
 
+            // Botón de imagen
             const generateImageBtn = document.getElementById('generateImageBtn');
             if (generateImageBtn) {
-                generateImageBtn.addEventListener('click', handleImageGeneration);
-                // Inicialmente deshabilitado hasta que haya narrativa
+                generateImageBtn.removeEventListener('click', handleGenerateImage);
+                generateImageBtn.addEventListener('click', handleGenerateImage);
                 generateImageBtn.disabled = !appState.generatedNarrative;
-                console.log('✅ Listener de imagen configurado, disabled:', generateImageBtn.disabled);
-                
-                // Debug adicional para el botón
-                generateImageBtn.addEventListener('click', function(e) {
-                    console.log('🖱️ Click detectado en botón de imagen');
-                    console.log('🔒 Disabled:', this.disabled);
-                    console.log('📝 Narrativa:', !!appState.generatedNarrative);
-                });
-            } else {
-                console.error('❌ No se encontró generateImageBtn');
+                console.log('✅ Listener de imagen configurado');
             }
 
-            // Listener para cambios en selector de estilo artístico
+            // Selector de estilo artístico con logging
             const artStyleSelect = document.getElementById('artStyle');
             if (artStyleSelect) {
                 artStyleSelect.addEventListener('change', function(e) {
                     const selectedStyle = e.target.value;
                     const styleData = artisticStyles[selectedStyle] || artisticStyles['auto'];
-                    console.log(`🎨 Estilo cambiado a: "${styleData.name}"`);
+                    console.log(`🎨 ESTILO CAMBIADO A: "${styleData.name}"`);
                     console.log(`📝 Prompt técnico: ${styleData.prompt.substring(0, 100)}...`);
-                    console.log(`🔧 Keywords del estilo: ${styleData.keywords.join(', ')}`);
-                    
-                    // Mostrar notificación del cambio de estilo
                     showNotification(`🎨 Estilo seleccionado: ${styleData.name}`, 'blue');
-                    
-                    // Debug adicional para regeneraciones
-                    console.log(`⚙️ Estilo configurado para próximas generaciones: ${selectedStyle}`);
                 });
                 console.log('✅ Listener de selector de estilo configurado');
             }
-
-            // Atajos de teclado para narrativa
-            const narrativeEditor = document.getElementById('narrativeEditor');
-            if (narrativeEditor) {
-                narrativeEditor.addEventListener('keydown', function(e) {
-                    if (e.ctrlKey && e.key === 'Enter') {
+            
+            // Configurar listeners del editor de narrativa
+            setupNarrativeEditorListeners();
+        }
+        
+        function setupNarrativeEditorListeners() {
+            // Listener para el contador de caracteres en tiempo real
+            const narrativeTextarea = document.getElementById('narrativeTextarea');
+            if (narrativeTextarea) {
+                narrativeTextarea.addEventListener('input', updateCharCount);
+                
+                // Atajos de teclado para el editor
+                narrativeTextarea.addEventListener('keydown', function(e) {
+                    // Ctrl/Cmd + S para guardar
+                    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
                         e.preventDefault();
                         saveNarrativeEdit();
-                    } else if (e.key === 'Escape') {
+                        return;
+                    }
+                    
+                    // Escape para cancelar
+                    if (e.key === 'Escape') {
                         e.preventDefault();
                         cancelNarrativeEdit();
+                        return;
+                    }
+                    
+                    // Ctrl/Cmd + Enter para guardar y generar imagen
+                    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                        e.preventDefault();
+                        saveNarrativeEdit();
+                        // Generar imagen automáticamente después de guardar
+                        setTimeout(() => {
+                            if (!appState.isGenerating) {
+                                handleGenerateImage();
+                            }
+                        }, 500);
+                        return;
                     }
                 });
+                
+                console.log('✅ Listeners del editor de narrativa configurados');
             }
         }
 
-        // Inicialización con manejo robusto de errores
         function initializeApp() {
             try {
-                console.log('🚀 Iniciando narrativAI...');
+                console.log('🚀 === INICIANDO NARRATIVAI CORREGIDO ===');
+                console.log('📊 Sistema robusto de generación múltiple activado');
                 
-                // Verificar elementos críticos del DOM
-                const criticalElements = [
-                    'genreGrid', 'generateBtn', 'generateImageBtn', 'step1-container', 
-                    'imageGallery', 'narrativeContent'
-                ];
+                createGenreElements();
+                updateGenreCount();
+                setupEventListeners();
+                updateImageReadyState();
                 
-                const missingElements = criticalElements.filter(id => 
-                    !document.getElementById(id)
-                );
+                // Log de verificación
+                console.log('✅ Componentes inicializados:');
+                console.log('- Géneros:', Object.keys(genres).length);
+                console.log('- Estilos artísticos:', Object.keys(artisticStyles).length);
+                console.log('- Estado inicial:', appState);
                 
-                if (missingElements.length > 0) {
-                    console.warn('⚠️ Elementos faltantes:', missingElements);
-                } else {
-                    console.log('✅ Todos los elementos críticos encontrados');
-                }
-                
-                // Inicializar componentes de forma segura
-                try {
-                    createGenreElements();
-                    console.log('✅ Géneros creados');
-                } catch (error) {
-                    console.error('❌ Error creando géneros:', error);
-                }
-                
-                try {
-                    updateGenreCount();
-                    console.log('✅ Contador de géneros actualizado');
-                } catch (error) {
-                    console.error('❌ Error actualizando contador:', error);
-                }
-                
-                try {
-                    setupEventListeners();
-                    console.log('✅ Event listeners configurados');
-                } catch (error) {
-                    console.error('❌ Error configurando listeners:', error);
-                }
-                
-                try {
-                    updateProgress();
-                    updateImageReadyState();
-                    console.log('✅ Progreso actualizado');
-                } catch (error) {
-                    console.error('❌ Error actualizando progreso:', error);
-                }
-                
-                // Debug específico del botón de imagen
                 setTimeout(() => {
-                    const generateImageBtn = document.getElementById('generateImageBtn');
-                    if (generateImageBtn) {
-                        console.log('🔍 Estado final del botón de imagen:');
-                        console.log('- Existe:', !!generateImageBtn);
-                        console.log('- Disabled:', generateImageBtn.disabled);
-                        console.log('- Has event listeners:', generateImageBtn.onclick || 'addEventListener configurado');
-                        console.log('- Estado narrativa:', !!appState.generatedNarrative);
-                    }
-                }, 1000);
-                
-                // Verificar funcionalidades críticas
-                console.log('🔍 Verificando funcionalidades...');
-                console.log('- Estado de app:', appState);
-                console.log('- Géneros disponibles:', Object.keys(genres).length);
-                console.log('- IA de imágenes:', appState.useImageAI ? 'Activada' : 'Desactivada');
-                
-                console.log('🎭 narrativAI inicializado correctamente - ¡Listo para crear épicas!');
-                
-                // Notificación de bienvenida
-                setTimeout(() => {
-                    showNotification('🎭 ¡narrativAI listo! Comienza creando tu épica', 'purple');
+                    showNotification('🎭 narrativAI listo - ¡Sistema de múltiples generaciones activado!', 'purple');
                 }, 500);
                 
             } catch (error) {
                 console.error('❌ Error crítico en inicialización:', error);
-                
-                // Notificación de error crítico
                 setTimeout(() => {
                     showNotification('❌ Error de inicialización - Recarga la página', 'red');
                 }, 1000);
