@@ -234,18 +234,30 @@
                         <select id="artStyle" class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-purple-500">
                             <option value="auto">🤖 Automático (adapta el estilo a tu narrativa)</option>
                             <option value="lorenzale-allegory-style">🏛️ Claudi Lorenzale i Sugrañes - Estilo Alegórico</option>
-                            <option value="rackham-style">🧚 Arthur Rackham - Pen & ink con acuarelas delicadas</option>
-                            <option value="wrightson-style">💀 Bernie Wrightson - Tinta maestra con claroscuro dramático</option>
-                            <option value="moebius-style">🌌 Moebius - Líneas limpias sci-fi, paisajes etéreos</option>
-                            <option value="frazetta-style">⚔️ Frank Frazetta - Pinceladas poderosas, anatomía heroica</option>
-                            <option value="brom-style">🌙 Gerald Brom - Fantasía oscura digital, gótico contemporáneo</option>
-                            <option value="giger-style">👾 H.R. Giger - Biomecánico alienígena, aerógrafo monocromático</option>
+                            <option value="rackham-style">🧚 Arthur Rackham - Cuentos de Hadas</option>
+                            <option value="wrightson-style">💀 Bernie Wrightson - Horror Gótico</option>
+                            <option value="moebius-style">🌌 Moebius (Jean Giraud) - Sci-Fi Etéreo</option>
+                            <option value="frazetta-style">⚔️ Frank Frazetta - Fantasía Heroica</option>
+                            <option value="brom-style">🌙 Gerald Brom - Fantasía Oscura</option>
+                            <option value="giger-style">👾 H.R. Giger - Biomecánico</option>
                             <option value="photorealistic">📸 Fotorrealista - Calidad fotográfica profesional</option>
                             <option value="digital-art">🖥️ Arte Digital - Ilustración moderna vectorial</option>
                             <option value="oil-painting">🎨 Pintura al Óleo - Técnica tradicional, pinceladas visibles</option>
                             <option value="anime">🇯🇵 Anime/Manga - Ojos expresivos, coloreado cel-shaded</option>
                             <option value="comic-book">📚 Cómic - Contornos audaces, colores primarios</option>
                             <option value="fantasy-art">🧙‍♂️ Arte Fantástico - Realismo mágico, criaturas mitológicas</option>
+                            <option value="liberatore-style">🤖 Tanino Liberatore - RanXerox, hiper-realismo cyberpunk</option>
+                            <option value="riquer-style">🌸 Alexandre de Riquer - Modernisme Catalán</option>
+                            <option value="mestres-style">😄 Apel·les Mestres - Humor Gráfico</option>
+                            <option value="caba-style">👤 Antoni Caba - Retrato Académico</option>
+                            <option value="bayard-style">🏭 Émile Bayard - Realismo Social</option>
+                            <option value="eisner-style">🏙️ Will Eisner - Arte Secuencial</option>
+                            <option value="buscema-style">🦸 John Buscema - Heroísmo Clásico</option>
+                            <option value="kelly-style">⚔️ Ken Kelly - Fantasía Heroica</option>
+                            <option value="dore-style">📖 Gustave Doré - Grabado Romántico</option>
+                            <option value="hennessy-style">🌾 William John Hennessy - Paisajismo Pastoral</option>
+                            <option value="gibson-style">👩 Charles Dana Gibson - Gibson Girl</option>
+                            <option value="beaumont-style">👑 Edouard de Beaumont - Elegancia Romántica</option>
                         </select>
                     </div>
 
@@ -496,7 +508,7 @@
             'drama': { name: 'Drama', icon: '🎭', color: 'from-indigo-600 to-indigo-800' }
         };
 
-        // ==================== ESTILOS ARTÍSTICOS CORREGIDOS ====================
+        // ==================== ESTILOS ARTÍSTICOS COMPLETOS ====================
         const artisticStyles = {
             'auto': {
                 name: 'Automático',
@@ -508,35 +520,95 @@
                 prompt: 'Claudi Lorenzale i Sugrañes allegory style, Romantic-Nazarene painting, precise and contoured drawing, idealized figures, classical proportions, serene expressions, clear and balanced composition, luminous and harmonious color palette, soft lighting, moral and symbolic themes, academic tradition, historical or classical vestments, narrative clarity',
                 keywords: ['Romanticismo', 'Nazareno', 'dibujo preciso', 'figuras idealizadas', 'composición equilibrada', 'paleta luminosa', 'temas alegóricos', 'tradición académica']
             },
+            'liberatore-style': {
+                name: 'Tanino Liberatore - RanXerox',
+                prompt: 'Tanino Liberatore style illustration, extremely precise hard-edged lines, razor-sharp contour definition, dense network of fine lines and cross-hatching, hyper-realistic rendering, vibrant lurid contrasting colors, intense reds sickly greens electric blues metallic grays, airbrush-like color smoothness, dynamic claustrophobic composition, extreme close-ups, cinematic angles, highly detailed backgrounds, tactile unsettling textures, dramatic high-contrast artificial lighting, cyberpunk dystopian atmosphere, body modification themes, technological decay, muscular powerful figures, anatomical detail precision, visceral and artificial surfaces combined',
+                keywords: ['hiper-realista', 'líneas precisas', 'colores vibrantes', 'cyberpunk', 'distópico', 'anatómico detallado', 'texturas táctiles', 'iluminación dramática']
+            },
+            'riquer-style': {
+                name: 'Alexandre de Riquer - Modernisme Catalán',
+                prompt: 'Alexandre de Riquer style Art Nouveau illustration, fluid sinuous organic lines characteristic of Art Nouveau, flowing decorative patterns with intertwining curves, rich vibrant color palette with jewel tones deep blues greens and gold accents, harmonious asymmetrical composition with decorative borders, stylized natural elements flowers plants birds insects, ethereal idealized female figures with long flowing hair, seamless integration of text and illustration, holistic design philosophy, symbolist themes with mystical folklore atmosphere',
+                keywords: ['Art Nouveau', 'líneas sinuosas', 'patrones decorativos', 'tonos joya', 'elementos naturales estilizados', 'figuras etéreas', 'diseño holístico', 'simbolismo']
+            },
+            'mestres-style': {
+                name: 'Apel·les Mestres - Humor Gráfico',
+                prompt: 'Apelles Mestres style illustration, energetic expressive line work with calligraphic grace, dynamic anecdotal compositions focusing on character interaction, predominantly black and white with masterful ink work, satirical and whimsical approach, expressive caricatured figures conveying wide range of emotions, social commentary through elegant humor, narrative moments with visual storytelling, everyday life scenes with folkloric charm',
+                keywords: ['humor gráfico', 'líneas expresivas', 'sátira social', 'caricatura elegante', 'narrativa visual', 'vida cotidiana', 'folclore catalán', 'tinta maestra']
+            },
+            'caba-style': {
+                name: 'Antoni Caba - Retrato Académico',
+                prompt: 'Antoni Caba style academic portrait, strong precise lines with mastery of drawing and anatomy, realistic muted color palette with accurate skin tones, classical balanced compositions with dignified presentation, meticulous attention to detail in clothing jewelry and accessories, naturalistic soft lighting revealing character and form, psychological depth beyond physical likeness, academic realism with technical skill, 19th century Catalan portraiture tradition',
+                keywords: ['retrato académico', 'líneas precisas', 'realismo', 'paleta naturalista', 'composición clásica', 'profundidad psicológica', 'técnica académica', 'tradición catalana']
+            },
+            'bayard-style': {
+                name: 'Émile Bayard - Realismo Social',
+                prompt: 'Emile Bayard style social realism illustration, clear precise lines defining forms with accuracy, realistic muted tones with masterful tonal variations, classical balanced compositions highlighting dramatic moments, focus on marginalized working class and contemporary social struggles, empathetic emotional resonance with human condition, narrative driven by social commentary, detailed rendering of worn clothing and tired features, naturalistic lighting emphasizing harsh conditions',
+                keywords: ['realismo social', 'líneas precisas', 'tonos realistas', 'comentario social', 'clase trabajadora', 'resonancia emocional', 'narrativa social', 'condiciones duras']
+            },
+            'eisner-style': {
+                name: 'Will Eisner - Arte Secuencial',
+                prompt: 'Will Eisner style sequential art, highly expressive fluid line work ranging from fine details to bold brush strokes, masterful chiaroscuro with dramatic lighting and strong shadows, innovative paneling with organic irregular shapes, urban environment as character, rich varied textures of city life, dynamic theatrical compositions breaking traditional grids, noir atmosphere with social commentary themes',
+                keywords: ['arte secuencial', 'líneas expresivas', 'claroscuro', 'paneles innovadores', 'ambiente urbano', 'texturas urbanas', 'composición teatral', 'atmosfera noir']
+            },
+            'buscema-style': {
+                name: 'John Buscema - Heroísmo Clásico',
+                prompt: 'John Buscema style heroic illustration, bold confident clean lines with precision anatomy mastery, classical robust compositions centered on heroic figures, exceedingly well-muscled anatomically correct idealized figures, strong dramatic lighting with clear single light source, narrative fluidity with dynamic transitional poses, sculptural quality with varied line weights, epic adventure themes with nobility of spirit',
+                keywords: ['heroísmo clásico', 'líneas audaces', 'anatomía precisa', 'figuras idealizadas', 'iluminación dramática', 'fluidez narrativa', 'calidad escultural', 'aventura épica']
+            },
+            'kelly-style': {
+                name: 'Ken Kelly - Fantasía Heroica',
+                prompt: 'Ken Kelly style heroic fantasy art, strong defined lines emphasizing musculature armor and sharp details, rich vibrant contrasting colors with earthy tones mixed with intense blues reds greens, dynamic triangular diagonal compositions drawing eye into action, muscular male heroes fierce female warriors mythical beasts grotesque monsters, detailed rendering of skin fur scales metallic armor, dramatic chiaroscuro lighting creating strong contrasts',
+                keywords: ['fantasía heroica', 'líneas definidas', 'colores vibrantes', 'composición dinámica', 'héroes musculosos', 'bestias míticas', 'armadura metálica', 'claroscuro dramático']
+            },
+            'dore-style': {
+                name: 'Gustave Doré - Grabado Romántico',
+                prompt: 'Gustave Dore style engraving illustration, exquisitely detailed intricate line work with cross-hatching for shading, masterful black and white tonal values creating atmosphere, grand sweeping compositions with dramatic perspectives, biblical mythological literary themes with sublime power, expressive idealized figures in moments of intense drama, highly rendered textures through meticulous line work, chiaroscuro contrasts between light and shadow evoking sublime or terrifying',
+                keywords: ['grabado romántico', 'líneas intrincadas', 'valores tonales', 'composiciones grandiosas', 'temas bíblicos', 'figuras expresivas', 'texturas detalladas', 'sublime dramático']
+            },
+            'hennessy-style': {
+                name: 'William John Hennessy - Paisajismo Pastoral',
+                prompt: 'William John Hennessy style pastoral landscape, soft flowing lines contributing to gentle atmospheric quality, subdued harmonious color palette with muted greens browns soft blues, picturesque compositions guiding eye through gentle curves, pastoral rural life themes with serene beauty of nature, figures integrated seamlessly into landscape, evocative natural textures through soft brushwork, diffused atmospheric lighting creating tranquility',
+                keywords: ['paisajismo pastoral', 'líneas suaves', 'paleta armoniosa', 'composición pintoresca', 'vida rural', 'belleza serena', 'texturas naturales', 'iluminación atmosférica']
+            },
+            'gibson-style': {
+                name: 'Charles Dana Gibson - Gibson Girl',
+                prompt: 'Charles Dana Gibson style pen and ink illustration, elegant fluid confident pen and ink lines creating movement in drapery and hair, sophisticated black and white with masterful hatching cross-hatching, balanced narrative compositions focusing on social interactions, Gibson Girl ideal with tall graceful intelligent fashionable women, social commentary through fashion and changing women roles, refined aesthetic with well-dressed poised characters',
+                keywords: ['Gibson Girl', 'pluma y tinta', 'líneas elegantes', 'blanco y negro', 'interacciones sociales', 'moda', 'mujeres elegantes', 'comentario social']
+            },
+            'beaumont-style': {
+                name: 'Edouard de Beaumont - Elegancia Romántica',
+                prompt: 'Edouard de Beaumont style romantic illustration, fine precise lines contributing to delicate refined quality, soft pastel color palette with harmonious blends and luminous quality, graceful balanced compositions with figures in harmonious groups, historical romanticized genre scenes with aristocratic charm, elegant refined figures in period costumes, subtle texture rendering in luxurious fabrics, soft diffused lighting creating gentle ethereal atmosphere',
+                keywords: ['elegancia romántica', 'líneas precisas', 'paleta pastel', 'composición elegante', 'escenas históricas', 'figuras refinadas', 'texturas lujosas', 'iluminación etérea']
+            },
             'rackham-style': {
-                name: 'Arthur Rackham',
-                prompt: 'Arthur Rackham style illustration, intricate pen and ink linework, delicate watercolor washes, sinuous organic lines, muted earth tones with touches of gold, fairy tale atmosphere, detailed crosshatching, golden age book illustration, mystical folklore',
-                keywords: ['pen and ink', 'watercolor', 'fairy tale', 'crosshatching', 'organic lines']
+                name: 'Arthur Rackham - Cuentos de Hadas',
+                prompt: 'Arthur Rackham style illustration, intricate pen and ink linework, delicate watercolor washes, sinuous organic lines, muted earth tones with touches of gold, fairy tale atmosphere, grotesque and whimsical characters, detailed crosshatching, golden age book illustration, ethereal and mystical, folklore storytelling',
+                keywords: ['pen and ink', 'watercolor', 'fairy tale', 'crosshatching', 'organic lines', 'folklórico', 'etéreo']
             },
             'wrightson-style': {
-                name: 'Bernie Wrightson',
-                prompt: 'Bernie Wrightson style horror illustration, masterful ink work with deep blacks, dramatic chiaroscuro lighting, intricate crosshatching and stippling, gothic horror atmosphere, detailed linework, dramatic shadows and highlights, macabre and atmospheric',
-                keywords: ['horror', 'ink work', 'crosshatching', 'chiaroscuro', 'gothic']
+                name: 'Bernie Wrightson - Horror Gótico',
+                prompt: 'Bernie Wrightson style horror illustration, masterful ink work with deep blacks, dramatic chiaroscuro lighting, intricate crosshatching and stippling, gothic horror atmosphere, detailed linework reminiscent of classic horror comics, dramatic shadows and highlights, black and white with occasional spot color, macabre and atmospheric',
+                keywords: ['horror', 'ink work', 'crosshatching', 'chiaroscuro', 'gothic', 'macabro', 'tinta maestra']
             },
             'moebius-style': {
-                name: 'Moebius',
-                prompt: 'Moebius Jean Giraud style illustration, clean precise linework, ethereal sci-fi landscapes, surreal dreamlike compositions, soft pastel colors with electric blues, floating geometric structures, European comic book style, detailed mechanical and organic forms',
-                keywords: ['moebius', 'sci-fi', 'clean lines', 'surreal', 'geometric']
+                name: 'Moebius (Jean Giraud) - Sci-Fi Etéreo',
+                prompt: 'Moebius Jean Giraud style illustration, clean precise linework, ethereal sci-fi landscapes, surreal dreamlike compositions, soft pastel color palette with electric blues and warm yellows, floating geometric structures, desert and cosmic themes, European comic book style, detailed mechanical and organic forms blended seamlessly',
+                keywords: ['moebius', 'sci-fi', 'clean lines', 'surreal', 'geometric', 'etéreo', 'cósmico']
             },
             'frazetta-style': {
-                name: 'Frank Frazetta',
-                prompt: 'Frank Frazetta style painting, powerful visible brushwork, heroic fantasy themes, dramatic muscle definition, rich warm color palette, dynamic action poses, oil painting technique with impasto effects, barbarian and sword-and-sorcery aesthetic, raw power and energy',
-                keywords: ['frazetta', 'oil painting', 'heroic', 'muscular', 'sword and sorcery']
+                name: 'Frank Frazetta - Fantasía Heroica',
+                prompt: 'Frank Frazetta style painting, powerful visible brushwork with texture, heroic fantasy themes, dramatic muscle definition and idealized anatomy, rich warm color palette dominated by oranges and browns, dynamic action poses, oil painting technique with impasto effects, barbarian and sword-and-sorcery aesthetic, romantic realism with fantastical elements, raw power and visceral energy',
+                keywords: ['frazetta', 'oil painting', 'heroic', 'muscular', 'sword and sorcery', 'bárbaro', 'energía visceral']
             },
             'brom-style': {
-                name: 'Gerald Brom',
-                prompt: 'Gerald Brom style dark fantasy art, rich digital painting technique, gothic and macabre themes, muted desaturated colors with deep browns and reds, detailed character work with emotional intensity, blend of beauty and horror, contemporary dark fantasy aesthetic',
-                keywords: ['brom', 'dark fantasy', 'gothic', 'digital painting', 'macabre']
+                name: 'Gerald Brom - Fantasía Oscura',
+                prompt: 'Gerald Brom style dark fantasy art, rich digital painting technique with visible brushstrokes, gothic and macabre themes, muted desaturated color palette with deep browns reds and bruised purples, detailed character work with emotional intensity, blend of beauty and horror, contemporary dark fantasy aesthetic, painterly digital technique with traditional influences',
+                keywords: ['brom', 'dark fantasy', 'gothic', 'digital painting', 'macabre', 'belleza y horror', 'púrpuras magullados']
             },
             'giger-style': {
-                name: 'H.R. Giger',
-                prompt: 'H.R. Giger biomechanical style, nightmarish fusion of organic and mechanical elements, masterful airbrush technique in monochromatic grays, alien imagery, detailed technical precision, surreal horror aesthetic, xenomorph-inspired, dark industrial Gothic',
-                keywords: ['biomechanical', 'alien', 'airbrush', 'horror', 'technical']
+                name: 'H.R. Giger - Biomecánico',
+                prompt: 'H.R. Giger biomechanical style, nightmarish fusion of organic and mechanical elements, masterful airbrush technique in monochromatic grays and blacks, sexual and alien imagery, detailed technical precision, surreal horror aesthetic, xenomorph-inspired creatures, dark industrial Gothic, meticulous attention to anatomical and mechanical detail',
+                keywords: ['biomechanical', 'alien', 'airbrush', 'horror', 'technical', 'xenomorph', 'gótico industrial']
             },
             'photorealistic': {
                 name: 'Fotorrealista',
