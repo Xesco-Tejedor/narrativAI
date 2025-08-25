@@ -191,7 +191,7 @@ Tens preguntes, suggeriments o necessites ajuda?
 
 * 🐛 **Reportar Bugs:** Obre un *issue* a GitHub.
 * 💡 **Suggerir Característiques:** Discussió a GitHub Discussions.
-* 📧 **Contacte Directe:** [xesco.tejedor@example.com](mailto:xesco.tejedor@example.com)
+* 📧 **Contacte Directe:** [xesco.tejedor@example.com](mailto:xesco.tejedor@gmail.com)
 
 ---
 
