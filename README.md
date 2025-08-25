@@ -12,7 +12,7 @@ Benvingut/da a **narrativAI**! L'eina web definitiva per crear **narratives èpi
 
 No cal instal·lar res. Pots començar a crear les teves narratives èpiques a l'instant accedint a la demo online.
 
-Accedeix a la Demo Online Fent [Clic Aquí](https://xesco-tejedor.github.io/narrativAI/)
+Accedeix a la Demo Online Fent [Clic Aquí](https://xesco-tejedor.github.io/narrativAI/index.html)
 
 *Exemple generat: "peixet de plata" + "biblioteca gegantina" = Narrativa èpica amb imatge cinematogràfica real*
 
