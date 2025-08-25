@@ -547,7 +547,8 @@
                 if (appState.selectedGenres.length < 3) {
                     appState.selectedGenres.push(genreId);
                     genreCard.classList.add('selected');
-                    appState.genreIntensities[genreId] = Math.floor(100 / (appState.selectedGenres.length));
+                    // Inicializar intensidad con un valor seguro
+                    appState.genreIntensities[genreId] = 33;
                 } else {
                     showNotification('⚠️ Ya tienes 3 géneros. Deselecciona uno primero.', 'yellow');
                     return;
@@ -562,24 +563,86 @@
             genreCount.textContent = `${appState.selectedGenres.length}/3`;
         }
         
+        // CORRECCIÓN DE BARRAS DE INTENSIDAD
         function updateGenreIntensityControls() {
             const controlsSection = document.getElementById('genreIntensityControls');
             const slidersContainer = document.getElementById('genreSliders');
+            
             if (appState.selectedGenres.length === 0) {
                 controlsSection.classList.add('hidden');
                 return;
             }
+            
             controlsSection.classList.remove('hidden');
             slidersContainer.innerHTML = '';
-            // Inicializar intensidades para que sumen 100
-            const baseValue = Math.floor(100 / appState.selectedGenres.length);
-            const remainder = 100 - (baseValue * appState.selectedGenres.length);
-            appState.selectedGenres.forEach((genreId, index) => {
-                appState.genreIntensities[genreId] = baseValue + (index < remainder ? 1 : 0);
-            });
+            
+            // CORRECCIÓN: Asegurar que la suma total sea 100%
+            let totalIntensity = 0;
+            const validGenres = [];
+            
+            // Primero calcular el total y validar los valores existentes
             appState.selectedGenres.forEach(genreId => {
+                let intensity = appState.genreIntensities[genreId] || 0;
+                
+                // Validar que el valor esté en rango
+                if (intensity < 1) intensity = 1;
+                if (intensity > 98) intensity = 98;
+                
+                appState.genreIntensities[genreId] = intensity;
+                totalIntensity += intensity;
+                validGenres.push(genreId);
+            });
+            
+            // Si no hay géneros válidos, inicializar con distribución equitativa
+            if (validGenres.length === 0) {
+                const baseValue = Math.floor(100 / appState.selectedGenres.length);
+                let remainder = 100 - (baseValue * appState.selectedGenres.length);
+                
+                appState.selectedGenres.forEach((genreId, index) => {
+                    const value = baseValue + (index < remainder ? 1 : 0);
+                    appState.genreIntensities[genreId] = value;
+                    totalIntensity += value;
+                    validGenres.push(genreId);
+                });
+            }
+            
+            // Ajustar si la suma no es 100
+            if (totalIntensity !== 100 && validGenres.length > 0) {
+                const adjustment = 100 - totalIntensity;
+                let genresToUpdate = [...validGenres];
+                
+                // Distribuir el ajuste proporcionalmente
+                while (adjustment !== 0 && genresToUpdate.length > 0) {
+                    const genreId = genresToUpdate.shift();
+                    const currentValue = appState.genreIntensities[genreId];
+                    
+                    if (adjustment > 0 && currentValue < 98) {
+                        appState.genreIntensities[genreId] = currentValue + 1;
+                        adjustment--;
+                    } else if (adjustment < 0 && currentValue > 2) {
+                        appState.genreIntensities[genreId] = currentValue - 1;
+                        adjustment++;
+                    }
+                }
+                
+                // Si aún hay ajuste pendiente, redistribuir
+                if (adjustment !== 0) {
+                    validGenres.forEach(genreId => {
+                        const currentValue = appState.genreIntensities[genreId];
+                        const newValue = currentValue + Math.round(adjustment / validGenres.length);
+                        
+                        if (newValue >= 1 && newValue <= 98) {
+                            appState.genreIntensities[genreId] = newValue;
+                        }
+                    });
+                }
+            }
+            
+            // Generar los sliders
+            validGenres.forEach(genreId => {
                 const genre = genres[genreId];
                 const intensity = appState.genreIntensities[genreId];
+                
                 const sliderHtml = `
                     <div class="bg-gray-800/50 rounded-lg p-4 border border-gray-600">
                         <div class="flex items-center justify-between mb-2">
@@ -602,6 +665,7 @@
                 `;
                 slidersContainer.innerHTML += sliderHtml;
             });
+            
             updateTotalIndicator();
         }
         
@@ -619,27 +683,49 @@
         window.updateGenreIntensity = function(genreId, value) {
             const newValue = parseInt(value);
             appState.genreIntensities[genreId] = newValue;
+            
             const otherGenres = appState.selectedGenres.filter(id => id !== genreId);
             if (otherGenres.length > 0) {
                 let otherTotal = otherGenres.reduce((sum, id) => sum + (appState.genreIntensities[id] || 0), 0);
                 const targetOtherTotal = 100 - newValue;
+                
                 if (targetOtherTotal > 0 && otherTotal > 0) {
                     const ratio = targetOtherTotal / otherTotal;
+                    let adjustment = 0;
+                    let adjustedTotal = 0;
+                    
+                    // Primero ajustar proporcionalmente
                     otherGenres.forEach(id => {
                         const currentValue = appState.genreIntensities[id] || 0;
                         const adjustedValue = Math.max(1, Math.round(currentValue * ratio));
                         appState.genreIntensities[id] = adjustedValue;
-                        const slider = document.getElementById(`intensity-${id}`);
-                        const valueSpan = document.getElementById(`intensity-value-${id}`);
-                        if (slider) slider.value = adjustedValue;
-                        if (valueSpan) valueSpan.textContent = `${adjustedValue}%`;
+                        adjustedTotal += adjustedValue;
                     });
+                    
+                    // Ajustar cualquier diferencia restante
+                    const diff = targetOtherTotal - adjustedTotal;
+                    if (diff !== 0 && otherGenres.length > 0) {
+                        const index = Math.floor(Math.random() * otherGenres.length);
+                        const id = otherGenres[index];
+                        const currentValue = appState.genreIntensities[id];
+                        
+                        if (diff > 0 && currentValue < 98) {
+                            appState.genreIntensities[id] = currentValue + diff;
+                        } else if (diff < 0 && currentValue > 2) {
+                            appState.genreIntensities[id] = currentValue + diff;
+                        }
+                    }
                 }
             }
-            const valueSpan = document.getElementById(`intensity-value-${genreId}`);
-            if (valueSpan) {
-                valueSpan.textContent = `${newValue}%`;
-            }
+            
+            // Actualizar visualmente
+            appState.selectedGenres.forEach(id => {
+                const slider = document.getElementById(`intensity-${id}`);
+                const valueSpan = document.getElementById(`intensity-value-${id}`);
+                if (slider) slider.value = appState.genreIntensities[id] || 33;
+                if (valueSpan) valueSpan.textContent = `${appState.genreIntensities[id] || 33}%`;
+            });
+            
             updateTotalIndicator();
         };
         
@@ -762,54 +848,6 @@
             const finalPrompt = promptParts.join(', ');
             console.log(`🎨 PROMPT FINAL CON ESTILO "${styleData.name}":`, finalPrompt);
             return finalPrompt;
-        }
-        
-        // Intentar generación directa de imagen con API real
-        async function tryImageGeneration(apiConfig, prompt) {
-            return new Promise((resolve, reject) => {
-                const startTime = Date.now();
-                const timeout = apiConfig.timeout || 30000; // 30 segundos timeout generoso
-                console.log(`🚀 Intentando ${apiConfig.name} con timeout de ${timeout}ms`);
-                console.log(`🔗 URL: ${apiConfig.url}`);
-                const timeoutId = setTimeout(() => {
-                    console.warn(`⏰ Timeout alcanzado en ${apiConfig.name} después de ${timeout}ms`);
-                    reject(new Error(`Timeout después de ${timeout}ms`));
-                }, timeout);
-                const img = new Image();
-                img.onload = function() {
-                    clearTimeout(timeoutId);
-                    const loadTime = Date.now() - startTime;
-                    const width = this.naturalWidth || this.width;
-                    const height = this.naturalHeight || this.height;
-                    console.log(`✅ ¡IMAGEN REAL CARGADA EN ${apiConfig.name}!`);
-                    console.log(`📐 Dimensiones: ${width}x${height}`);
-                    console.log(`⏱️ Tiempo: ${loadTime}ms`);
-                    if (width > 50 && height > 50) {
-                        resolve({
-                            url: apiConfig.url,
-                            width: width,
-                            height: height,
-                            loadTime: loadTime,
-                            isValid: true,
-                            isRealAI: true,
-                            apiName: apiConfig.name
-                        });
-                    } else {
-                        reject(new Error(`Imagen muy pequeña: ${width}x${height}`));
-                    }
-                };
-                img.onerror = function(error) {
-                    clearTimeout(timeoutId);
-                    console.warn(`❌ Error en ${apiConfig.name}:`, error);
-                    reject(new Error(`Error de carga: ${error.type || 'desconocido'}`));
-                };
-                try {
-                    img.src = apiConfig.url;
-                } catch (srcError) {
-                    clearTimeout(timeoutId);
-                    reject(new Error(`Error configurando imagen: ${srcError.message}`));
-                }
-            });
         }
         
         // Generar con OpenRouter
@@ -954,6 +992,54 @@
             
             // Si llegamos aquí, todas las APIs de Pollinations fallaron
             throw new Error('Todas las APIs de Pollinations fallaron');
+        }
+        
+        // Intentar generación directa de imagen con API real
+        async function tryImageGeneration(apiConfig, prompt) {
+            return new Promise((resolve, reject) => {
+                const startTime = Date.now();
+                const timeout = apiConfig.timeout || 30000; // 30 segundos timeout generoso
+                console.log(`🚀 Intentando ${apiConfig.name} con timeout de ${timeout}ms`);
+                console.log(`🔗 URL: ${apiConfig.url}`);
+                const timeoutId = setTimeout(() => {
+                    console.warn(`⏰ Timeout alcanzado en ${apiConfig.name} después de ${timeout}ms`);
+                    reject(new Error(`Timeout después de ${timeout}ms`));
+                }, timeout);
+                const img = new Image();
+                img.onload = function() {
+                    clearTimeout(timeoutId);
+                    const loadTime = Date.now() - startTime;
+                    const width = this.naturalWidth || this.width;
+                    const height = this.naturalHeight || this.height;
+                    console.log(`✅ ¡IMAGEN REAL CARGADA EN ${apiConfig.name}!`);
+                    console.log(`📐 Dimensiones: ${width}x${height}`);
+                    console.log(`⏱️ Tiempo: ${loadTime}ms`);
+                    if (width > 50 && height > 50) {
+                        resolve({
+                            url: apiConfig.url,
+                            width: width,
+                            height: height,
+                            loadTime: loadTime,
+                            isValid: true,
+                            isRealAI: true,
+                            apiName: apiConfig.name
+                        });
+                    } else {
+                        reject(new Error(`Imagen muy pequeña: ${width}x${height}`));
+                    }
+                };
+                img.onerror = function(error) {
+                    clearTimeout(timeoutId);
+                    console.warn(`❌ Error en ${apiConfig.name}:`, error);
+                    reject(new Error(`Error de carga: ${error.type || 'desconocido'}`));
+                };
+                try {
+                    img.src = apiConfig.url;
+                } catch (srcError) {
+                    clearTimeout(timeoutId);
+                    reject(new Error(`Error configurando imagen: ${srcError.message}`));
+                }
+            });
         }
         
         // FUNCIÓN PRINCIPAL DE GENERACIÓN - ACTUALIZADA CON OPENROUTER
